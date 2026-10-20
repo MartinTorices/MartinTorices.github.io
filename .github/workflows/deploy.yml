@@ -1,0 +1,33 @@
+name: Publicar en GitHub Pages
+
+on:
+  # Se publica sola cada vez que se suben cambios a la rama main
+  push:
+    branches: [main]
+  # También se puede lanzar a mano desde la pestaña Actions
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar el repositorio
+        uses: actions/checkout@v7
+      - name: Instalar, compilar y subir la web
+        uses: withastro/action@v6
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Publicar en GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5

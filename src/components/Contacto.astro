@@ -1,0 +1,86 @@
+---
+import { persona } from '../config';
+import { t, type Lang } from '../i18n';
+import Icono from './Icono.astro';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const tx = t(lang);
+// Las partes del teléfono se guardan al revés en el HTML y se montan al pulsar.
+const codificado = [persona.telefono.prefijo, ...persona.telefono.partes].join('-').split('').reverse().join('');
+const linkedinTexto = persona.linkedin.replace(/^https?:\/\/(www\.)?/, '');
+---
+
+<section class="seccion" id="contacto" aria-labelledby="contacto-t">
+  <div class="contenedor">
+    <h2 id="contacto-t">{tx.contactoTitulo}</h2>
+    <p class="entradilla">{tx.contactoIntro}</p>
+
+    <table class="cajetin contacto">
+      <tbody>
+        <tr>
+          <th scope="row">{tx.correo}</th>
+          <td><a href={`mailto:${persona.correo}`}><Icono nombre="correo" />{persona.correo}</a></td>
+        </tr>
+        <tr>
+          <th scope="row">LinkedIn</th>
+          <td><a href={persona.linkedin} rel="me noopener" target="_blank"><Icono nombre="linkedin" />{linkedinTexto}</a></td>
+        </tr>
+        <tr>
+          <th scope="row">{tx.telefono}</th>
+          <td>
+            <div class="botones" data-t={codificado}>
+              <a class="boton" href="#contacto" data-accion="llamar"><Icono nombre="telefono" />{tx.llamar}</a>
+              <a class="boton" href="#contacto" data-accion="whatsapp" target="_blank" rel="noopener"><Icono nombre="whatsapp" />{tx.whatsapp}</a>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<script>
+  // Monta el número solo cuando alguien pulsa o enfoca un botón.
+  document.querySelectorAll<HTMLElement>('[data-t]').forEach((caja) => {
+    const montar = () => {
+      const [prefijo, ...partes] = (caja.dataset.t ?? '').split('').reverse().join('').split('-');
+      const numero = partes.join('');
+      caja.querySelector<HTMLAnchorElement>('[data-accion="llamar"]')!.href = `tel:+${prefijo}${numero}`;
+      caja.querySelector<HTMLAnchorElement>('[data-accion="whatsapp"]')!.href = `https://wa.me/${prefijo}${numero}`;
+    };
+    caja.addEventListener('pointerdown', montar, { once: true });
+    caja.addEventListener('focusin', montar, { once: true });
+    caja.addEventListener('touchstart', montar, { once: true, passive: true });
+  });
+</script>
+
+<style>
+  .contacto {
+    width: min(100%, 44rem);
+  }
+  .contacto td a:not(.boton) {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5em;
+    overflow-wrap: anywhere;
+  }
+  .contacto td :global(svg) {
+    width: 1.15em;
+    height: 1.15em;
+    flex: none;
+  }
+  .botones {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .contacto th {
+    width: 7.5rem;
+  }
+  @media (max-width: 34rem) {
+    .contacto th {
+      width: 1%;
+    }
+  }
+</style>

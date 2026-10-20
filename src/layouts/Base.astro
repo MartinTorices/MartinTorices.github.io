@@ -1,0 +1,152 @@
+---
+import '../styles/global.css';
+import { persona } from '../config';
+import { t, rutas, type Lang } from '../i18n';
+
+interface Props {
+  lang: Lang;
+  titulo?: string;
+  descripcion: string;
+  // dirección de esta misma página en el otro idioma
+  alternativa: string;
+  imagen?: string;
+}
+
+const { lang, titulo, descripcion, alternativa, imagen } = Astro.props;
+const tx = t(lang);
+const otro: Lang = lang === 'es' ? 'en' : 'es';
+const tituloCompleto = titulo ? `${titulo} | ${persona.nombreCorto}` : `${persona.nombre} | ${tx.tagline}`;
+const inicio = rutas.inicio(lang);
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const urlAlternativa = new URL(alternativa, Astro.site);
+const og = imagen ? new URL(imagen, Astro.site) : undefined;
+---
+
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{tituloCompleto}</title>
+    <meta name="description" content={descripcion} />
+    <meta name="author" content={persona.nombre} />
+    <link rel="canonical" href={canonical} />
+    <link rel="alternate" hreflang={lang} href={canonical} />
+    <link rel="alternate" hreflang={otro} href={urlAlternativa} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={tituloCompleto} />
+    <meta property="og:description" content={descripcion} />
+    <meta property="og:url" content={canonical} />
+    {og && <meta property="og:image" content={og} />}
+    <meta name="theme-color" content="#eef1f0" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#12306b" media="(prefers-color-scheme: dark)" />
+  </head>
+  <body>
+    <a class="salto" href="#contenido">{lang === 'es' ? 'Saltar al contenido' : 'Skip to content'}</a>
+
+    <header class="cabecera">
+      <div class="contenedor cabecera__fila">
+        <a class="marca" href={inicio}>{persona.nombreCorto}</a>
+        <nav aria-label={lang === 'es' ? 'Principal' : 'Main'}>
+          <ul>
+            <li><a href={`${inicio}#proyectos`}>{tx.navProyectos}</a></li>
+            <li><a href={`${inicio}#sobre-mi`}>{tx.navSobreMi}</a></li>
+            <li><a href={`${inicio}#contacto`}>{tx.navContacto}</a></li>
+            <li>
+              <a class="idioma" href={alternativa} hreflang={otro} lang={otro} title={tx.cambiarIdioma}>
+                <span aria-hidden="true">{tx.cambiarIdiomaCorto}</span>
+                <span class="sr">{tx.cambiarIdioma}</span>
+              </a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <main id="contenido">
+      <slot />
+    </main>
+
+    <footer class="pie">
+      <div class="contenedor pie__fila">
+        <span>© {new Date().getFullYear()} {persona.nombre}</span>
+        <span class="nota">{tx.pie}</span>
+      </div>
+    </footer>
+  </body>
+</html>
+
+<style>
+  .cabecera {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    background: color-mix(in srgb, var(--papel) 88%, transparent);
+    backdrop-filter: blur(6px);
+    border-bottom: var(--trazo) solid var(--linea);
+  }
+  .cabecera__fila {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    min-height: 3.5rem;
+  }
+  .marca {
+    color: var(--tinta);
+    text-decoration: none;
+    font-weight: 750;
+    font-stretch: 118%;
+    white-space: nowrap;
+  }
+  nav ul {
+    display: flex;
+    gap: clamp(0.75rem, 2.5vw, 2rem);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    align-items: center;
+  }
+  nav a {
+    color: var(--tinta);
+    text-decoration: none;
+    font-stretch: 92%;
+    font-weight: 500;
+  }
+  nav a:hover {
+    color: var(--azul);
+    text-decoration: underline;
+  }
+  .idioma {
+    border: var(--trazo) solid var(--tinta);
+    padding: 0.15em 0.5em;
+    font-weight: 650;
+  }
+  .sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+  }
+  @media (max-width: 34rem) {
+    .marca {
+      display: none;
+    }
+    .cabecera__fila {
+      justify-content: flex-end;
+    }
+  }
+  .pie {
+    border-top: var(--trazo) solid var(--linea);
+    padding-block: 2rem;
+  }
+  .pie__fila {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.5rem 2rem;
+    font-size: var(--t-0);
+  }
+</style>

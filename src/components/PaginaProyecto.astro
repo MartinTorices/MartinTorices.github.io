@@ -1,0 +1,169 @@
+---
+import { Image } from 'astro:assets';
+import { render } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import Visor3D from './Visor3D.astro';
+import Icono from './Icono.astro';
+import type { Proyecto } from '../proyectos';
+import { t, rutas, type Lang } from '../i18n';
+
+interface Props {
+  proyecto: Proyecto;
+  lang: Lang;
+  siguiente?: Proyecto;
+}
+const { proyecto, lang, siguiente } = Astro.props;
+const { data } = proyecto;
+const tx = t(lang);
+const otro: Lang = lang === 'es' ? 'en' : 'es';
+const { Content } = await render(proyecto);
+---
+
+<Base
+  lang={lang}
+  titulo={data.titulo}
+  descripcion={data.resumen}
+  alternativa={rutas.proyecto(otro, proyecto.slug)}
+  imagen={data.portada.src}
+>
+  <article class="proyecto">
+    <header class="contenedor cabeza">
+      <a class="volver" href={`${rutas.inicio(lang)}#proyectos`}><Icono nombre="flecha-izq" />{tx.volver}</a>
+      <h1>{data.titulo}</h1>
+      <p class="entradilla">{data.resumen}</p>
+      <table class="cajetin datos">
+        <tbody>
+          <tr><th scope="row">{tx.anio}</th><td>{data.anio}</td></tr>
+          {data.contexto && <tr><th scope="row">{tx.contexto}</th><td>{data.contexto}</td></tr>}
+          {data.herramientas.length > 0 && (
+            <tr><th scope="row">{tx.herramientas}</th><td>{data.herramientas.join(', ')}</td></tr>
+          )}
+        </tbody>
+      </table>
+    </header>
+
+    <div class="contenedor medios">
+      {data.modelo ? (
+        <Visor3D src={data.modelo} alt={data.portadaAlt} lang={lang} />
+      ) : (
+        <Image src={data.portada} alt={data.portadaAlt} widths={[800, 1400, 2000]} sizes="100vw" loading="eager" class="portada" />
+      )}
+    </div>
+
+    <div class="contenedor cuerpo">
+      <Content />
+    </div>
+
+    {siguiente && (
+      <nav class="contenedor siguiente" aria-label={tx.siguiente}>
+        <span class="nota">{tx.siguiente}</span>
+        <a href={rutas.proyecto(lang, siguiente.slug)}>{siguiente.data.titulo}</a>
+      </nav>
+    )}
+  </article>
+</Base>
+
+<style>
+  .cabeza {
+    padding-block: clamp(2rem, 6vw, 4rem) 2rem;
+    display: grid;
+    gap: 1.25rem;
+  }
+  .volver {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4em;
+    width: fit-content;
+    font-stretch: 92%;
+  }
+  .volver :global(svg) {
+    width: 1.1em;
+    height: 1.1em;
+  }
+  h1 {
+    font-size: clamp(2.5rem, 7vw, 5.5rem);
+    font-stretch: 125%;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 0.95;
+    max-width: 18ch;
+  }
+  .entradilla {
+    margin-bottom: 0.5rem;
+  }
+  .datos {
+    width: min(100%, 36rem);
+  }
+  .medios {
+    padding-bottom: clamp(2rem, 6vw, 4rem);
+  }
+  .medios :global(.portada) {
+    width: 100%;
+    border: var(--trazo-grueso) solid var(--tinta);
+  }
+
+  /* Cuerpo del caso de estudio: cada ## es una fase numerada */
+  .cuerpo {
+    counter-reset: fase;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    max-width: calc(46rem + 2 * var(--gutter));
+    margin-inline: auto;
+    padding-bottom: clamp(3rem, 8vw, 6rem);
+  }
+  .cuerpo :global(h2) {
+    counter-increment: fase;
+    font-size: var(--t-4);
+    margin: 3.5rem 0 1rem;
+    padding-top: 1rem;
+    border-top: var(--trazo-grueso) solid var(--tinta);
+    display: flex;
+    gap: 0.6em;
+    align-items: baseline;
+  }
+  .cuerpo :global(h2)::before {
+    content: counter(fase);
+    color: var(--azul);
+    font-weight: 300;
+  }
+  .cuerpo :global(h3) {
+    font-size: var(--t-3);
+    margin: 2rem 0 0.75rem;
+  }
+  .cuerpo :global(p),
+  .cuerpo :global(li) {
+    font-size: var(--t-2);
+    line-height: 1.6;
+  }
+  .cuerpo :global(img) {
+    width: 100%;
+    border: var(--trazo) solid var(--tinta);
+    margin-block: 1.5rem 0.5rem;
+  }
+  .cuerpo :global(ul),
+  .cuerpo :global(ol) {
+    padding-left: 1.25em;
+    margin: 0 0 1em;
+  }
+  .cuerpo :global(blockquote) {
+    margin: 2rem 0;
+    padding-left: 1.25rem;
+    border-left: var(--trazo-grueso) solid var(--revision);
+    font-size: var(--t-3);
+    font-weight: 500;
+  }
+
+  .siguiente {
+    border-top: var(--trazo) solid var(--linea);
+    padding-block: 2.5rem 3.5rem;
+    display: grid;
+    gap: 0.25rem;
+  }
+  .siguiente a {
+    font-size: var(--t-4);
+    font-weight: 750;
+    font-stretch: 118%;
+    line-height: 1.1;
+    width: fit-content;
+  }
+</style>

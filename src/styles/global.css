@@ -1,0 +1,229 @@
+/* ============================================================
+   ESTILO GLOBAL — porfolio de Martín Torices
+   Concepto: hoja de plano técnico. Papel de dibujo frío,
+   tinta azul-negra, azul de plano y un rojo de revisión.
+   En modo oscuro la web se convierte en una cianotipia.
+   ============================================================ */
+
+@import '@fontsource-variable/archivo/wdth.css';
+
+:root {
+  /* Paleta */
+  --papel: #eef1f0;        /* fondo, papel de dibujo */
+  --papel-2: #e3e8e7;      /* superficies ligeramente hundidas */
+  --tinta: #18212c;        /* texto principal */
+  --tinta-suave: #4a5866;  /* texto secundario */
+  --linea: #b9c4c8;        /* líneas finas, bordes */
+  --rejilla: rgba(36, 67, 184, 0.06); /* papel milimetrado */
+  --azul: #2443b8;         /* azul de plano: enlaces y cotas */
+  --revision: #c8401a;     /* marcas de revisión, foco */
+
+  /* Tipografía: una sola familia, Archivo, jugando con su anchura */
+  --fuente: 'Archivo Variable', 'Archivo', system-ui, sans-serif;
+  --t-0: 0.8125rem;  /* 13 px  notas */
+  --t-1: 1rem;       /* 16 px  texto */
+  --t-2: 1.1875rem;  /* 19 px  entradillas */
+  --t-3: 1.5rem;     /* 24 px  subtítulos */
+  --t-4: 2.25rem;    /* 36 px  títulos de sección */
+  --t-5: clamp(2.75rem, 8.5vw, 7.5rem); /* nombre */
+
+  /* Medidas */
+  --gutter: clamp(1rem, 4vw, 3rem);
+  --ancho: 76rem;
+  --trazo: 1px;
+  --trazo-grueso: 2px;
+
+  color-scheme: light;
+}
+
+/* Modo oscuro: cianotipia */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --papel: #12306b;
+    --papel-2: #0e2858;
+    --tinta: #eef3fb;
+    --tinta-suave: #b4c3de;
+    --linea: rgba(238, 243, 251, 0.32);
+    --rejilla: rgba(238, 243, 251, 0.055);
+    --azul: #ffffff;
+    --revision: #ffb648;
+    color-scheme: dark;
+  }
+}
+:root[data-theme='dark'] {
+  --papel: #12306b;
+  --papel-2: #0e2858;
+  --tinta: #eef3fb;
+  --tinta-suave: #b4c3de;
+  --linea: rgba(238, 243, 251, 0.32);
+  --rejilla: rgba(238, 243, 251, 0.055);
+  --azul: #ffffff;
+  --revision: #ffb648;
+  color-scheme: dark;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+}
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+body {
+  margin: 0;
+  background-color: var(--papel);
+  /* papel milimetrado: retícula de 8 px y de 40 px */
+  background-image:
+    linear-gradient(var(--rejilla) 1px, transparent 1px),
+    linear-gradient(90deg, var(--rejilla) 1px, transparent 1px),
+    linear-gradient(var(--rejilla) 1px, transparent 1px),
+    linear-gradient(90deg, var(--rejilla) 1px, transparent 1px);
+  background-size: 40px 40px, 40px 40px, 8px 8px, 8px 8px;
+  color: var(--tinta);
+  font-family: var(--fuente);
+  font-size: var(--t-1);
+  line-height: 1.55;
+  font-stretch: 100%;
+  overflow-x: hidden;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+a {
+  color: var(--azul);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+}
+a:hover {
+  text-decoration-thickness: 2px;
+}
+
+:focus-visible {
+  outline: 2px solid var(--revision);
+  outline-offset: 3px;
+}
+
+h1,
+h2,
+h3 {
+  font-stretch: 118%;
+  line-height: 1.05;
+  font-weight: 750;
+  letter-spacing: -0.01em;
+  margin: 0;
+  text-wrap: balance;
+}
+
+p {
+  margin: 0 0 1em;
+  max-width: 64ch;
+  text-wrap: pretty;
+}
+
+.contenedor {
+  width: 100%;
+  max-width: var(--ancho);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.salto {
+  position: absolute;
+  left: -999px;
+}
+.salto:focus {
+  left: var(--gutter);
+  top: 0.5rem;
+  z-index: 10;
+  background: var(--papel);
+  padding: 0.5rem 1rem;
+}
+
+/* Texto condensado para notas y datos */
+.nota {
+  font-size: var(--t-0);
+  font-stretch: 80%;
+  color: var(--tinta-suave);
+  letter-spacing: 0.01em;
+}
+
+/* Botones */
+.boton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  padding: 0.6em 1.1em;
+  border: var(--trazo) solid var(--tinta);
+  background: transparent;
+  color: var(--tinta);
+  font: inherit;
+  font-stretch: 105%;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  border-radius: 0;
+}
+.boton:hover {
+  background: var(--tinta);
+  color: var(--papel);
+}
+.boton svg {
+  width: 1.1em;
+  height: 1.1em;
+  flex: none;
+}
+
+/* Cajetín: tabla con aspecto de bloque de título de plano */
+.cajetin {
+  border: var(--trazo-grueso) solid var(--tinta);
+  border-collapse: collapse;
+  background: var(--papel);
+  font-size: var(--t-0);
+}
+.cajetin th,
+.cajetin td {
+  border: var(--trazo) solid var(--tinta);
+  padding: 0.45rem 0.7rem;
+  text-align: left;
+  vertical-align: top;
+}
+.cajetin th {
+  font-weight: 500;
+  font-stretch: 78%;
+  color: var(--tinta-suave);
+  white-space: nowrap;
+  width: 1%;
+}
+.cajetin td {
+  font-size: var(--t-1);
+  font-weight: 600;
+  font-stretch: 100%;
+}
+
+/* Secciones de la página de inicio */
+.seccion {
+  padding-block: clamp(4rem, 10vw, 8rem);
+  border-top: var(--trazo) solid var(--linea);
+}
+.seccion > .contenedor > h2 {
+  font-size: var(--t-4);
+  margin-bottom: 1rem;
+}
+.entradilla {
+  font-size: var(--t-2);
+  color: var(--tinta-suave);
+  margin-bottom: 2.5rem;
+}

@@ -1,0 +1,104 @@
+---
+import { Image } from 'astro:assets';
+import type { Proyecto } from '../proyectos';
+import { rutas } from '../i18n';
+
+interface Props {
+  proyecto: Proyecto;
+  prioridad?: boolean;
+}
+const { proyecto, prioridad = false } = Astro.props;
+const { data } = proyecto;
+const href = rutas.proyecto(proyecto.lang, proyecto.slug);
+---
+
+<article class="tarjeta">
+  <a href={href} class="tarjeta__enlace">
+    <div class="tarjeta__imagen">
+      <Image
+        src={data.portada}
+        alt={data.portadaAlt}
+        widths={[480, 800, 1200]}
+        sizes="(max-width: 48rem) 100vw, 50vw"
+        loading={prioridad ? 'eager' : 'lazy'}
+      />
+    </div>
+    <div class="tarjeta__texto">
+      <h3>{data.titulo}</h3>
+      <p>{data.resumen}</p>
+    </div>
+  </a>
+  <dl class="tarjeta__datos nota">
+    <div><dt class="sr">Año</dt><dd>{data.anio}</dd></div>
+    {data.contexto && <div><dt class="sr">Contexto</dt><dd>{data.contexto}</dd></div>}
+    {data.modelo && <div><dt class="sr">3D</dt><dd class="con-3d">3D</dd></div>}
+  </dl>
+</article>
+
+<style>
+  .tarjeta {
+    display: grid;
+    gap: 0.75rem;
+    align-content: start;
+  }
+  .tarjeta__enlace {
+    color: inherit;
+    text-decoration: none;
+    display: grid;
+    gap: 1rem;
+  }
+  .tarjeta__imagen {
+    border: var(--trazo) solid var(--tinta);
+    padding: 6px;
+    background: var(--papel);
+    aspect-ratio: 4 / 3;
+  }
+  .tarjeta__imagen :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    background: var(--papel-2);
+  }
+  .tarjeta__enlace:hover .tarjeta__imagen,
+  .tarjeta__enlace:focus-visible .tarjeta__imagen {
+    border-color: var(--azul);
+    outline: var(--trazo) solid var(--azul);
+  }
+  .tarjeta__enlace:hover h3 {
+    color: var(--azul);
+  }
+  h3 {
+    font-size: var(--t-3);
+    margin-bottom: 0.4rem;
+  }
+  .tarjeta__texto p {
+    margin: 0;
+    color: var(--tinta-suave);
+  }
+  .tarjeta__datos {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin: 0;
+  }
+  .tarjeta__datos div {
+    display: contents;
+  }
+  .tarjeta__datos dd {
+    margin: 0;
+    border: var(--trazo) solid var(--linea);
+    padding: 0.1rem 0.5rem;
+  }
+  .tarjeta__datos .con-3d {
+    border-color: var(--azul);
+    color: var(--azul);
+    font-weight: 650;
+  }
+  .sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+  }
+</style>

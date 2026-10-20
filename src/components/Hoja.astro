@@ -1,0 +1,157 @@
+---
+// Portada: la página de inicio como una hoja de plano.
+// El nombre va acotado y abajo a la derecha está el cajetín.
+import { persona, estudios } from '../config';
+import { t, type Lang } from '../i18n';
+
+interface Props {
+  lang: Lang;
+  numProyectos: number;
+}
+const { lang, numProyectos } = Astro.props;
+const tx = t(lang);
+const est = estudios[lang];
+const [nombre1, ...resto] = persona.nombre.split(' ');
+const linea1 = `${nombre1} ${resto[0]}`;
+const linea2 = resto.slice(1).join(' ');
+---
+
+<section class="hoja contenedor" aria-labelledby="nombre">
+  <div class="marco">
+    <div class="titular">
+      <div class="cota" aria-hidden="true">
+        <svg class="cota__flecha cota__flecha--izq" viewBox="0 0 14 8"><path d="M0 4 14 0v8z" /></svg>
+        <span class="cota__texto">{tx.tagline}</span>
+        <svg class="cota__flecha cota__flecha--der" viewBox="0 0 14 8"><path d="M14 4 0 0v8z" /></svg>
+      </div>
+      <h1 id="nombre">
+        <span>{linea1}</span>
+        <span>{linea2}</span>
+      </h1>
+      <p class="sr-lema">{tx.tagline}</p>
+    </div>
+
+    <table class="cajetin">
+      <tbody>
+        <tr><th scope="row">{tx.cajetinAutor}</th><td colspan="3">{persona.nombre}</td></tr>
+        <tr><th scope="row">{tx.cajetinTitulacion}</th><td colspan="3">{est.titulacion}</td></tr>
+        <tr><th scope="row">{tx.cajetinCentro}</th><td colspan="3">{est.centro}</td></tr>
+        <tr>
+          <th scope="row">{tx.cajetinCurso}</th><td>{est.curso}</td>
+          <th scope="row">{tx.cajetinHojas}</th><td>{numProyectos}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<style>
+  .hoja {
+    padding-block: clamp(1.5rem, 4vw, 3rem) clamp(3rem, 6vw, 5rem);
+  }
+  /* Marco de plano: línea exterior fina y línea interior gruesa */
+  .marco {
+    position: relative;
+    border: var(--trazo-grueso) solid var(--tinta);
+    outline: var(--trazo) solid var(--tinta);
+    outline-offset: 6px;
+    margin: 7px;
+    padding: clamp(1.5rem, 5vw, 4.5rem) clamp(1rem, 4vw, 3.5rem) clamp(1rem, 3vw, 2rem);
+    display: grid;
+    gap: clamp(3rem, 8vw, 6rem);
+    min-height: min(78vh, 46rem);
+    align-content: space-between;
+  }
+  .titular {
+    width: fit-content;
+    max-width: 100%;
+  }
+  h1 {
+    font-size: var(--t-5);
+    font-stretch: 125%;
+    font-weight: 800;
+    line-height: 0.92;
+    letter-spacing: -0.035em;
+  }
+  h1 span {
+    display: block;
+  }
+  h1 span + span {
+    color: var(--azul);
+    font-weight: 300;
+  }
+
+  /* Cota con líneas de referencia y flechas, tal como en un plano */
+  .cota {
+    position: relative;
+    height: 2.4rem;
+    margin-bottom: 1rem;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    color: var(--azul);
+  }
+  .cota::before {
+    /* línea de cota con flechas en los extremos */
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 1.55rem;
+    height: 1px;
+    background: currentColor;
+  }
+  .cota__flecha {
+    position: absolute;
+    top: calc(1.55rem - 4px);
+    width: 14px;
+    height: 8px;
+    fill: currentColor;
+  }
+  .cota__flecha--izq {
+    left: 0;
+  }
+  .cota__flecha--der {
+    right: 0;
+  }
+  .cota::after {
+    /* líneas de referencia verticales */
+    content: '';
+    position: absolute;
+    inset: 0.6rem 0 -1rem;
+    border-inline: 1px solid currentColor;
+    opacity: 0.7;
+  }
+  .cota__texto {
+    position: relative;
+    z-index: 1;
+    background: var(--papel);
+    padding: 0 0.6em;
+    font-size: var(--t-0);
+    font-stretch: 80%;
+    font-weight: 500;
+    line-height: 1.2;
+    text-align: center;
+  }
+  .sr-lema {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+  }
+
+  .cajetin {
+    justify-self: end;
+    width: min(100%, 34rem);
+  }
+
+  @media (max-width: 40rem) {
+    .marco {
+      min-height: auto;
+    }
+    .cajetin {
+      justify-self: stretch;
+    }
+  }
+</style>

@@ -1,0 +1,131 @@
+---
+// Visor 3D interactivo (model-viewer de Google).
+// Uso: <Visor3D src="/modelos/mi-pieza.glb" alt="..." lang="es" />
+import { t, type Lang } from '../i18n';
+import Icono from './Icono.astro';
+
+interface Props {
+  src: string;
+  alt: string;
+  lang: Lang;
+  poster?: string;
+}
+const { src, alt, lang, poster } = Astro.props;
+const tx = t(lang);
+---
+
+<figure class="visor" data-visor>
+  <div class="visor__marco">
+    <model-viewer
+      src={src}
+      alt={alt}
+      poster={poster}
+      camera-controls
+      touch-action="pan-y"
+      auto-rotate
+      auto-rotate-delay="1500"
+      rotation-per-second="18deg"
+      interaction-prompt="none"
+      shadow-intensity="0.6"
+      shadow-softness="0.9"
+      exposure="1.05"
+      tone-mapping="neutral"
+      environment-image="neutral"
+      ar
+      ar-modes="webxr scene-viewer quick-look"
+    >
+      <div slot="progress-bar" class="visor__carga nota">{tx.vista3dCargando}</div>
+      <button slot="ar-button" class="boton visor__ar">{tx.verEnAR}</button>
+    </model-viewer>
+    <button class="boton visor__pantalla" type="button" data-pantalla data-entrar={tx.pantallaCompleta} data-salir={tx.salirPantallaCompleta}>
+      <Icono nombre="expandir" />
+      <span>{tx.pantallaCompleta}</span>
+    </button>
+  </div>
+  <figcaption class="nota">
+    <strong>{tx.vista3d}.</strong>{' '}{tx.vista3dAyuda}
+  </figcaption>
+</figure>
+
+<script>
+  import '@google/model-viewer';
+
+  document.querySelectorAll<HTMLElement>('[data-visor]').forEach((visor) => {
+    const mv = visor.querySelector('model-viewer')!;
+    const carga = visor.querySelector<HTMLElement>('.visor__carga');
+    mv.addEventListener('load', () => carga?.remove());
+    const boton = visor.querySelector<HTMLButtonElement>('[data-pantalla]')!;
+    const marco = visor.querySelector<HTMLElement>('.visor__marco')!;
+    const texto = boton.querySelector('span')!;
+    if (!document.fullscreenEnabled) {
+      boton.hidden = true;
+      return;
+    }
+    boton.addEventListener('click', () => {
+      if (document.fullscreenElement) document.exitFullscreen();
+      else marco.requestFullscreen();
+    });
+    document.addEventListener('fullscreenchange', () => {
+      const dentro = document.fullscreenElement === marco;
+      texto.textContent = dentro ? boton.dataset.salir! : boton.dataset.entrar!;
+    });
+  });
+</script>
+
+<style>
+  .visor {
+    margin: 0;
+    display: grid;
+    gap: 0.6rem;
+  }
+  .visor__marco {
+    position: relative;
+    border: var(--trazo-grueso) solid var(--tinta);
+    background:
+      linear-gradient(var(--rejilla) 1px, transparent 1px) 0 0 / 24px 24px,
+      linear-gradient(90deg, var(--rejilla) 1px, transparent 1px) 0 0 / 24px 24px,
+      var(--papel-2);
+    aspect-ratio: 16 / 10;
+  }
+  .visor__marco:fullscreen {
+    border: 0;
+    aspect-ratio: auto;
+  }
+  model-viewer {
+    width: 100%;
+    height: 100%;
+    --poster-color: transparent;
+    background: transparent;
+  }
+  .visor__carga {
+    position: absolute;
+    left: 1rem;
+    top: 1rem;
+  }
+  .visor__pantalla {
+    position: absolute;
+    right: 0.75rem;
+    top: 0.75rem;
+    background: var(--papel);
+    font-size: var(--t-0);
+  }
+  .visor__ar {
+    position: absolute;
+    left: 0.75rem;
+    bottom: 0.75rem;
+    background: var(--papel);
+    font-size: var(--t-0);
+  }
+  @media (max-width: 40rem) {
+    .visor__marco {
+      aspect-ratio: 1 / 1;
+    }
+    .visor__pantalla span {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+    }
+  }
+</style>

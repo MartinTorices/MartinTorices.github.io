@@ -1,0 +1,45 @@
+---
+import Base from '../layouts/Base.astro';
+import Hoja from './Hoja.astro';
+import TarjetaProyecto from './TarjetaProyecto.astro';
+import SobreMi from './SobreMi.astro';
+import Contacto from './Contacto.astro';
+import { proyectosDe } from '../proyectos';
+import { t, rutas, type Lang } from '../i18n';
+import { sobreMi } from '../config';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const tx = t(lang);
+const proyectos = await proyectosDe(lang);
+const otro: Lang = lang === 'es' ? 'en' : 'es';
+---
+
+<Base lang={lang} descripcion={sobreMi[lang][1]} alternativa={rutas.inicio(otro)}>
+  <Hoja lang={lang} numProyectos={proyectos.length} />
+
+  <section class="seccion" id="proyectos" aria-labelledby="proyectos-t">
+    <div class="contenedor">
+      <h2 id="proyectos-t">{tx.proyectosTitulo}</h2>
+      <p class="entradilla">{tx.proyectosIntro}</p>
+      {proyectos.length === 0 ? (
+        <p>{tx.proyectosVacio}</p>
+      ) : (
+        <div class="galeria">
+          {proyectos.map((p, i) => <TarjetaProyecto proyecto={p} prioridad={i < 2} />)}
+        </div>
+      )}
+    </div>
+  </section>
+
+  <SobreMi lang={lang} />
+  <Contacto lang={lang} />
+</Base>
+
+<style>
+  .galeria {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 22rem), 1fr));
+    gap: clamp(2.5rem, 5vw, 4rem) clamp(1.5rem, 3vw, 2.5rem);
+  }
+</style>
