@@ -204,6 +204,23 @@ const { Content } = await render(proyecto);
     margin-top: 0.5rem;
     width: fit-content;
   }
+  /* Visor 3D dentro del texto (<figure class="visor-md">) */
+  .cuerpo :global(.visor-md) {
+    margin: 2rem 0;
+  }
+  .cuerpo :global(.visor-md model-viewer) {
+    display: block;
+    width: 100%;
+    height: clamp(22rem, 70vh, 44rem);
+    border: var(--trazo-grueso) solid var(--tinta);
+    background: var(--papel-2);
+  }
+  .cuerpo :global(.visor-md figcaption) {
+    font-size: var(--t-0);
+    font-stretch: 85%;
+    color: var(--tinta-suave);
+    margin-top: 0.5rem;
+  }
   .cuerpo :global(p:has(> img) > em) {
     display: block;
     font-style: normal;

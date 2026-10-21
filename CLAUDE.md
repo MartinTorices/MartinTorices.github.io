@@ -27,7 +27,9 @@ Web estática con Astro 7, publicada en https://martintorices.github.io. Cada pu
 - Las tablas de Markdown salen con aspecto de cajetín (útil para presupuestos y medidas).
 - Fotos y renders: sin fondo. Usa `python3 herramientas/sinfondo.py entrada.jpg salida.png [aspecto] [centro]` (fondo blanco y sombras a transparente, pieza opaca, recortado y centrado; para portadas usa aspecto 1.3333 y `centro`). Máximo 2000 px; Astro los convierte a WebP con transparencia.
 - MIES: sin «papel» de nadie en el equipo; el resultado es solo el PDF de la lámina descargable (`public/proyectos/mies/`).
-- Proyectos publicados: MIES (`mies`, 2026). El de ejemplo ya está borrado.
+- Modelos de CATIA/SolidWorks: Martín exporta STEP (.stp) a la carpeta del proyecto; se convierte con `cascadio` (`pip install cascadio`; `cascadio.step_to_glb(stp, glb, tol_linear=0.1, tol_angular=0.5)`), se gira de Z arriba a Y arriba y se asignan materiales PBR (ojo: baseColorFactor va en espacio lineal). Ejemplo completo en `herramientas/mies_montar_modelos.py`.
+- Un segundo visor 3D dentro del texto: `<figure class="visor-md"><model-viewer src="/modelos/x.glb" camera-controls ...></model-viewer><figcaption>…</figcaption></figure>` (solo funciona si el proyecto tiene `modelo`, que carga el script).
+- Proyectos publicados: MIES (`mies`, 2026; modelos `mies.glb` y `mies-pentagono.glb`). El de ejemplo ya está borrado.
 
 ## Diseño
 Concepto: hoja de plano técnico. Papel frío con retícula milimetrada, tinta azul-negra, azul de plano y rojo de revisión. En modo oscuro, cianotipia. Tipografía: Archivo Variable, jugando con su anchura. Mantén esta coherencia en los cambios.
