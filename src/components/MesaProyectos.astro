@@ -1,0 +1,227 @@
+---
+// Portada: la «mesa de dibujo». Una lámina por proyecto (su portada),
+// repartidas y solapadas sobre la mesa. Se pueden arrastrar con el ratón
+// y al hacer clic se abre el proyecto. Se reparten solas según cuántos haya.
+import { Image } from 'astro:assets';
+import type { Proyecto } from '../proyectos';
+import { t, rutas, type Lang } from '../i18n';
+
+interface Props {
+  lang: Lang;
+  proyectos: Proyecto[];
+}
+const { lang, proyectos } = Astro.props;
+const tx = t(lang);
+
+// Posiciones sobre la mesa en % (x, y, ancho, giro en grados) según el número de láminas
+type Hueco = [number, number, number, number];
+const disposiciones: Record<number, Hueco[]> = {
+  1: [[10, 10, 78, -2.5]],
+  2: [[2, 6, 58, -5], [38, 34, 58, 4]],
+  3: [[0, 4, 54, -6], [46, 2, 52, 5], [20, 42, 56, -1.5]],
+  4: [[0, 2, 50, -6], [50, 0, 48, 4], [4, 50, 46, 3], [48, 44, 50, -4]],
+};
+const general: Hueco[] = [
+  [0, 3, 37, -5], [31, 0, 36, 3], [63, 5, 36, -3], [5, 36, 36, 4],
+  [36, 31, 38, -2], [66, 39, 34, 5], [14, 62, 36, -4], [50, 63, 36, 3],
+];
+const lista = proyectos.slice(0, 12);
+const huecos = disposiciones[lista.length] ?? lista.map((_, i) => general[i % general.length]);
+// La primera lámina (proyecto con menor «orden») queda encima
+const capas = lista.map((p, i) => ({ p, h: huecos[i], z: lista.length - i })).reverse();
+---
+
+{lista.length > 0 && (
+  <figure class="mesa" data-mesa>
+    <div class="mesa__tablero">
+      {capas.map(({ p, h, z }, i) => (
+        <a
+          class="lamina"
+          href={rutas.proyecto(lang, p.slug)}
+          style={`--x:${h[0]}%;--y:${h[1]}%;--w:${h[2]}%;--r:${h[3]}deg;--z:${z};--i:${capas.length - 1 - i}`}
+          draggable="false"
+        >
+          <span class="lamina__imagen">
+            <Image src={p.data.portada} alt="" widths={[360, 640, 960]} sizes="(max-width: 60rem) 70vw, 32vw" loading="eager" draggable="false" />
+          </span>
+          <span class="lamina__rotulo">
+            <span class="lamina__titulo">{p.data.titulo}</span>
+            <span class="lamina__anio">{p.data.anio}</span>
+          </span>
+        </a>
+      ))}
+    </div>
+    <figcaption class="nota mesa__ayuda">
+      <span class="ayuda-raton">{tx.mesaAyuda}</span>
+      <span class="ayuda-tactil">{tx.mesaAyudaTactil}</span>
+    </figcaption>
+  </figure>
+)}
+
+<script>
+  // Arrastrar láminas con el ratón; un clic sin arrastrar abre el proyecto.
+  document.querySelectorAll<HTMLElement>('[data-mesa]').forEach((mesa) => {
+    let arriba = 100;
+    mesa.querySelectorAll<HTMLAnchorElement>('.lamina').forEach((lam) => {
+      let dx = 0, dy = 0, x0 = 0, y0 = 0, movido = false, activo = false;
+      const subir = () => (lam.style.zIndex = String(++arriba));
+      lam.addEventListener('pointerenter', subir);
+      lam.addEventListener('focus', subir);
+      lam.addEventListener('pointerdown', (e) => {
+        if (e.pointerType !== 'mouse' || e.button !== 0) return;
+        activo = true;
+        movido = false;
+        x0 = e.clientX - dx;
+        y0 = e.clientY - dy;
+        lam.setPointerCapture(e.pointerId);
+      });
+      lam.addEventListener('pointermove', (e) => {
+        if (!activo) return;
+        const nx = e.clientX - x0, ny = e.clientY - y0;
+        if (!movido && Math.hypot(nx - dx, ny - dy) < 4) return;
+        movido = true;
+        dx = nx;
+        dy = ny;
+        lam.classList.add('lamina--arrastrando');
+        lam.style.setProperty('--dx', `${dx}px`);
+        lam.style.setProperty('--dy', `${dy}px`);
+      });
+      const soltar = () => {
+        activo = false;
+        lam.classList.remove('lamina--arrastrando');
+        if (movido) mesa.classList.add('mesa--tocada');
+      };
+      lam.addEventListener('pointerup', soltar);
+      lam.addEventListener('pointercancel', soltar);
+      lam.addEventListener('click', (e) => {
+        if (movido) {
+          e.preventDefault();
+          movido = false;
+        }
+      });
+    });
+  });
+</script>
+
+<style>
+  .mesa {
+    margin: 0;
+    display: grid;
+    gap: 0.75rem;
+  }
+  .mesa__tablero {
+    position: relative;
+    aspect-ratio: 6 / 5;
+    width: 100%;
+  }
+  .lamina {
+    position: absolute;
+    left: var(--x);
+    top: var(--y);
+    width: var(--w);
+    z-index: var(--z);
+    display: block;
+    color: var(--tinta);
+    text-decoration: none;
+    background: var(--papel);
+    border: var(--trazo-grueso) solid var(--tinta);
+    box-shadow: 0 1px 0 var(--linea), 0 10px 24px -14px rgba(10, 20, 40, 0.45);
+    transform: translate(var(--dx, 0px), var(--dy, 0px)) rotate(var(--r));
+    transition:
+      transform 0.35s cubic-bezier(0.2, 0.7, 0.2, 1),
+      box-shadow 0.35s;
+    cursor: pointer;
+    container-type: inline-size;
+    user-select: none;
+    -webkit-user-drag: none;
+    touch-action: auto;
+    animation: repartir 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+    animation-delay: calc(var(--i) * 90ms + 150ms);
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .lamina {
+      cursor: grab;
+    }
+  }
+  .lamina:hover,
+  .lamina:focus-visible {
+    transform: translate(var(--dx, 0px), var(--dy, 0px)) rotate(0deg) scale(1.04);
+    box-shadow: 0 1px 0 var(--linea), 0 22px 40px -18px rgba(10, 20, 40, 0.55);
+  }
+  .lamina:hover .lamina__rotulo,
+  .lamina:focus-visible .lamina__rotulo {
+    color: var(--azul);
+  }
+  .lamina--arrastrando {
+    transition: box-shadow 0.35s;
+    cursor: grabbing;
+  }
+  .lamina__imagen {
+    display: block;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    border-bottom: var(--trazo) solid var(--tinta);
+    pointer-events: none;
+  }
+  .lamina__imagen :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    background: var(--papel-2);
+  }
+  .lamina__rotulo {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    font-size: clamp(0.68rem, 4.2cqi, 1.1rem);
+    font-weight: 700;
+    font-stretch: 100%;
+    pointer-events: none;
+  }
+  .lamina__titulo {
+    padding: 0.45em 0.7em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .lamina__anio {
+    padding: 0.45em 0.7em;
+    border-left: var(--trazo) solid var(--tinta);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+  .mesa__ayuda {
+    justify-self: end;
+    margin: 0;
+    position: relative;
+    z-index: 200;
+    transition: opacity 0.4s;
+  }
+  .ayuda-tactil {
+    display: none;
+  }
+  @media (hover: none) {
+    .ayuda-raton {
+      display: none;
+    }
+    .ayuda-tactil {
+      display: inline;
+    }
+  }
+  .mesa--tocada .mesa__ayuda {
+    opacity: 0;
+  }
+
+  /* Al cargar, las láminas caen sobre la mesa una tras otra */
+  @keyframes repartir {
+    from {
+      opacity: 0;
+      transform: translate(0, -28px) rotate(calc(var(--r) * 2.5)) scale(1.06);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .lamina {
+      animation: none;
+      transition: none;
+    }
+  }
+</style>

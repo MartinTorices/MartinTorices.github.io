@@ -1,17 +1,15 @@
 ---
-// Portada: tu nombre y la pieza destacada dibujada como un plano vivo
-// (aristas, aristas ocultas y cotas reales). La pieza es el modelo 3D
-// del primer proyecto que tenga uno.
+// Portada: tu nombre y la mesa de dibujo con una lámina por proyecto.
 import { persona } from '../config';
 import { t, rutas, type Lang } from '../i18n';
 import type { Proyecto } from '../proyectos';
-import PiezaPlano from './PiezaPlano.astro';
+import MesaProyectos from './MesaProyectos.astro';
 
 interface Props {
   lang: Lang;
-  destacado?: Proyecto;
+  proyectos: Proyecto[];
 }
-const { lang, destacado } = Astro.props;
+const { lang, proyectos } = Astro.props;
 const tx = t(lang);
 const [nombre1, ...resto] = persona.nombre.split(' ');
 const linea1 = `${nombre1} ${resto[0]}`;
@@ -32,30 +30,9 @@ const inicio = rutas.inicio(lang);
     </div>
   </div>
 
-  {destacado?.data.modelo && (
-    <figure class="portada__pieza">
-      <PiezaPlano src={destacado.data.modelo} lang={lang} etiqueta={destacado.data.portadaAlt} />
-      <figcaption>
-        <table class="cajetin pie-pieza">
-          <tbody>
-            <tr>
-              <th scope="row">{tx.piezaDestacada}</th>
-              <td>
-                <a href={rutas.proyecto(lang, destacado.slug)}>{destacado.data.titulo}</a>
-              </td>
-              <td class="pie-pieza__anio">{destacado.data.anio}</td>
-            </tr>
-            <tr>
-              <th scope="row">{tx.cotasMm}</th>
-              <td colspan="2" class="pie-pieza__ver">
-                <a href={rutas.proyecto(lang, destacado.slug)}>{tx.verProyecto}</a>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </figcaption>
-    </figure>
-  )}
+  <div class="portada__mesa">
+    <MesaProyectos lang={lang} proyectos={proyectos} />
+  </div>
 </section>
 
 <style>
@@ -68,7 +45,7 @@ const inicio = rutas.inicio(lang);
   }
   @media (min-width: 60rem) {
     .portada {
-      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
       gap: 0;
     }
     .portada__texto {
@@ -106,36 +83,9 @@ const inicio = rutas.inicio(lang);
     gap: 0.75rem;
   }
 
-  .portada__pieza {
-    margin: 0;
-    display: grid;
-    gap: 0.5rem;
-  }
   @media (min-width: 60rem) {
-    .portada__pieza {
-      margin-left: 1rem;
+    .portada__mesa {
+      padding-left: 2rem;
     }
-  }
-  .pie-pieza {
-    justify-self: end;
-    width: min(100%, 26rem);
-  }
-  .pie-pieza td {
-    font-size: var(--t-0);
-  }
-  .pie-pieza td a {
-    color: var(--tinta);
-    text-decoration: none;
-  }
-  .pie-pieza td a:hover {
-    color: var(--azul);
-    text-decoration: underline;
-  }
-  .pie-pieza__anio {
-    width: 1%;
-    font-variant-numeric: tabular-nums;
-  }
-  .pie-pieza__ver a {
-    color: var(--azul) !important;
   }
 </style>

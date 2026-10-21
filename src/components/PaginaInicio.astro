@@ -14,7 +14,7 @@ const otro: Lang = lang === 'es' ? 'en' : 'es';
 ---
 
 <Base lang={lang} descripcion={sobreMi[lang][1]} alternativa={rutas.inicio(otro)}>
-  <Hoja lang={lang} destacado={proyectos.find((p) => p.data.modelo)} />
+  <Hoja lang={lang} proyectos={proyectos} />
 
 
   <SobreMi lang={lang} />
