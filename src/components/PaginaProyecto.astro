@@ -122,7 +122,8 @@ const { Content } = await render(proyecto);
   }
   .medios :global(.portada) {
     width: 100%;
-    border: var(--trazo-grueso) solid var(--tinta);
+    max-height: 80vh;
+    object-fit: contain;
   }
 
   /* Cuerpo del caso de estudio: cada ## es una fase numerada */
@@ -158,18 +159,22 @@ const { Content } = await render(proyecto);
     font-size: var(--t-2);
     line-height: 1.6;
   }
+  /* Las imágenes van recortadas, sin fondo, directamente sobre el papel */
   .cuerpo :global(img) {
     width: 100%;
-    border: var(--trazo) solid var(--tinta);
-    background: #fff;
     margin-block: 1.5rem 0.5rem;
+  }
+  /* En modo oscuro, los dibujos con líneas negras necesitan un papel claro detrás */
+  @media (prefers-color-scheme: dark) {
+    .cuerpo :global(img:not([src$='.svg'])) {
+      background: #eef1f0;
+      padding: 0.75rem;
+    }
   }
   /* Imagen sola vertical: que no ocupe más que la pantalla */
   .cuerpo :global(p > img:only-of-type:not([src$='.svg'])) {
     max-height: 75vh;
     object-fit: contain;
-    background: transparent;
-    border: 0;
   }
   /* Varias imágenes seguidas en un párrafo: en fila */
   .cuerpo :global(p:has(> img + img)) {
@@ -189,6 +194,16 @@ const { Content } = await render(proyecto);
     grid-column: 1 / -1;
   }
   /* Pie de foto: la línea en cursiva justo debajo de la imagen */
+  .cuerpo :global(table + p > em:only-child) {
+    font-style: normal;
+    font-size: var(--t-0);
+    font-stretch: 85%;
+    color: var(--tinta-suave);
+  }
+  .cuerpo :global(> .boton) {
+    margin-top: 0.5rem;
+    width: fit-content;
+  }
   .cuerpo :global(p:has(> img) > em) {
     display: block;
     font-style: normal;

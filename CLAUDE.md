@@ -25,7 +25,8 @@ Web estática con Astro 7, publicada en https://martintorices.github.io. Cada pu
 - Si fue en grupo, rellena `equipo` (nombres completos de los compañeros) y `rol` (su papel).
 - Imágenes en el Markdown: varias líneas `![alt](./img.jpg)` seguidas en el mismo párrafo se ponen en fila; una línea `*texto*` justo debajo (sin línea en blanco) es el pie de foto. Los planos `.svg` exportados de CATIA o SolidWorks se apilan y se invierten solos en modo oscuro (limpia antes el SVG: atributos sin espacios alrededor de `=`, viewBox recortado y width/height en números).
 - Las tablas de Markdown salen con aspecto de cajetín (útil para presupuestos y medidas).
-- Fotos: máximo unos 2400 px de lado largo; Astro las convierte a WebP.
+- Fotos y renders: sin fondo. Usa `python3 herramientas/sinfondo.py entrada.jpg salida.png [aspecto] [centro]` (fondo blanco y sombras a transparente, pieza opaca, recortado y centrado; para portadas usa aspecto 1.3333 y `centro`). Máximo 2000 px; Astro los convierte a WebP con transparencia.
+- MIES: sin «papel» de nadie en el equipo; el resultado es solo el PDF de la lámina descargable (`public/proyectos/mies/`).
 - Proyectos publicados: MIES (`mies`, 2026). El de ejemplo ya está borrado.
 
 ## Diseño
