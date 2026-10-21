@@ -38,4 +38,4 @@ Concepto: hoja de plano técnico en «hormigón oscuro» (elegido por Martín): 
 
 ## Cuidado
 - El repositorio es público: nada confidencial y ningún CAD original.
-- El teléfono no aparece escrito en el HTML: se monta con JavaScript en `Contacto.astro`.
+- El teléfono se ve en la web junto a los botones (Martín lo quiere visible), pero no está escrito en el HTML: se monta con JavaScript en `Contacto.astro`.

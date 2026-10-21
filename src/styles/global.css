@@ -12,8 +12,8 @@
   --papel: #2a2927;        /* fondo carbón cálido */
   --papel-2: #353431;      /* superficies ligeramente elevadas */
   --tinta: #efeeea;        /* texto principal */
-  --tinta-suave: #b2b0aa;  /* texto secundario */
-  --linea: #4a4843;        /* líneas finas, bordes */
+  --tinta-suave: #c4c2bc;  /* texto secundario */
+  --linea: #5a5852;        /* líneas finas, bordes */
   --azul: #a3a19a;         /* acento gris (apellido, enlaces, cotas); el nombre se mantiene por compatibilidad */
   --revision: #efeeea;     /* foco */
   /* Láminas: hojas de hormigón claro sobre el fondo oscuro */

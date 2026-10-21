@@ -30,6 +30,7 @@ const linkedinTexto = persona.linkedin.replace(/^https?:\/\/(www\.)?/, '');
           <th scope="row">{tx.telefono}</th>
           <td>
             <div class="botones" data-t={codificado}>
+              <span class="numero" data-numero></span>
               <a class="boton" href="#contacto" data-accion="llamar"><Icono nombre="telefono" />{tx.llamar}</a>
               <a class="boton" href="#contacto" data-accion="whatsapp" target="_blank" rel="noopener"><Icono nombre="whatsapp" />{tx.whatsapp}</a>
             </div>
@@ -41,8 +42,12 @@ const linkedinTexto = persona.linkedin.replace(/^https?:\/\/(www\.)?/, '');
 </section>
 
 <script>
-  // Monta el número solo cuando alguien pulsa o enfoca un botón.
+  // El número no está escrito en el HTML: se monta en el navegador (los robots
+  // que leen el código no lo ven) y se muestra junto a los botones.
   document.querySelectorAll<HTMLElement>('[data-t]').forEach((caja) => {
+    const [pre, ...trozos] = (caja.dataset.t ?? '').split('').reverse().join('').split('-');
+    const visible = caja.querySelector<HTMLElement>('[data-numero]');
+    if (visible) visible.textContent = `+${pre} ${trozos.join(' ')}`;
     const montar = () => {
       const [prefijo, ...partes] = (caja.dataset.t ?? '').split('').reverse().join('').split('-');
       const numero = partes.join('');
@@ -57,7 +62,7 @@ const linkedinTexto = persona.linkedin.replace(/^https?:\/\/(www\.)?/, '');
 
 <style>
   .contacto {
-    width: min(100%, 44rem);
+    width: min(100%, 46rem);
   }
   .contacto td a:not(.boton) {
     display: inline-flex;
@@ -82,5 +87,37 @@ const linkedinTexto = persona.linkedin.replace(/^https?:\/\/(www\.)?/, '');
     .contacto th {
       width: 1%;
     }
+  }
+  /* Más contraste en el fondo oscuro */
+  .contacto th {
+    color: var(--tinta-suave);
+    font-size: var(--t-0);
+  }
+  .contacto td a:not(.boton) {
+    color: var(--tinta);
+    font-size: var(--t-2);
+    font-weight: 600;
+    text-decoration-color: var(--tinta-suave);
+  }
+  .contacto td a:not(.boton):hover {
+    text-decoration-color: var(--tinta);
+  }
+  .botones {
+    align-items: center;
+  }
+  @media (max-width: 34rem) {
+    .contacto td a:not(.boton),
+    .numero {
+      font-size: var(--t-1);
+    }
+  }
+  .numero {
+    font-size: var(--t-2);
+    font-weight: 700;
+    font-stretch: 105%;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.01em;
+    margin-right: 0.5rem;
+    white-space: nowrap;
   }
 </style>
