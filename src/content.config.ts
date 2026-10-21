@@ -17,6 +17,8 @@ const proyectos = defineCollection({
       anio: z.number(),
       contexto: z.string().optional(), // asignatura, concurso, encargo...
       herramientas: z.array(z.string()).default([]),
+      equipo: z.array(z.string()).default([]), // compañeros, si fue en grupo
+      rol: z.string().optional(), // tu papel en el equipo
       etiquetas: z.array(z.string()).default([]),
       portada: image(),
       portadaAlt: z.string(),

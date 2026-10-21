@@ -22,7 +22,11 @@ Web estática con Astro 7, publicada en https://martintorices.github.io. Cada pu
 - Pide a Martín: nombre, de qué trata, año, contexto (asignatura, concurso…), herramientas, fotos o renders, bocetos y el modelo (.glb, o expórtalo desde SolidWorks con Guardar como → Extended Reality).
 - Redacta el caso de estudio en fases `##`: problema, bocetos, CAD, prototipo y resultado. Hazlo en ES y EN.
 - Redacta con su voz (skill my-writing-style) y la norma RAE.
-- Cuando haya proyectos reales, borra el proyecto de ejemplo: `src/content/proyectos/proyecto-ejemplo/` y `public/modelos/proyecto-ejemplo.glb`.
+- Si fue en grupo, rellena `equipo` (nombres completos de los compañeros) y `rol` (su papel).
+- Imágenes en el Markdown: varias líneas `![alt](./img.jpg)` seguidas en el mismo párrafo se ponen en fila; una línea `*texto*` justo debajo (sin línea en blanco) es el pie de foto. Los planos `.svg` exportados de CATIA o SolidWorks se apilan y se invierten solos en modo oscuro (limpia antes el SVG: atributos sin espacios alrededor de `=`, viewBox recortado y width/height en números).
+- Las tablas de Markdown salen con aspecto de cajetín (útil para presupuestos y medidas).
+- Fotos: máximo unos 2400 px de lado largo; Astro las convierte a WebP.
+- Proyectos publicados: MIES (`mies`, 2026). El de ejemplo ya está borrado.
 
 ## Diseño
 Concepto: hoja de plano técnico. Papel frío con retícula milimetrada, tinta azul-negra, azul de plano y rojo de revisión. En modo oscuro, cianotipia. Tipografía: Archivo Variable, jugando con su anchura. Mantén esta coherencia en los cambios.

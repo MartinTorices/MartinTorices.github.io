@@ -6,6 +6,7 @@ import Visor3D from './Visor3D.astro';
 import PiezaPlano from './PiezaPlano.astro';
 import Icono from './Icono.astro';
 import type { Proyecto } from '../proyectos';
+import { persona } from '../config';
 import { t, rutas, type Lang } from '../i18n';
 
 interface Props {
@@ -37,6 +38,10 @@ const { Content } = await render(proyecto);
         <tbody>
           <tr><th scope="row">{tx.anio}</th><td>{data.anio}</td></tr>
           {data.contexto && <tr><th scope="row">{tx.contexto}</th><td>{data.contexto}</td></tr>}
+          {data.equipo.length > 0 && (
+            <tr><th scope="row">{tx.equipo}</th><td>{persona.nombre}, {data.equipo.join(', ')}</td></tr>
+          )}
+          {data.rol && <tr><th scope="row">{tx.rol}</th><td>{data.rol}</td></tr>}
           {data.herramientas.length > 0 && (
             <tr><th scope="row">{tx.herramientas}</th><td>{data.herramientas.join(', ')}</td></tr>
           )}
@@ -156,7 +161,77 @@ const { Content } = await render(proyecto);
   .cuerpo :global(img) {
     width: 100%;
     border: var(--trazo) solid var(--tinta);
+    background: #fff;
     margin-block: 1.5rem 0.5rem;
+  }
+  /* Imagen sola vertical: que no ocupe más que la pantalla */
+  .cuerpo :global(p > img:only-of-type:not([src$='.svg'])) {
+    max-height: 75vh;
+    object-fit: contain;
+    background: transparent;
+    border: 0;
+  }
+  /* Varias imágenes seguidas en un párrafo: en fila */
+  .cuerpo :global(p:has(> img + img)) {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+    gap: 0 1rem;
+    align-items: end;
+    max-width: none;
+  }
+  .cuerpo :global(p:has(> img[src$='.svg'] + img)) {
+    grid-template-columns: 1fr;
+  }
+  .cuerpo :global(p:has(> img + img) > img) {
+    margin-bottom: 0;
+  }
+  .cuerpo :global(p:has(> img + img) > em) {
+    grid-column: 1 / -1;
+  }
+  /* Pie de foto: la línea en cursiva justo debajo de la imagen */
+  .cuerpo :global(p:has(> img) > em) {
+    display: block;
+    font-style: normal;
+    font-size: var(--t-0);
+    font-stretch: 85%;
+    color: var(--tinta-suave);
+    margin-top: 0.5rem;
+    text-align: left;
+  }
+  /* Planos vectoriales de CATIA: sin fondo, y en modo oscuro en blanco */
+  .cuerpo :global(img[src$='.svg']) {
+    background: transparent;
+    border: 0;
+    padding: 0.5rem 0;
+  }
+  @media (prefers-color-scheme: dark) {
+    .cuerpo :global(img[src$='.svg']) {
+      filter: invert(1);
+    }
+  }
+  /* Tablas (presupuestos, medidas) con aspecto de cajetín */
+  .cuerpo :global(table) {
+    border-collapse: collapse;
+    border: var(--trazo-grueso) solid var(--tinta);
+    margin: 1.5rem 0;
+    width: 100%;
+    font-variant-numeric: tabular-nums;
+  }
+  .cuerpo :global(th),
+  .cuerpo :global(td) {
+    border: var(--trazo) solid var(--tinta);
+    padding: 0.5rem 0.75rem;
+    text-align: left;
+  }
+  .cuerpo :global(th) {
+    font-weight: 500;
+    font-stretch: 80%;
+    color: var(--tinta-suave);
+    font-size: var(--t-0);
+  }
+  .cuerpo :global(td:last-child) {
+    text-align: right;
+    font-weight: 600;
   }
   .cuerpo :global(ul),
   .cuerpo :global(ol) {
