@@ -27,7 +27,7 @@ const inicio = rutas.inicio(lang);
     </h1>
     <p class="lema">{tx.lema}</p>
     <div class="acciones">
-      <a class="boton boton--lleno" href={`${inicio}#proyectos`}>{tx.verProyectos}</a>
+      <a class="boton boton--lleno" href={rutas.proyectos(lang)}>{tx.verProyectos}</a>
       <a class="boton" href={`${inicio}#contacto`}>{tx.escribeme}</a>
     </div>
   </div>

@@ -97,5 +97,6 @@ export const t = (lang: Lang) => ui[lang];
 // Rutas de cada idioma
 export const rutas = {
   inicio: (lang: Lang) => (lang === 'es' ? '/' : '/en/'),
+  proyectos: (lang: Lang) => (lang === 'es' ? '/proyectos/' : '/en/projects/'),
   proyecto: (lang: Lang, slug: string) => (lang === 'es' ? `/proyectos/${slug}/` : `/en/projects/${slug}/`),
 };

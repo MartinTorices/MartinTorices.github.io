@@ -30,7 +30,7 @@ const { Content } = await render(proyecto);
   <article class="proyecto">
     <header class:list={['contenedor', 'cabeza', { 'cabeza--plano': data.modelo }]}>
       <div class="cabeza__texto">
-      <a class="volver" href={`${rutas.inicio(lang)}#proyectos`}><Icono nombre="flecha-izq" />{tx.volver}</a>
+      <a class="volver" href={rutas.proyectos(lang)}><Icono nombre="flecha-izq" />{tx.volver}</a>
       <h1>{data.titulo}</h1>
       <p class="entradilla">{data.resumen}</p>
       <table class="cajetin datos">

@@ -17,6 +17,7 @@ const tx = t(lang);
 const otro: Lang = lang === 'es' ? 'en' : 'es';
 const tituloCompleto = titulo ? `${titulo} | ${persona.nombreCorto}` : `${persona.nombre} | ${tx.tagline}`;
 const inicio = rutas.inicio(lang);
+const enProyectos = Astro.url.pathname.startsWith(rutas.proyectos(lang));
 const canonical = new URL(Astro.url.pathname, Astro.site);
 const urlAlternativa = new URL(alternativa, Astro.site);
 const og = imagen ? new URL(imagen, Astro.site) : undefined;
@@ -50,7 +51,7 @@ const og = imagen ? new URL(imagen, Astro.site) : undefined;
         <a class="marca" href={inicio}>{persona.nombreCorto}</a>
         <nav aria-label={lang === 'es' ? 'Principal' : 'Main'}>
           <ul>
-            <li><a href={`${inicio}#proyectos`}>{tx.navProyectos}</a></li>
+            <li><a href={rutas.proyectos(lang)} aria-current={enProyectos ? 'page' : undefined}>{tx.navProyectos}</a></li>
             <li><a href={`${inicio}#sobre-mi`}>{tx.navSobreMi}</a></li>
             <li><a href={`${inicio}#contacto`}>{tx.navContacto}</a></li>
             <li>
@@ -113,6 +114,11 @@ const og = imagen ? new URL(imagen, Astro.site) : undefined;
     text-decoration: none;
     font-stretch: 92%;
     font-weight: 500;
+  }
+  nav a[aria-current='page'] {
+    color: var(--azul);
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
   }
   nav a:hover {
     color: var(--azul);
