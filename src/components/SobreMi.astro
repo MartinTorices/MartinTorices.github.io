@@ -10,7 +10,7 @@ const tx = t(lang);
 
 <section class="seccion" id="sobre-mi" aria-labelledby="sobre-mi-t">
   <div class="contenedor rejilla">
-    <h2 id="sobre-mi-t">{tx.sobreMiTitulo}</h2>
+    <h2 id="sobre-mi-t" class="titulo-seccion">{tx.sobreMiTitulo}</h2>
     <div class="texto">
       {sobreMi[lang].map((p, i) => <p class={i === 0 ? 'primero' : ''}>{p}</p>)}
       {persona.cv && (
@@ -37,12 +37,12 @@ const tx = t(lang);
   }
   @media (min-width: 56rem) {
     .rejilla {
-      grid-template-columns: 1fr 2fr 1fr;
+      grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
       align-items: start;
     }
   }
   h2 {
-    font-size: var(--t-4);
+    grid-column: 1 / -1;
   }
   .texto p {
     font-size: var(--t-2);

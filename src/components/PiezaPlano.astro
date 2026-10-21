@@ -1,0 +1,290 @@
+---
+// Dibuja un modelo 3D (.glb) como un plano: aristas en tinta, aristas ocultas
+// en discontinuo y cotas reales en milímetros. Se puede girar arrastrando.
+import { t, type Lang } from '../i18n';
+
+interface Props {
+  src: string;
+  lang: Lang;
+  etiqueta: string; // texto accesible
+  class?: string;
+}
+const { src, lang, etiqueta, class: clase } = Astro.props;
+const tx = t(lang);
+---
+
+<div class:list={['plano', clase]} data-plano={src} role="img" aria-label={etiqueta}>
+  <div class="plano__lienzo"></div>
+  <div class="plano__cotas" aria-hidden="true">
+    <span data-cota="x"></span>
+    <span data-cota="y"></span>
+    <span data-cota="z"></span>
+  </div>
+  <p class="plano__ayuda nota" aria-hidden="true">{tx.planoAyuda}</p>
+</div>
+
+<script>
+  import * as THREE from 'three';
+  import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+  import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+  import { mergeVertices } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
+
+  const reducirMovimiento = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function colores() {
+    const css = getComputedStyle(document.documentElement);
+    const leer = (v: string) => new THREE.Color(css.getPropertyValue(v).trim() || '#000');
+    return { tinta: leer('--tinta'), azul: leer('--azul'), papel: leer('--papel') };
+  }
+
+  document.querySelectorAll<HTMLElement>('[data-plano]').forEach((caja) => {
+    const lienzo = caja.querySelector<HTMLElement>('.plano__lienzo')!;
+    const etiquetas = {
+      x: caja.querySelector<HTMLElement>('[data-cota="x"]')!,
+      y: caja.querySelector<HTMLElement>('[data-cota="y"]')!,
+      z: caja.querySelector<HTMLElement>('[data-cota="z"]')!,
+    };
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    lienzo.appendChild(renderer.domElement);
+
+    const escena = new THREE.Scene();
+    const camara = new THREE.OrthographicCamera(-1, 1, 1, -1, -100, 100);
+    const controles = new OrbitControls(camara, renderer.domElement);
+    controles.enableZoom = false;
+    controles.enablePan = false;
+    controles.enableDamping = true;
+    controles.autoRotate = !reducirMovimiento;
+    controles.autoRotateSpeed = 0.9;
+
+    const pieza = new THREE.Group();
+    escena.add(pieza);
+
+    let c = colores();
+    const matRelleno = new THREE.MeshBasicMaterial({
+      color: c.papel,
+      polygonOffset: true,
+      polygonOffsetFactor: 1,
+      polygonOffsetUnits: 1,
+    });
+    const matVisible = new THREE.LineBasicMaterial({ color: c.tinta });
+    const matOculta = new THREE.LineDashedMaterial({
+      color: c.tinta,
+      transparent: true,
+      opacity: 0.28,
+      depthFunc: THREE.GreaterDepth,
+      depthWrite: false,
+      dashSize: 1,
+      gapSize: 1,
+    });
+    const matCota = new THREE.LineBasicMaterial({ color: c.azul });
+    // Contorno de las superficies curvas (la silueta no es una arista del modelo):
+    // se dibujan las caras traseras un poco infladas en color tinta.
+    const grosor = { value: 0.001 };
+    const matContorno = new THREE.MeshBasicMaterial({ color: c.tinta, side: THREE.BackSide });
+    matContorno.onBeforeCompile = (shader) => {
+      shader.uniforms.grosor = grosor;
+      shader.vertexShader = 'uniform float grosor;\n' + shader.vertexShader.replace(
+        '#include <begin_vertex>',
+        'vec3 transformed = position + normalize(normal) * grosor;'
+      );
+    };
+
+    let radio = 1;
+    const puntosCota: Record<'x' | 'y' | 'z', THREE.Vector3> = {
+      x: new THREE.Vector3(),
+      y: new THREE.Vector3(),
+      z: new THREE.Vector3(),
+    };
+
+    // Línea de cota entre a y b, desplazada en la dirección "fuera"
+    function cota(a: THREE.Vector3, b: THREE.Vector3, fuera: THREE.Vector3, sep: number, flecha: number) {
+      const pts: THREE.Vector3[] = [];
+      const a2 = a.clone().addScaledVector(fuera, sep);
+      const b2 = b.clone().addScaledVector(fuera, sep);
+      // líneas de referencia
+      pts.push(a.clone().addScaledVector(fuera, sep * 0.15), a2.clone().addScaledVector(fuera, sep * 0.25));
+      pts.push(b.clone().addScaledVector(fuera, sep * 0.15), b2.clone().addScaledVector(fuera, sep * 0.25));
+      // línea de cota
+      pts.push(a2, b2);
+      // flechas
+      const dir = b2.clone().sub(a2).normalize();
+      for (const [p, s] of [[a2, 1], [b2, -1]] as const) {
+        const base = p.clone().addScaledVector(dir, flecha * s);
+        pts.push(p, base.clone().addScaledVector(fuera, flecha * 0.35));
+        pts.push(p, base.clone().addScaledVector(fuera, -flecha * 0.35));
+      }
+      const g = new THREE.BufferGeometry().setFromPoints(pts);
+      pieza.add(new THREE.LineSegments(g, matCota));
+      return a2.clone().add(b2).multiplyScalar(0.5);
+    }
+
+    new GLTFLoader().load(caja.dataset.plano!, (gltf) => {
+      const modelo = gltf.scene;
+      const caja3 = new THREE.Box3().setFromObject(modelo);
+      const centro = caja3.getCenter(new THREE.Vector3());
+      modelo.position.sub(centro);
+      caja3.translate(centro.clone().negate());
+      const tam = caja3.getSize(new THREE.Vector3());
+      radio = tam.length() / 2;
+
+      modelo.updateMatrixWorld(true);
+      modelo.traverse((o) => {
+        if (!(o as THREE.Mesh).isMesh) return;
+        const malla = o as THREE.Mesh;
+        const geo = malla.geometry.clone().applyMatrix4(malla.matrixWorld);
+        const aristas = new THREE.EdgesGeometry(geo, 25);
+        pieza.add(new THREE.Mesh(geo, matRelleno));
+        const suave = geo.clone();
+        suave.deleteAttribute('normal');
+        suave.deleteAttribute('uv');
+        const hull = mergeVertices(suave, radio * 1e-4);
+        hull.computeVertexNormals();
+        pieza.add(new THREE.Mesh(hull, matContorno));
+        pieza.add(new THREE.LineSegments(aristas, matVisible));
+        const ocultas = new THREE.LineSegments(aristas, matOculta);
+        ocultas.computeLineDistances();
+        pieza.add(ocultas);
+      });
+      matOculta.dashSize = radio * 0.025;
+      matOculta.gapSize = radio * 0.02;
+
+      // Cotas totales en mm (el glTF trabaja en metros)
+      const { min, max } = caja3;
+      const sep = radio * 0.22;
+      const flecha = radio * 0.05;
+      puntosCota.x = cota(new THREE.Vector3(min.x, min.y, max.z), new THREE.Vector3(max.x, min.y, max.z), new THREE.Vector3(0, 0, 1), sep, flecha);
+      puntosCota.z = cota(new THREE.Vector3(max.x, min.y, max.z), new THREE.Vector3(max.x, min.y, min.z), new THREE.Vector3(1, 0, 0), sep, flecha);
+      puntosCota.y = cota(new THREE.Vector3(min.x, min.y, max.z), new THREE.Vector3(min.x, max.y, max.z), new THREE.Vector3(-1, 0, 0), sep, flecha);
+      const mm = (v: number) => `${Math.round(v * 1000)}`;
+      etiquetas.x.textContent = mm(tam.x);
+      etiquetas.y.textContent = mm(tam.y);
+      etiquetas.z.textContent = mm(tam.z);
+
+      // vista axonométrica inicial
+      camara.position.set(1, 0.75, 1.1).normalize().multiplyScalar(10);
+      camara.lookAt(0, 0, 0);
+      ajustar();
+      caja.classList.add('plano--listo');
+    });
+
+    function ajustar() {
+      const w = lienzo.clientWidth;
+      const h = lienzo.clientHeight;
+      if (!w || !h) return;
+      renderer.setSize(w, h, false);
+      const aspecto = w / h;
+      const media = radio * 1.25;
+      if (aspecto >= 1) {
+        camara.left = -media * aspecto;
+        camara.right = media * aspecto;
+        camara.top = media;
+        camara.bottom = -media;
+      } else {
+        camara.left = -media;
+        camara.right = media;
+        camara.top = media / aspecto;
+        camara.bottom = -media / aspecto;
+      }
+      camara.updateProjectionMatrix();
+      // 1,2 px de grosor de contorno, sea cual sea el tamaño de la pieza
+      grosor.value = ((camara.top - camara.bottom) / h) * 1.2;
+    }
+    new ResizeObserver(ajustar).observe(lienzo);
+
+    // Recolorear si cambia el modo claro/oscuro
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+      c = colores();
+      matRelleno.color.copy(c.papel);
+      matVisible.color.copy(c.tinta);
+      matOculta.color.copy(c.tinta);
+      matCota.color.copy(c.azul);
+      matContorno.color.copy(c.tinta);
+    });
+
+    // Para el giro automático mientras alguien lo mueve
+    let reanudar: number | undefined;
+    controles.addEventListener('start', () => {
+      controles.autoRotate = false;
+      caja.classList.add('plano--tocado');
+      clearTimeout(reanudar);
+    });
+    controles.addEventListener('end', () => {
+      if (!reducirMovimiento) reanudar = window.setTimeout(() => (controles.autoRotate = true), 4000);
+    });
+
+    const v = new THREE.Vector3();
+    function colocar(el: HTMLElement, p: THREE.Vector3) {
+      v.copy(p).project(camara);
+      el.style.transform = `translate(${((v.x + 1) / 2) * lienzo.clientWidth}px, ${((1 - v.y) / 2) * lienzo.clientHeight}px) translate(-50%, -50%)`;
+    }
+
+    let visible = false;
+    new IntersectionObserver(([e]) => (visible = e.isIntersecting)).observe(caja);
+    renderer.setAnimationLoop(() => {
+      if (!visible) return;
+      controles.update();
+      renderer.render(escena, camara);
+      colocar(etiquetas.x, puntosCota.x);
+      colocar(etiquetas.y, puntosCota.y);
+      colocar(etiquetas.z, puntosCota.z);
+    });
+  });
+</script>
+
+<style>
+  .plano {
+    position: relative;
+    aspect-ratio: 1 / 1;
+    width: 100%;
+  }
+  .plano__lienzo {
+    position: absolute;
+    inset: 0;
+    cursor: grab;
+    touch-action: pan-y;
+  }
+  .plano__lienzo:active {
+    cursor: grabbing;
+  }
+  .plano__lienzo :global(canvas) {
+    width: 100% !important;
+    height: 100% !important;
+    display: block;
+  }
+  .plano__cotas span {
+    position: absolute;
+    left: 0;
+    top: 0;
+    pointer-events: none;
+    color: var(--azul);
+    background: var(--papel);
+    padding: 0 0.3em;
+    font-size: var(--t-0);
+    font-weight: 600;
+    font-stretch: 85%;
+    font-variant-numeric: tabular-nums;
+    opacity: 0;
+    transition: opacity 0.6s;
+  }
+  .plano--listo .plano__cotas span {
+    opacity: 1;
+  }
+  .plano__ayuda {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    margin: 0;
+    transition: opacity 0.4s;
+  }
+  .plano--tocado .plano__ayuda {
+    opacity: 0;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .plano__cotas span,
+    .plano__ayuda {
+      transition: none;
+    }
+  }
+</style>

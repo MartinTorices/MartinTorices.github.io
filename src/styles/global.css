@@ -180,6 +180,15 @@ p {
   background: var(--tinta);
   color: var(--papel);
 }
+.boton--lleno {
+  background: var(--tinta);
+  color: var(--papel);
+}
+.boton--lleno:hover {
+  background: var(--azul);
+  border-color: var(--azul);
+  color: var(--papel);
+}
 .boton svg {
   width: 1.1em;
   height: 1.1em;
@@ -215,12 +224,21 @@ p {
 
 /* Secciones de la página de inicio */
 .seccion {
-  padding-block: clamp(4rem, 10vw, 8rem);
-  border-top: var(--trazo) solid var(--linea);
+  padding-block: clamp(3.5rem, 8vw, 6.5rem);
 }
-.seccion > .contenedor > h2 {
+/* Título de sección: como el nombre de una vista, con su línea hasta el borde */
+.titulo-seccion {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
   font-size: var(--t-4);
   margin-bottom: 1rem;
+}
+.titulo-seccion::after {
+  content: '';
+  flex: 1;
+  border-top: var(--trazo-grueso) solid var(--tinta);
+  transform: translateY(-0.3em);
 }
 .entradilla {
   font-size: var(--t-2);

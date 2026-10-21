@@ -16,11 +16,11 @@ const otro: Lang = lang === 'es' ? 'en' : 'es';
 ---
 
 <Base lang={lang} descripcion={sobreMi[lang][1]} alternativa={rutas.inicio(otro)}>
-  <Hoja lang={lang} numProyectos={proyectos.length} />
+  <Hoja lang={lang} destacado={proyectos.find((p) => p.data.modelo)} />
 
   <section class="seccion" id="proyectos" aria-labelledby="proyectos-t">
     <div class="contenedor">
-      <h2 id="proyectos-t">{tx.proyectosTitulo}</h2>
+      <h2 id="proyectos-t" class="titulo-seccion">{tx.proyectosTitulo}</h2>
       <p class="entradilla">{tx.proyectosIntro}</p>
       {proyectos.length === 0 ? (
         <p>{tx.proyectosVacio}</p>
