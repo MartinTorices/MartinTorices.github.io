@@ -33,7 +33,7 @@ Web estática con Astro 7, publicada en https://martintorices.github.io. Cada pu
 - Proyectos publicados: MIES (`mies`, 2026). Modelos: `mies-inferior/media/superior.glb` (módulo con cada tipo de balda, elegible en el visor) y `mies-pentagono.glb` (cada módulo con una balda distinta: inferior, media, superior, inferior, media). Scripts en `herramientas/mies_*.py`. El de ejemplo ya está borrado.
 
 ## Diseño
-Concepto: hoja de plano técnico. Papel frío con retícula milimetrada, tinta azul-negra, azul de plano y rojo de revisión. En modo oscuro, cianotipia. Tipografía: Archivo Variable, jugando con su anchura. Mantén esta coherencia en los cambios.
+Concepto: hoja de plano técnico. Papel frío con retícula isométrica a 30° (variable `--reticula`), cursor de CAD con coordenadas en mm (`CursorCAD.astro`, solo con ratón), tinta azul-negra, azul de plano y rojo de revisión. En modo oscuro, cianotipia. Tipografía: Archivo Variable, jugando con su anchura. Mantén esta coherencia en los cambios.
 
 ## Cuidado
 - El repositorio es público: nada confidencial y ningún CAD original.

@@ -1,0 +1,94 @@
+---
+// Cursor de CAD: dos líneas de referencia que siguen al ratón y sus
+// coordenadas en milímetros desde la esquina de la página, como en CATIA o SolidWorks.
+// Solo con ratón; en pantallas táctiles no aparece.
+---
+
+<div class="cad" aria-hidden="true" hidden>
+  <div class="cad__h"></div>
+  <div class="cad__v"></div>
+  <div class="cad__coord"></div>
+</div>
+
+<script>
+  const cad = document.querySelector<HTMLElement>('.cad')!;
+  const h = cad.querySelector<HTMLElement>('.cad__h')!;
+  const v = cad.querySelector<HTMLElement>('.cad__v')!;
+  const coord = cad.querySelector<HTMLElement>('.cad__coord')!;
+  const mm = (px: number) => Math.round((px * 25.4) / 96);
+  let pendiente = false;
+  let ultimo: PointerEvent | null = null;
+
+  const pintar = () => {
+    pendiente = false;
+    if (!ultimo) return;
+    const { clientX: x, clientY: y } = ultimo;
+    h.style.transform = `translateY(${y}px)`;
+    v.style.transform = `translateX(${x}px)`;
+    coord.textContent = `X ${mm(x + window.scrollX)}   Y ${mm(y + window.scrollY)}`;
+    // la etiqueta cambia de lado cerca de los bordes para no salirse
+    const ancho = coord.offsetWidth;
+    const izq = x + 14 + ancho > window.innerWidth ? x - 14 - ancho : x + 14;
+    const arr = y + 40 > window.innerHeight ? y - 30 : y + 14;
+    coord.style.transform = `translate(${izq}px, ${arr}px)`;
+  };
+
+  window.addEventListener('pointermove', (e) => {
+    if (e.pointerType !== 'mouse') return;
+    cad.hidden = false;
+    ultimo = e;
+    if (!pendiente) {
+      pendiente = true;
+      requestAnimationFrame(pintar);
+    }
+  }, { passive: true });
+  window.addEventListener('scroll', () => ultimo && !pendiente && ((pendiente = true), requestAnimationFrame(pintar)), { passive: true });
+  document.documentElement.addEventListener('pointerleave', () => (cad.hidden = true));
+</script>
+
+<style>
+  .cad {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 60;
+  }
+  .cad[hidden] {
+    display: none;
+  }
+  .cad__h,
+  .cad__v {
+    position: absolute;
+    left: 0;
+    top: 0;
+    background: var(--azul);
+    opacity: 0.3;
+  }
+  .cad__h {
+    width: 100%;
+    height: 1px;
+  }
+  .cad__v {
+    width: 1px;
+    height: 100%;
+  }
+  .cad__coord {
+    position: absolute;
+    left: 0;
+    top: 0;
+    white-space: pre;
+    font-size: 0.72rem;
+    font-stretch: 80%;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    color: var(--azul);
+    background: var(--papel);
+    border: 1px solid var(--azul);
+    padding: 0.1rem 0.4rem;
+  }
+  @media (hover: none) {
+    .cad {
+      display: none;
+    }
+  }
+</style>
