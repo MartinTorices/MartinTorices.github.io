@@ -105,13 +105,14 @@ const tx = t(lang);
   }
   .visor__marco {
     position: relative;
-    border: var(--trazo-grueso) solid var(--tinta);
-    background:
-      var(--papel-2);
+    /* el modelo se ve sobre una lámina clara: el aluminio oscuro no se pierde */
+    border: var(--trazo-grueso) solid var(--lamina-fondo);
+    background: var(--lamina-fondo);
     aspect-ratio: 16 / 10;
   }
   .visor__marco:fullscreen {
     border: 0;
+    background: var(--lamina-fondo);
     aspect-ratio: auto;
   }
   model-viewer {

@@ -30,7 +30,7 @@ The project starts from an inversion: the fragility of the ears of grain becomes
 Each module has a base and three trapezoidal poplar plywood shelves, plus four L-shaped aluminium profiles 2.1 m tall that taper from 76 to 20 mm. That is why each shelf has slots of a different size (60, 49 and 37 mm) and locks at its own height with no fittings: once slotted in, the shelves themselves form the structure.
 
 ![An assembled MIES module with its base, three shelves and four aluminium profiles](./03-modulo.png)
-![Dimensioned elevation of the module showing the height of each shelf](./05-alzado-cotas.png)
+![Dimensioned elevation of the module showing the height of each shelf](./05-alzado-cotas-dibujo.png)
 *Assembled module and dimensioned elevation: 2,100 mm tall, with shelves at 600, 1,050 and 1,600 mm.*
 
 The sides of the trapezoid are at 36° from vertical, so five modules close into a pentagon. The model and the CNC cutting drawings were made in CATIA V5.
@@ -40,7 +40,7 @@ The sides of the trapezoid are at 36° from vertical, so five modules close into
 Arranged in a circle, the modules create open meeting areas for face-to-face conversation; in a zigzag, the structure stretches along circulation areas; and open layouts form small shelters that gently divide the space. Holes in the profiles allow ropes to be tensioned to hang A1 panels.
 
 ![Five MIES modules closing into a pentagon](./02-agrupacion-pentagono.png)
-![Plan diagrams of the pentagon, zigzag and open groupings](./06-agrupaciones.png)
+![Plan diagrams of the pentagon, zigzag and open groupings](./06-agrupaciones-dibujo.png)
 *Pentagon grouping and plan diagrams of the different layouts.*
 
 <figure class="visor-md">
@@ -57,7 +57,7 @@ The base goes down first for stability, then the profiles slot in to form the fr
 
 Each module travels in a recycled agricultural raffia bag, true to the origin of the material, with handles for two people to carry, so installation is a shared effort from the start.
 
-![Two people carrying the module inside a recycled raffia bag](./07-packaging.png)
+![Two people carrying the module inside a recycled raffia bag](./07-packaging-dibujo.png)
 *Packaging in a recycled raffia bag.*
 
 ## Materials and budget

@@ -40,8 +40,7 @@ const og = imagen ? new URL(imagen, Astro.site) : undefined;
     <meta property="og:description" content={descripcion} />
     <meta property="og:url" content={canonical} />
     {og && <meta property="og:image" content={og} />}
-    <meta name="theme-color" content="#f3f4f2" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#12306b" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#2a2927" />
   </head>
   <body>
     <a class="salto" href="#contenido">{lang === 'es' ? 'Saltar al contenido' : 'Skip to content'}</a>

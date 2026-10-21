@@ -1,22 +1,25 @@
 /* ============================================================
    ESTILO GLOBAL — porfolio de Martín Torices
-   Concepto: hoja de plano técnico sobre un fondo liso gris niebla,
-   tinta azul-negra, azul de plano y un rojo de revisión.
-   En modo oscuro la web se convierte en una cianotipia.
+   Concepto: hoja de plano técnico en hormigón oscuro. Todo en grises
+   cálidos: fondo carbón, texto claro y láminas en gris hormigón.
+   La web es oscura siempre, también con el sistema en modo claro.
    ============================================================ */
 
 @import '@fontsource-variable/archivo/wdth.css';
 
 :root {
-  /* Paleta */
-  --papel: #f3f4f2;        /* fondo: gris niebla, casi blanco */
-  --papel-2: #e9ebe8;      /* superficies ligeramente hundidas */
-  --tinta: #18212c;        /* texto principal */
-  --tinta-suave: #4a5866;  /* texto secundario */
-  --linea: #d3d8d6;        /* líneas finas, bordes */
-  --rejilla: rgba(36, 67, 184, 0.06); /* papel milimetrado */
-  --azul: #2443b8;         /* azul de plano: enlaces y cotas */
-  --revision: #c8401a;     /* marcas de revisión, foco */
+  /* Paleta: hormigón oscuro */
+  --papel: #2a2927;        /* fondo carbón cálido */
+  --papel-2: #353431;      /* superficies ligeramente elevadas */
+  --tinta: #efeeea;        /* texto principal */
+  --tinta-suave: #b2b0aa;  /* texto secundario */
+  --linea: #4a4843;        /* líneas finas, bordes */
+  --azul: #a3a19a;         /* acento gris (apellido, enlaces, cotas); el nombre se mantiene por compatibilidad */
+  --revision: #efeeea;     /* foco */
+  /* Láminas: hojas de hormigón claro sobre el fondo oscuro */
+  --lamina-fondo: #d8d7d3;
+  --lamina-fondo-2: #cbcac5;
+  --lamina-tinta: #1e1e1d;
 
   /* Tipografía: una sola familia, Archivo, jugando con su anchura */
   --fuente: 'Archivo Variable', 'Archivo', system-ui, sans-serif;
@@ -33,34 +36,9 @@
   --trazo: 1px;
   --trazo-grueso: 2px;
 
-  color-scheme: light;
-}
-
-/* Modo oscuro: cianotipia */
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) {
-    --papel: #12306b;
-    --papel-2: #0e2858;
-    --tinta: #eef3fb;
-    --tinta-suave: #b4c3de;
-    --linea: rgba(238, 243, 251, 0.32);
-    --rejilla: rgba(238, 243, 251, 0.055);
-    --azul: #ffffff;
-    --revision: #ffb648;
-    color-scheme: dark;
-  }
-}
-:root[data-theme='dark'] {
-  --papel: #12306b;
-  --papel-2: #0e2858;
-  --tinta: #eef3fb;
-  --tinta-suave: #b4c3de;
-  --linea: rgba(238, 243, 251, 0.32);
-  --rejilla: rgba(238, 243, 251, 0.055);
-  --azul: #ffffff;
-  --revision: #ffb648;
   color-scheme: dark;
 }
+
 
 *,
 *::before,

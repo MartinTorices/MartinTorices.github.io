@@ -33,7 +33,8 @@ Web estática con Astro 7, publicada en https://martintorices.github.io. Cada pu
 - Proyectos publicados: MIES (`mies`, 2026). Modelos: `mies-inferior/media/superior.glb` (módulo con cada tipo de balda, elegible en el visor) y `mies-pentagono.glb` (cada módulo con una balda distinta: inferior, media, superior, inferior, media). Scripts en `herramientas/mies_*.py`. El de ejemplo ya está borrado.
 
 ## Diseño
-Concepto: hoja de plano técnico. Fondo liso gris niebla (#f3f4f2), sin retícula ni cursor de coordenadas (Martín los descartó), tinta azul-negra, azul de plano y rojo de revisión. En modo oscuro, cianotipia. Tipografía: Archivo Variable, jugando con su anchura. Mantén esta coherencia en los cambios.
+Concepto: hoja de plano técnico en «hormigón oscuro» (elegido por Martín): todo en grises cálidos, sin azul. Fondo carbón #2a2927, texto #efeeea, acento gris #a3a19a (variable `--azul` por compatibilidad), láminas y visores 3D sobre hormigón claro (`--lamina-fondo` #d8d7d3). La web es oscura siempre (no hay modo claro). Sin retícula ni cursor de coordenadas. Tipografía: Archivo Variable, jugando con su anchura. Mantén esta coherencia en los cambios.
+- Dibujos con líneas o texto negro: el nombre del archivo debe terminar en `-dibujo` (p. ej. `05-alzado-cotas-dibujo.png`) y se ponen solos sobre una hoja clara; los renders sin fondo van directamente sobre el carbón.
 
 ## Cuidado
 - El repositorio es público: nada confidencial y ningún CAD original.

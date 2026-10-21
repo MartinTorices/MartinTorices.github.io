@@ -121,10 +121,10 @@ const capas = lista.map((p, i) => ({ p, h: huecos[i], z: lista.length - i })).re
     width: var(--w);
     z-index: var(--z);
     display: block;
-    color: var(--tinta);
+    color: var(--lamina-tinta);
     text-decoration: none;
-    background: var(--papel);
-    border: var(--trazo-grueso) solid var(--tinta);
+    background: var(--lamina-fondo);
+    border: var(--trazo-grueso) solid var(--lamina-fondo);
     box-shadow: 0 1px 0 var(--linea), 0 10px 24px -14px rgba(10, 20, 40, 0.45);
     transform: translate(var(--dx, 0px), var(--dy, 0px)) rotate(var(--r));
     transition:
@@ -150,7 +150,7 @@ const capas = lista.map((p, i) => ({ p, h: huecos[i], z: lista.length - i })).re
   }
   .lamina:hover .lamina__rotulo,
   .lamina:focus-visible .lamina__rotulo {
-    color: var(--azul);
+    color: #5f5e5a;
   }
   .lamina--arrastrando {
     transition: box-shadow 0.35s;
@@ -160,14 +160,14 @@ const capas = lista.map((p, i) => ({ p, h: huecos[i], z: lista.length - i })).re
     display: block;
     aspect-ratio: 4 / 3;
     overflow: hidden;
-    border-bottom: var(--trazo) solid var(--tinta);
+    border-bottom: var(--trazo) solid var(--lamina-tinta);
     pointer-events: none;
   }
   .lamina__imagen :global(img) {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    background: var(--papel-2);
+    background: var(--lamina-fondo-2);
   }
   .lamina__rotulo {
     display: grid;
@@ -185,7 +185,7 @@ const capas = lista.map((p, i) => ({ p, h: huecos[i], z: lista.length - i })).re
   }
   .lamina__anio {
     padding: 0.45em 0.7em;
-    border-left: var(--trazo) solid var(--tinta);
+    border-left: var(--trazo) solid var(--lamina-tinta);
     font-weight: 600;
     font-variant-numeric: tabular-nums;
   }

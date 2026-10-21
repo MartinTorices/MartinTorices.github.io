@@ -53,19 +53,20 @@ const href = rutas.proyecto(proyecto.lang, proyecto.slug);
     gap: 1rem;
   }
   .tarjeta__lamina {
-    border: var(--trazo-grueso) solid var(--tinta);
-    background: var(--papel);
+    border: var(--trazo-grueso) solid var(--lamina-fondo);
+    background: var(--lamina-fondo);
+    color: var(--lamina-tinta);
   }
   .tarjeta__imagen {
     aspect-ratio: 4 / 3;
     overflow: hidden;
-    border-bottom: var(--trazo) solid var(--tinta);
+    border-bottom: var(--trazo) solid var(--lamina-tinta);
   }
   .tarjeta__imagen :global(img) {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    background: var(--papel-2);
+    background: var(--lamina-fondo-2);
     transition: transform 0.5s ease;
   }
   .tarjeta__rotulo {
@@ -77,7 +78,7 @@ const href = rutas.proyecto(proyecto.lang, proyecto.slug);
     padding: 0.7rem 0.9rem;
   }
   .tarjeta__anio {
-    border-left: var(--trazo) solid var(--tinta);
+    border-left: var(--trazo) solid var(--lamina-tinta);
     padding: 0.7rem 0.9rem;
     font-weight: 600;
     font-variant-numeric: tabular-nums;
@@ -86,10 +87,10 @@ const href = rutas.proyecto(proyecto.lang, proyecto.slug);
   }
   .tarjeta__enlace:hover .tarjeta__lamina,
   .tarjeta__enlace:focus-visible .tarjeta__lamina {
-    border-color: var(--azul);
+    border-color: var(--tinta);
   }
   .tarjeta__enlace:hover h3 {
-    color: var(--azul);
+    color: #5f5e5a;
   }
   .tarjeta__enlace:hover .tarjeta__imagen :global(img) {
     transform: scale(1.03);

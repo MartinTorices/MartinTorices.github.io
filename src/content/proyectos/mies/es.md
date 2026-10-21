@@ -30,7 +30,7 @@ El proyecto parte de una inversión: la fragilidad de las espigas se convierte e
 Cada módulo tiene una base y tres baldas de contrachapado de chopo con forma de trapecio y cuatro perfiles de aluminio en L, de 2,10 m de alto, que se estrechan de 76 a 20 mm. Por eso cada balda lleva ranuras de un tamaño distinto (60, 49 y 37 mm) y se queda encajada a su altura sin herrajes: al encajar, las propias baldas forman la estructura.
 
 ![Un módulo MIES montado, con la base, tres baldas y cuatro perfiles de aluminio](./03-modulo.png)
-![Alzado acotado del módulo, con la altura de cada balda](./05-alzado-cotas.png)
+![Alzado acotado del módulo, con la altura de cada balda](./05-alzado-cotas-dibujo.png)
 *Módulo montado y alzado acotado: 2.100 mm de altura, con las baldas a 600, 1.050 y 1.600 mm.*
 
 Los lados del trapecio forman 36° con la vertical, así que cinco módulos cierran un pentágono. El modelo y los planos para el corte CNC se hicieron en CATIA V5.
@@ -40,7 +40,7 @@ Los lados del trapecio forman 36° con la vertical, así que cinco módulos cier
 En círculo, los módulos crean zonas de reunión abiertas para charlar en grupo viéndose las caras; en zigzag, la estructura se estira para acompañar las zonas de paso; y las configuraciones abiertas forman pequeños refugios que dividen el espacio de forma suave. Las perforaciones de los perfiles permiten tensar cuerdas para colgar paneles en formato A1.
 
 ![Cinco módulos MIES cerrando un pentágono](./02-agrupacion-pentagono.png)
-![Esquemas en planta de las agrupaciones en pentágono, zigzag y abiertas](./06-agrupaciones.png)
+![Esquemas en planta de las agrupaciones en pentágono, zigzag y abiertas](./06-agrupaciones-dibujo.png)
 *Agrupación en pentágono y esquemas en planta de las distintas configuraciones.*
 
 <figure class="visor-md">
@@ -57,7 +57,7 @@ Primero se asienta la base para dar estabilidad, después se encajan los perfile
 
 Cada módulo viaja en una bolsa de rafia agrícola reciclada, fiel al origen del material, con asas para cargarla entre dos personas, de modo que la instalación es un esfuerzo compartido desde el principio.
 
-![Dos personas cargando el módulo dentro de una bolsa de rafia reciclada](./07-packaging.png)
+![Dos personas cargando el módulo dentro de una bolsa de rafia reciclada](./07-packaging-dibujo.png)
 *Embalaje en bolsa de rafia reciclada.*
 
 ## Materiales y presupuesto
