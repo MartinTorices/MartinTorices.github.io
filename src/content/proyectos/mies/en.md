@@ -8,7 +8,12 @@ equipo: [Óscar Ramón Mendiguchía, Nicolás Toribio González]
 etiquetas: [Modular design, Exhibition furniture, Wood and aluminium, Competition]
 portada: ./01-portada-zigzag.png
 portadaAlt: Several MIES modules joined in a zigzag, with plywood shelves and tapered aluminium profiles
-modelo: /modelos/mies.glb
+modelo: /modelos/mies-inferior.glb
+etiquetaVariantes: Shelf
+modeloVariantes:
+  - { nombre: Lower, src: /modelos/mies-inferior.glb }
+  - { nombre: Middle, src: /modelos/mies-media.glb }
+  - { nombre: Upper, src: /modelos/mies-superior.glb }
 orden: 1
 ---
 
@@ -40,7 +45,7 @@ Arranged in a circle, the modules create open meeting areas for face-to-face con
 
 <figure class="visor-md">
 <model-viewer src="/modelos/mies-pentagono.glb" alt="Five MIES modules closing into a pentagon, in 3D" camera-controls touch-action="pan-y" auto-rotate auto-rotate-delay="1500" rotation-per-second="14deg" interaction-prompt="none" camera-orbit="30deg 62deg auto" shadow-intensity="0.6" exposure="1.05" tone-mapping="neutral" environment-image="neutral"></model-viewer>
-<figcaption>Pentagon grouping in 3D: drag to rotate.</figcaption>
+<figcaption>Pentagon grouping in 3D, with a different shelf in each module: drag to rotate.</figcaption>
 </figure>
 
 ## Assembly and transport

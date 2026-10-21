@@ -29,7 +29,8 @@ Web estática con Astro 7, publicada en https://martintorices.github.io. Cada pu
 - MIES: sin «papel» de nadie en el equipo; el resultado es solo el PDF de la lámina descargable (`public/proyectos/mies/`).
 - Modelos de CATIA/SolidWorks: Martín exporta STEP (.stp) a la carpeta del proyecto; se convierte con `cascadio` (`pip install cascadio`; `cascadio.step_to_glb(stp, glb, tol_linear=0.1, tol_angular=0.5)`), se gira de Z arriba a Y arriba y se asignan materiales PBR (ojo: baseColorFactor va en espacio lineal). Ejemplo completo en `herramientas/mies_montar_modelos.py`.
 - Un segundo visor 3D dentro del texto: `<figure class="visor-md"><model-viewer src="/modelos/x.glb" camera-controls ...></model-viewer><figcaption>…</figcaption></figure>` (solo funciona si el proyecto tiene `modelo`, que carga el script).
-- Proyectos publicados: MIES (`mies`, 2026; modelos `mies.glb` y `mies-pentagono.glb`). El de ejemplo ya está borrado.
+- Selector de versiones en el visor principal: en el frontmatter, `modeloVariantes: [{ nombre, src }]` y `etiquetaVariantes` (p. ej. «Balda»); `modelo` es la que sale al principio.
+- Proyectos publicados: MIES (`mies`, 2026). Modelos: `mies-inferior/media/superior.glb` (módulo con cada tipo de balda, elegible en el visor) y `mies-pentagono.glb` (cada módulo con una balda distinta: inferior, media, superior, inferior, media). Scripts en `herramientas/mies_*.py`. El de ejemplo ya está borrado.
 
 ## Diseño
 Concepto: hoja de plano técnico. Papel frío con retícula milimetrada, tinta azul-negra, azul de plano y rojo de revisión. En modo oscuro, cianotipia. Tipografía: Archivo Variable, jugando con su anchura. Mantén esta coherencia en los cambios.

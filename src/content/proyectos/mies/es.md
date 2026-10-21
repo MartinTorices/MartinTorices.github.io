@@ -8,7 +8,12 @@ equipo: [Óscar Ramón Mendiguchía, Nicolás Toribio González]
 etiquetas: [Diseño modular, Mobiliario expositivo, Madera y aluminio, Concurso]
 portada: ./01-portada-zigzag.png
 portadaAlt: Varios módulos MIES unidos en zigzag, con baldas de contrachapado y perfiles de aluminio ahusados
-modelo: /modelos/mies.glb
+modelo: /modelos/mies-inferior.glb
+etiquetaVariantes: Balda
+modeloVariantes:
+  - { nombre: Inferior, src: /modelos/mies-inferior.glb }
+  - { nombre: Media, src: /modelos/mies-media.glb }
+  - { nombre: Superior, src: /modelos/mies-superior.glb }
 orden: 1
 ---
 
@@ -40,7 +45,7 @@ En círculo, los módulos crean zonas de reunión abiertas para charlar en grupo
 
 <figure class="visor-md">
 <model-viewer src="/modelos/mies-pentagono.glb" alt="Cinco módulos MIES cerrando un pentágono, en 3D" camera-controls touch-action="pan-y" auto-rotate auto-rotate-delay="1500" rotation-per-second="14deg" interaction-prompt="none" camera-orbit="30deg 62deg auto" shadow-intensity="0.6" exposure="1.05" tone-mapping="neutral" environment-image="neutral"></model-viewer>
-<figcaption>Agrupación en pentágono en 3D: arrastra para girarla.</figcaption>
+<figcaption>Agrupación en pentágono en 3D, con una balda distinta en cada módulo: arrastra para girarla.</figcaption>
 </figure>
 
 ## Montaje y transporte

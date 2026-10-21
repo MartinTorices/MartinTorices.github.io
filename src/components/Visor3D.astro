@@ -9,8 +9,11 @@ interface Props {
   alt: string;
   lang: Lang;
   poster?: string;
+  // Opcional: varias versiones del modelo que el visitante puede elegir
+  variantes?: { nombre: string; src: string }[];
+  etiquetaVariantes?: string;
 }
-const { src, alt, lang, poster } = Astro.props;
+const { src, alt, lang, poster, variantes = [], etiquetaVariantes } = Astro.props;
 const tx = t(lang);
 ---
 
@@ -38,6 +41,16 @@ const tx = t(lang);
       <div slot="progress-bar" class="visor__carga nota">{tx.vista3dCargando}</div>
       <button slot="ar-button" class="boton visor__ar">{tx.verEnAR}</button>
     </model-viewer>
+    {variantes.length > 1 && (
+      <div class="visor__variantes" role="group" aria-label={etiquetaVariantes}>
+        {etiquetaVariantes && <span class="visor__variantes-titulo">{etiquetaVariantes}</span>}
+        {variantes.map((v) => (
+          <button type="button" class="visor__variante" data-src={v.src} aria-pressed={v.src === src ? 'true' : 'false'}>
+            {v.nombre}
+          </button>
+        ))}
+      </div>
+    )}
     <button class="boton visor__pantalla" type="button" data-pantalla data-entrar={tx.pantallaCompleta} data-salir={tx.salirPantallaCompleta}>
       <Icono nombre="expandir" />
       <span>{tx.pantallaCompleta}</span>
@@ -55,6 +68,17 @@ const tx = t(lang);
     const mv = visor.querySelector('model-viewer')!;
     const carga = visor.querySelector<HTMLElement>('.visor__carga');
     mv.addEventListener('load', () => carga?.remove());
+    // Cambiar de versión del modelo sin mover la cámara
+    visor.querySelectorAll<HTMLButtonElement>('.visor__variante').forEach((b) => {
+      b.addEventListener('click', () => {
+        const orbita = (mv as any).getCameraOrbit?.();
+        mv.setAttribute('src', b.dataset.src!);
+        mv.addEventListener('load', () => {
+          if (orbita) (mv as any).cameraOrbit = orbita.toString();
+        }, { once: true });
+        visor.querySelectorAll('.visor__variante').forEach((o) => o.setAttribute('aria-pressed', String(o === b)));
+      });
+    });
     const boton = visor.querySelector<HTMLButtonElement>('[data-pantalla]')!;
     const marco = visor.querySelector<HTMLElement>('.visor__marco')!;
     const texto = boton.querySelector('span')!;
@@ -109,6 +133,47 @@ const tx = t(lang);
     top: 0.75rem;
     background: var(--papel);
     font-size: var(--t-0);
+  }
+  .visor__variantes {
+    position: absolute;
+    left: 0.75rem;
+    top: 0.75rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: stretch;
+    border: var(--trazo) solid var(--tinta);
+    background: var(--papel);
+    font-size: var(--t-0);
+    max-width: calc(100% - 4.5rem);
+  }
+  .visor__variantes-titulo {
+    padding: 0.5em 0.8em;
+    font-stretch: 80%;
+    color: var(--tinta-suave);
+    border-right: var(--trazo) solid var(--tinta);
+    display: flex;
+    align-items: center;
+  }
+  .visor__variante {
+    font: inherit;
+    font-weight: 600;
+    font-stretch: 100%;
+    padding: 0.5em 0.9em;
+    border: 0;
+    border-right: var(--trazo) solid var(--tinta);
+    background: transparent;
+    color: var(--tinta);
+    cursor: pointer;
+  }
+  .visor__variante:last-child {
+    border-right: 0;
+  }
+  .visor__variante:hover {
+    color: var(--azul);
+  }
+  .visor__variante[aria-pressed='true'] {
+    background: var(--tinta);
+    color: var(--papel);
   }
   .visor__ar {
     position: absolute;

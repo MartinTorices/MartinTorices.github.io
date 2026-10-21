@@ -20,31 +20,32 @@ def escena(lista):
     b=sc.bounds; c=(b[0]+b[1])/2
     sc.apply_translation([-c[0],-b[0][1],-c[2]])
     return sc
-d="expositor_tabla_"
-inf=piezas(d+"inferior.glb"); med=piezas(d+"media.glb"); sup=piezas(d+"superior.glb")
-up=np.eye(4); up[2,3]=1.2
-balda_med=[(n,m.copy().apply_transform(up) or m) for n,m in med if n.startswith("Part2")]
-for n,m in med:
-    pass
-bm=[]
-for n,m in med:
-    if n.startswith("Part2"):
-        mm=m.copy(); mm.apply_translation([0,0,1.2]); bm.append(("balda_media",mm))
-modulo=[(n,m) for n,m in inf]+bm+[("balda_superior",m) for n,m in sup if n.startswith("Part2")]
-escena(modulo).export("/home/claude/martintorices.github.io/public/modelos/mies.glb")
-# pentágono: cada módulo trae solo la balda media; añadimos la inferior y la superior
-pen=dict(piezas("expositor_todopentagono.glb"))
-bases=sorted([k for k in pen if k.startswith("base")])
-ref=pen["base.1_4"]  # módulo con la misma colocación que el STEP de la balda media
-binf=[m for n,m in inf if n.startswith("Part2")][0].copy(); binf.apply_translation([0,0,-1.2])
-bsup=[m for n,m in sup if n.startswith("Part2")][0].copy(); bsup.apply_translation([0,0,-1.2])
-lista=list(pen.items())
-for k in bases:
-    M,_,cost=trimesh.registration.procrustes(ref.vertices,pen[k].vertices,reflection=False,scale=False,return_cost=True)
-    for nombre,b in [("balda_inf",binf),("balda_sup",bsup)]:
-        bb=b.copy(); bb.apply_transform(M); lista.append((f"{nombre}_{k}",bb))
-    print(k,"error",round(cost,8))
-escena(lista).export("/home/claude/martintorices.github.io/public/modelos/mies-pentagono.glb")
-import os
-for f in ["mies.glb","mies-pentagono.glb"]:
-    p="/home/claude/martintorices.github.io/public/modelos/"+f; s=trimesh.load(p); print(f,os.path.getsize(p)//1024,"KB",(s.extents*1000).round().tolist())
+if __name__=='__main__':
+    d="expositor_tabla_"
+    inf=piezas(d+"inferior.glb"); med=piezas(d+"media.glb"); sup=piezas(d+"superior.glb")
+    up=np.eye(4); up[2,3]=1.2
+    balda_med=[(n,m.copy().apply_transform(up) or m) for n,m in med if n.startswith("Part2")]
+    for n,m in med:
+        pass
+    bm=[]
+    for n,m in med:
+        if n.startswith("Part2"):
+            mm=m.copy(); mm.apply_translation([0,0,1.2]); bm.append(("balda_media",mm))
+    modulo=[(n,m) for n,m in inf]+bm+[("balda_superior",m) for n,m in sup if n.startswith("Part2")]
+    escena(modulo).export("/home/claude/martintorices.github.io/public/modelos/mies.glb")
+    # pentágono: cada módulo trae solo la balda media; añadimos la inferior y la superior
+    pen=dict(piezas("expositor_todopentagono.glb"))
+    bases=sorted([k for k in pen if k.startswith("base")])
+    ref=pen["base.1_4"]  # módulo con la misma colocación que el STEP de la balda media
+    binf=[m for n,m in inf if n.startswith("Part2")][0].copy(); binf.apply_translation([0,0,-1.2])
+    bsup=[m for n,m in sup if n.startswith("Part2")][0].copy(); bsup.apply_translation([0,0,-1.2])
+    lista=list(pen.items())
+    for k in bases:
+        M,_,cost=trimesh.registration.procrustes(ref.vertices,pen[k].vertices,reflection=False,scale=False,return_cost=True)
+        for nombre,b in [("balda_inf",binf),("balda_sup",bsup)]:
+            bb=b.copy(); bb.apply_transform(M); lista.append((f"{nombre}_{k}",bb))
+        print(k,"error",round(cost,8))
+    escena(lista).export("/home/claude/martintorices.github.io/public/modelos/mies-pentagono.glb")
+    import os
+    for f in ["mies.glb","mies-pentagono.glb"]:
+        p="/home/claude/martintorices.github.io/public/modelos/"+f; s=trimesh.load(p); print(f,os.path.getsize(p)//1024,"KB",(s.extents*1000).round().tolist())
