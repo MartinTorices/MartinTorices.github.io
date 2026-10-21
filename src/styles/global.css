@@ -1,6 +1,6 @@
 /* ============================================================
    ESTILO GLOBAL — porfolio de Martín Torices
-   Concepto: hoja de plano técnico. Papel de dibujo frío,
+   Concepto: hoja de plano técnico sobre un fondo liso gris niebla,
    tinta azul-negra, azul de plano y un rojo de revisión.
    En modo oscuro la web se convierte en una cianotipia.
    ============================================================ */
@@ -9,16 +9,14 @@
 
 :root {
   /* Paleta */
-  --papel: #eef1f0;        /* fondo, papel de dibujo */
-  --papel-2: #e3e8e7;      /* superficies ligeramente hundidas */
+  --papel: #f3f4f2;        /* fondo: gris niebla, casi blanco */
+  --papel-2: #e9ebe8;      /* superficies ligeramente hundidas */
   --tinta: #18212c;        /* texto principal */
   --tinta-suave: #4a5866;  /* texto secundario */
-  --linea: #b9c4c8;        /* líneas finas, bordes */
+  --linea: #d3d8d6;        /* líneas finas, bordes */
   --rejilla: rgba(36, 67, 184, 0.06); /* papel milimetrado */
   --azul: #2443b8;         /* azul de plano: enlaces y cotas */
   --revision: #c8401a;     /* marcas de revisión, foco */
-  /* retícula isométrica a 30°, la de los cuadernos de dibujo isométrico */
-  --reticula: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='34.641' height='20'%3E%3Cg stroke='%232443b8' stroke-opacity='.12' stroke-width='.8' fill='none'%3E%3Cpath d='M0 0L34.641 20M0 20L34.641 0M0 0V20M17.32 0V20'/%3E%3C/g%3E%3C/svg%3E");
 
   /* Tipografía: una sola familia, Archivo, jugando con su anchura */
   --fuente: 'Archivo Variable', 'Archivo', system-ui, sans-serif;
@@ -49,7 +47,6 @@
     --rejilla: rgba(238, 243, 251, 0.055);
     --azul: #ffffff;
     --revision: #ffb648;
-    --reticula: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='34.641' height='20'%3E%3Cg stroke='%23eef3fb' stroke-opacity='.08' stroke-width='.8' fill='none'%3E%3Cpath d='M0 0L34.641 20M0 20L34.641 0M0 0V20M17.32 0V20'/%3E%3C/g%3E%3C/svg%3E");
     color-scheme: dark;
   }
 }
@@ -62,7 +59,6 @@
   --rejilla: rgba(238, 243, 251, 0.055);
   --azul: #ffffff;
   --revision: #ffb648;
-  --reticula: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='34.641' height='20'%3E%3Cg stroke='%23eef3fb' stroke-opacity='.08' stroke-width='.8' fill='none'%3E%3Cpath d='M0 0L34.641 20M0 20L34.641 0M0 0V20M17.32 0V20'/%3E%3C/g%3E%3C/svg%3E");
   color-scheme: dark;
 }
 
@@ -85,9 +81,6 @@ html {
 body {
   margin: 0;
   background-color: var(--papel);
-  /* papel de dibujo isométrico */
-  background-image: var(--reticula);
-  background-size: 34.641px 20px;
   color: var(--tinta);
   font-family: var(--fuente);
   font-size: var(--t-1);
