@@ -210,10 +210,19 @@ const { Content } = await render(proyecto);
   }
   .cuerpo :global(.visor-md model-viewer) {
     display: block;
+    position: relative;
     width: 100%;
     height: clamp(22rem, 70vh, 44rem);
     border: var(--trazo-grueso) solid var(--lamina-fondo);
     background: var(--lamina-fondo);
+  }
+  /* Botón de realidad aumentada (solo aparece en móviles compatibles), igual que en el visor principal */
+  .cuerpo :global(.visor-md__ar) {
+    position: absolute;
+    left: 0.75rem;
+    bottom: 0.75rem;
+    background: var(--papel);
+    font-size: var(--t-0);
   }
   .cuerpo :global(.visor-md figcaption) {
     font-size: var(--t-0);
