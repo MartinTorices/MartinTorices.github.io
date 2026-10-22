@@ -1,7 +1,8 @@
 /* ============================================================
    ESTILO GLOBAL — porfolio de Martín Torices
-   Concepto: hoja de plano técnico en hormigón oscuro. Todo en grises
-   cálidos: fondo carbón, texto claro y láminas en gris hormigón.
+   Concepto: hoja de plano técnico en hormigón oscuro. Grises cálidos
+   (fondo carbón, texto claro, láminas en hormigón) y un solo acento:
+   amarillo señal.
    La web es oscura siempre, también con el sistema en modo claro.
    ============================================================ */
 
@@ -14,8 +15,9 @@
   --tinta: #efeeea;        /* texto principal */
   --tinta-suave: #c4c2bc;  /* texto secundario */
   --linea: #5a5852;        /* líneas finas, bordes */
-  --azul: #a3a19a;         /* acento gris (apellido, enlaces, cotas); el nombre se mantiene por compatibilidad */
-  --revision: #efeeea;     /* foco */
+  --azul: #f2c14e;         /* acento: amarillo señal (RAL 1003 suavizado). Apellido, enlaces, cotas,
+                              números de fase y botón principal. El nombre se mantiene por compatibilidad */
+  --revision: #f2c14e;     /* foco y marcas */
   /* Láminas: hojas de hormigón claro sobre el fondo oscuro */
   --lamina-fondo: #d8d7d3;
   --lamina-fondo-2: #cbcac5;
@@ -152,12 +154,13 @@ p {
   color: var(--papel);
 }
 .boton--lleno {
-  background: var(--tinta);
+  background: var(--azul);
+  border-color: var(--azul);
   color: var(--papel);
 }
 .boton--lleno:hover {
-  background: var(--azul);
-  border-color: var(--azul);
+  background: var(--tinta);
+  border-color: var(--tinta);
   color: var(--papel);
 }
 .boton svg {
