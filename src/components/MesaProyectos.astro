@@ -5,6 +5,7 @@
 import { Image } from 'astro:assets';
 import type { Proyecto } from '../proyectos';
 import { t, rutas, type Lang } from '../i18n';
+import { escuadra, cartabon, escalimetro, portaminas } from '../utiles-dibujo';
 
 interface Props {
   lang: Lang;
@@ -38,6 +39,15 @@ const mazo = (h: Hueco) => {
   const oy = ((58 - (h[1] + alto / 2)) / alto) * 100;
   return `--ox:${ox.toFixed(1)}%;--oy:${oy.toFixed(1)}%`;
 };
+
+// Útiles de dibujo sobre la mesa (x, y, ancho en % de la mesa; giro; svg). Van
+// encima de las láminas, se pueden arrastrar igual y no abren nada.
+const utiles: { nombre: string; x: number; y: number; w: number; r: number; svg: string }[] = [
+  { nombre: 'escuadra', x: -9, y: 36, w: 32, r: 7, svg: escuadra },
+  { nombre: 'cartabon', x: 64, y: -9, w: 38, r: -14, svg: cartabon },
+  { nombre: 'escalimetro', x: 46, y: 95, w: 52, r: -3, svg: escalimetro },
+  { nombre: 'portaminas', x: 14, y: 95, w: 33, r: 9, svg: portaminas },
+];
 ---
 
 {lista.length > 0 && (
@@ -58,6 +68,14 @@ const mazo = (h: Hueco) => {
             <span class="lamina__anio">{p.data.anio}</span>
           </span>
         </a>
+      ))}
+      {utiles.map((u, k) => (
+        <div
+          class={`util util--${u.nombre}`}
+          style={`--x:${u.x}%;--y:${u.y}%;--w:${u.w}%;--r:${u.r}deg;--z:${20 + k};--i:${capas.length + k}`}
+          aria-hidden="true"
+          set:html={u.svg}
+        />
       ))}
     </div>
     <figcaption class="nota mesa__ayuda">
@@ -82,7 +100,7 @@ const mazo = (h: Hueco) => {
     const tablero = mesa.querySelector<HTMLElement>('.mesa__tablero')!;
     const pie = document.querySelector<HTMLElement>('footer');
 
-    mesa.querySelectorAll<HTMLAnchorElement>('.lamina').forEach((lam) => {
+    mesa.querySelectorAll<HTMLElement>('.lamina, .util').forEach((lam) => {
       let x = 0, y = 0; // desplazamiento actual
       let px = 0, py = 0; // desplazamiento que pide el puntero
       let cx = 0, cy = 0; // puntero en la pantalla
@@ -90,6 +108,8 @@ const mazo = (h: Hueco) => {
       let vx = 0, vy = 0; // velocidad (px/ms) para la inercia
       let sx = 0; // velocidad horizontal muy suavizada, solo para inclinarla
       let giro = 0;
+      // los útiles conservan su giro al cogerlos; las láminas se enderezan
+      const base = lam.classList.contains('util') ? parseFloat(getComputedStyle(lam).getPropertyValue('--r')) || 0 : 0;
       let activo = false, movido = false, bucle = 0, antes = 0, ultimoMovimiento = 0;
 
       // Hasta dónde puede ir la lámina: a los lados, el ancho de la pantalla (ahí
@@ -170,7 +190,7 @@ const mazo = (h: Hueco) => {
 
         // Inclinación: se basa en una velocidad muy suavizada y se acerca poco a poco
         sx += (vx - sx) * (activo ? 0.08 : 0.2);
-        const objetivo = activo ? lim(sx * 7, -9, 9) : 0;
+        const objetivo = base + (activo ? lim(sx * 7, -9, 9) : 0);
         giro += (objetivo - giro) * Math.min(1, dt * 0.012);
         pintar();
 
@@ -181,7 +201,7 @@ const mazo = (h: Hueco) => {
         if (quieta) {
           x = lim(x, L.minX, L.maxX);
           y = lim(y, L.minY, L.maxY);
-          giro = 0;
+          giro = base;
           pintar();
           caer();
         } else bucle = requestAnimationFrame(fotograma);
@@ -372,9 +392,86 @@ const mazo = (h: Hueco) => {
     font-weight: 600;
     font-variant-numeric: tabular-nums;
   }
+  /* Útiles de dibujo: solo responden donde hay material (el hueco de la escuadra
+     deja pasar el clic a la lámina de debajo) */
+  .util {
+    position: absolute;
+    left: var(--x);
+    top: var(--y);
+    width: var(--w);
+    z-index: var(--z);
+    --util-trazo: var(--tinta-suave);
+    --util-acrilico: rgba(239, 238, 234, 0.07);
+    --util-metal: #6d6b66;
+    --util-cuerpo: #3a3936;
+    translate: var(--dx, 0px) var(--dy, 0px);
+    rotate: var(--r);
+    scale: 1;
+    pointer-events: none;
+    user-select: none;
+    filter: drop-shadow(0 6px 6px rgba(0, 0, 0, 0.35));
+    transition:
+      rotate 0.6s cubic-bezier(0.34, 1.56, 0.64, 1),
+      scale 0.45s cubic-bezier(0.34, 1.56, 0.64, 1),
+      filter 0.35s;
+    animation: colocar 0.9s cubic-bezier(0.25, 0.8, 0.25, 1) backwards;
+    animation-delay: calc(var(--i) * 110ms + 450ms);
+  }
+  .util :global(svg) {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+  .util :global(text) {
+    font-family: var(--fuente);
+    font-stretch: 85%;
+  }
+  .util :global(.util__forma) {
+    pointer-events: visiblePainted;
+    cursor: grab;
+  }
+  .util:hover {
+    scale: 1.03;
+    filter: drop-shadow(0 12px 12px rgba(0, 0, 0, 0.4));
+  }
+  .util.lamina--arrastrando {
+    rotate: var(--giro, var(--r));
+    scale: 1.07;
+    filter: drop-shadow(0 26px 22px rgba(0, 0, 0, 0.5));
+    transition:
+      scale 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+      filter 0.3s;
+    will-change: translate, rotate;
+  }
+  .util.lamina--arrastrando :global(.util__forma) {
+    cursor: grabbing;
+  }
+  .util.lamina--volando {
+    scale: 1.05;
+    will-change: translate, rotate;
+  }
+  /* En pantallas estrechas la mesa ocupa todo el ancho: los útiles, algo más dentro */
+  @media (max-width: 60rem) {
+    .util--escuadra {
+      left: 2%;
+    }
+    .util--cartabon {
+      left: 58%;
+    }
+  }
+  @keyframes colocar {
+    from {
+      opacity: 0;
+      translate: 0 -40px;
+      rotate: calc(var(--r) + 25deg);
+      scale: 1.15;
+    }
+  }
+
   .mesa__ayuda {
     justify-self: end;
-    margin: 0;
+    margin: 1.25rem 0 0;
     position: relative;
     z-index: 200;
     transition: opacity 0.4s;
@@ -420,6 +517,7 @@ const mazo = (h: Hueco) => {
     }
   }
   @media (prefers-reduced-motion: reduce) {
+    .util,
     .lamina,
     .mesa__ayuda {
       animation: none;
