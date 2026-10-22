@@ -35,6 +35,7 @@ const og = imagen ? new URL(imagen, Astro.site) : undefined;
     <link rel="alternate" hreflang={lang} href={canonical} />
     <link rel="alternate" hreflang={otro} href={urlAlternativa} />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <meta property="og:type" content="website" />
     <meta property="og:title" content={tituloCompleto} />
     <meta property="og:description" content={descripcion} />
@@ -47,7 +48,14 @@ const og = imagen ? new URL(imagen, Astro.site) : undefined;
 
     <header class="cabecera">
       <div class="contenedor cabecera__fila">
-        <a class="marca" href={inicio}>{persona.nombreCorto}</a>
+        <a class="marca" href={inicio} aria-label={persona.nombreCorto}>
+          <!-- Monograma MT: la pata derecha de la M es también el palo de la T -->
+          <svg class="marca__logo" viewBox="8 8 50 50" aria-hidden="true" focusable="false">
+            <path d="M12 54V13L25 33L38 13V54" fill="none" stroke="currentColor" stroke-width="8" stroke-linejoin="bevel" />
+            <path d="M22 13H54" stroke="currentColor" stroke-width="8" />
+          </svg>
+          <span class="marca__texto">{persona.nombreCorto}</span>
+        </a>
         <nav aria-label={lang === 'es' ? 'Principal' : 'Main'}>
           <ul>
             <li><a href={rutas.proyectos(lang)} aria-current={enProyectos ? 'page' : undefined}>{tx.navProyectos}</a></li>
@@ -99,6 +107,18 @@ const og = imagen ? new URL(imagen, Astro.site) : undefined;
     font-weight: 750;
     font-stretch: 118%;
     white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  .marca__logo {
+    width: 1.6rem;
+    height: 1.6rem;
+    color: var(--azul);
+    flex: none;
+  }
+  .marca:hover .marca__texto {
+    color: var(--azul);
   }
   nav ul {
     display: flex;
@@ -135,12 +155,10 @@ const og = imagen ? new URL(imagen, Astro.site) : undefined;
     overflow: hidden;
     clip: rect(0 0 0 0);
   }
+  /* En el móvil solo se ve el monograma, para dejar sitio al menú */
   @media (max-width: 34rem) {
-    .marca {
+    .marca__texto {
       display: none;
-    }
-    .cabecera__fila {
-      justify-content: flex-end;
     }
   }
   .pie {
