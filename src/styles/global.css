@@ -202,6 +202,7 @@ p {
 }
 /* Título de sección: como el nombre de una vista, con su línea hasta el borde */
 .titulo-seccion {
+  color: var(--azul);
   display: flex;
   align-items: baseline;
   gap: 1rem;
