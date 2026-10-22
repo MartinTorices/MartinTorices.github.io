@@ -42,6 +42,12 @@ const og = imagen ? new URL(imagen, Astro.site) : undefined;
     <meta property="og:url" content={canonical} />
     {og && <meta property="og:image" content={og} />}
     <meta name="theme-color" content="#2a2927" />
+    <script is:inline>
+      // .js: hay JavaScript (se pueden ocultar bloques para animarlos).
+      // .interna: se llega desde otra página de la web (la cabecera no vuelve a entrar).
+      document.documentElement.classList.add('js');
+      if (document.referrer.indexOf(location.origin) === 0) document.documentElement.classList.add('interna');
+    </script>
   </head>
   <body>
     <a class="salto" href="#contenido">{lang === 'es' ? 'Saltar al contenido' : 'Skip to content'}</a>
@@ -82,6 +88,26 @@ const og = imagen ? new URL(imagen, Astro.site) : undefined;
         <span class="nota">{tx.pie}</span>
       </div>
     </footer>
+
+    <script>
+      // Muestra los bloques marcados con data-aparecer (o data-revelar) al llegar a ellos
+      const vistos = document.querySelectorAll<HTMLElement>('[data-aparecer], [data-revelar], [data-aparecer-hijos] > *');
+      if ('IntersectionObserver' in window) {
+        const obs = new IntersectionObserver(
+          (entradas) => {
+            for (const e of entradas) {
+              if (!e.isIntersecting) continue;
+              e.target.classList.add('visible');
+              obs.unobserve(e.target);
+            }
+          },
+          { rootMargin: '0px 0px -8% 0px', threshold: 0.12 }
+        );
+        vistos.forEach((el) => obs.observe(el));
+      } else {
+        vistos.forEach((el) => el.classList.add('visible'));
+      }
+    </script>
   </body>
 </html>
 

@@ -32,9 +32,9 @@ const { Content } = await render(proyecto);
     <header class:list={['contenedor', 'cabeza', { 'cabeza--plano': data.modelo }]}>
       <div class="cabeza__texto">
       <a class="volver" href={rutas.proyectos(lang)}><Icono nombre="flecha-izq" />{tx.volver}</a>
-      <h1>{data.titulo}</h1>
-      <p class="entradilla">{data.resumen}</p>
-      <table class="cajetin datos">
+      <h1 data-aparecer>{data.titulo}</h1>
+      <p class="entradilla" data-aparecer style="--retraso:0.1s">{data.resumen}</p>
+      <table class="cajetin datos" data-aparecer style="--retraso:0.2s">
         <tbody>
           <tr><th scope="row">{tx.anio}</th><td>{data.anio}</td></tr>
           {data.contexto && <tr><th scope="row">{tx.contexto}</th><td>{data.contexto}</td></tr>}
@@ -51,7 +51,7 @@ const { Content } = await render(proyecto);
       {data.modelo && <PiezaPlano src={data.modelo} lang={lang} etiqueta={data.portadaAlt} class="cabeza__plano" />}
     </header>
 
-    <div class="contenedor medios">
+    <div class="contenedor medios" data-aparecer style="--retraso:0.3s">
       {data.modelo ? (
         <Visor3D src={data.modelo} alt={data.portadaAlt} lang={lang} variantes={data.modeloVariantes} etiquetaVariantes={data.etiquetaVariantes} />
       ) : (
@@ -59,7 +59,7 @@ const { Content } = await render(proyecto);
       )}
     </div>
 
-    <div class="contenedor cuerpo">
+    <div class="contenedor cuerpo" data-aparecer-hijos>
       <Content />
     </div>
 

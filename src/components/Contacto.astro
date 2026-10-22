@@ -13,10 +13,10 @@ const linkedinTexto = persona.linkedin.replace(/^https?:\/\/(www\.)?/, '');
 
 <section class="seccion" id="contacto" aria-labelledby="contacto-t">
   <div class="contenedor">
-    <h2 id="contacto-t" class="titulo-seccion">{tx.contactoTitulo}</h2>
-    <p class="entradilla">{tx.contactoIntro}</p>
+    <h2 id="contacto-t" class="titulo-seccion" data-aparecer>{tx.contactoTitulo}</h2>
+    <p class="entradilla" data-aparecer style="--retraso:0.1s">{tx.contactoIntro}</p>
 
-    <table class="cajetin contacto">
+    <table class="cajetin contacto" data-aparecer style="--retraso:0.2s">
       <tbody>
         <tr>
           <th scope="row">{tx.correo}</th>

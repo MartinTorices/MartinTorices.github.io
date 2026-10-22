@@ -95,4 +95,39 @@ const inicio = rutas.inicio(lang);
     z-index: 2;
     min-width: 0;
   }
+
+  /* Entrada al cargar: el nombre sube línea a línea, el apellido se ensancha
+     (Archivo es de anchura variable) y luego llegan el lema y los botones */
+  @media (prefers-reduced-motion: no-preference) {
+    h1 span {
+      animation: linea 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) 0.15s backwards;
+    }
+    h1 span + span {
+      animation:
+        linea 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) 0.3s backwards,
+        ensanchar 1.4s cubic-bezier(0.3, 0.8, 0.2, 1) 0.3s backwards;
+    }
+    .lema {
+      animation: subir 0.8s cubic-bezier(0.2, 0.7, 0.2, 1) 0.75s backwards;
+    }
+    .acciones {
+      animation: subir 0.8s cubic-bezier(0.2, 0.7, 0.2, 1) 0.9s backwards;
+    }
+  }
+  @keyframes linea {
+    from {
+      translate: 0 0.6em;
+      clip-path: inset(-0.3em -0.2em 100% -0.2em);
+    }
+    to {
+      translate: 0 0;
+      clip-path: inset(-0.3em -0.2em -0.3em -0.2em);
+    }
+  }
+  @keyframes ensanchar {
+    from {
+      font-stretch: 62%;
+      letter-spacing: 0.02em;
+    }
+  }
 </style>

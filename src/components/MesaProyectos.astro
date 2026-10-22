@@ -29,6 +29,15 @@ const lista = proyectos.slice(0, 12);
 const huecos = disposiciones[lista.length] ?? lista.map((_, i) => general[i % general.length]);
 // La primera lámina (proyecto con menor «orden») queda encima
 const capas = lista.map((p, i) => ({ p, h: huecos[i], z: lista.length - i })).reverse();
+// Para el reparto inicial: cuánto hay que mover cada lámina (en % de su propio
+// tamaño) para que salga del centro de la mesa, como un mazo de cartas.
+// Alto de la lámina ≈ 0,86 × su ancho; la mesa es 6:5.
+const mazo = (h: Hueco) => {
+  const alto = (h[2] * 0.86 * 6) / 5; // alto de la lámina en % del alto de la mesa
+  const ox = ((50 - (h[0] + h[2] / 2)) / h[2]) * 100;
+  const oy = ((58 - (h[1] + alto / 2)) / alto) * 100;
+  return `--ox:${ox.toFixed(1)}%;--oy:${oy.toFixed(1)}%`;
+};
 ---
 
 {lista.length > 0 && (
@@ -38,7 +47,7 @@ const capas = lista.map((p, i) => ({ p, h: huecos[i], z: lista.length - i })).re
         <a
           class="lamina"
           href={rutas.proyecto(lang, p.slug)}
-          style={`--x:${h[0]}%;--y:${h[1]}%;--w:${h[2]}%;--r:${h[3]}deg;--z:${z};--i:${capas.length - 1 - i}`}
+          style={`--x:${h[0]}%;--y:${h[1]}%;--w:${h[2]}%;--r:${h[3]}deg;--z:${z};--i:${capas.length - 1 - i};${mazo(h)}`}
           draggable="false"
         >
           <span class="lamina__imagen">
@@ -60,36 +69,122 @@ const capas = lista.map((p, i) => ({ p, h: huecos[i], z: lista.length - i })).re
 
 <script>
   // Arrastrar láminas con el ratón; un clic sin arrastrar abre el proyecto.
+  // Al cogerla se levanta, se balancea según la velocidad del ratón y, al
+  // soltarla, sigue deslizándose un poco y cae con un pequeño rebote.
+  const reducir = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
   document.querySelectorAll<HTMLElement>('[data-mesa]').forEach((mesa) => {
     let arriba = 100;
+    const limites = (mesa.closest('section') ?? document.body) as HTMLElement;
+
     mesa.querySelectorAll<HTMLAnchorElement>('.lamina').forEach((lam) => {
-      let dx = 0, dy = 0, x0 = 0, y0 = 0, movido = false, activo = false;
+      let dx = 0, dy = 0, x0 = 0, y0 = 0;
+      let movido = false, activo = false;
+      let vx = 0, vy = 0, ux = 0, uy = 0, ut = 0; // velocidad (px/ms) y último punto
+      let giro = 0, bucle = 0;
+
       const subir = () => (lam.style.zIndex = String(++arriba));
+      const mover = () => {
+        lam.style.setProperty('--dx', `${dx}px`);
+        lam.style.setProperty('--dy', `${dy}px`);
+      };
+
+      // Balanceo: la lámina se inclina hacia donde va, como un papel cogido por arriba
+      const balancear = () => {
+        const objetivo = activo ? Math.max(-14, Math.min(14, vx * 9)) : 0;
+        giro += (objetivo - giro) * 0.2;
+        vx *= activo ? 0.9 : 1; // si el ratón se para, la inclinación vuelve sola
+        lam.style.setProperty('--giro', `${giro.toFixed(2)}deg`);
+        if (activo) bucle = requestAnimationFrame(balancear);
+      };
+
+      // Inercia al soltar: sigue un poco y frena; rebota en los bordes de la portada
+      const deslizar = () => {
+        let t = performance.now();
+        const paso = (ahora: number) => {
+          const dt = Math.min(32, ahora - t);
+          t = ahora;
+          dx += vx * dt;
+          dy += vy * dt;
+          const roce = Math.pow(0.992, dt);
+          vx *= roce;
+          vy *= roce;
+          const r = lam.getBoundingClientRect();
+          const b = limites.getBoundingClientRect();
+          const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+          if ((cx < b.left && vx < 0) || (cx > b.right && vx > 0)) vx *= -0.45;
+          if ((cy < b.top + 40 && vy < 0) || (cy > b.bottom && vy > 0)) vy *= -0.45;
+          mover();
+          if (Math.hypot(vx, vy) > 0.02 && !activo) bucle = requestAnimationFrame(paso);
+          else soltada();
+        };
+        bucle = requestAnimationFrame(paso);
+      };
+      const soltada = () => {
+        lam.classList.remove('lamina--volando');
+        // Al caer sobre la mesa, un pequeño golpe (termina en su escala normal)
+        lam.animate([{ scale: '1.07' }, { scale: '0.985', offset: 0.45 }], {
+          duration: 500,
+          easing: 'cubic-bezier(0.3, 0.7, 0.4, 1)',
+        });
+      };
+
       lam.addEventListener('pointerenter', subir);
       lam.addEventListener('focus', subir);
       lam.addEventListener('pointerdown', (e) => {
         if (e.pointerType !== 'mouse' || e.button !== 0) return;
+        cancelAnimationFrame(bucle);
+        lam.classList.remove('lamina--volando');
         activo = true;
         movido = false;
         x0 = e.clientX - dx;
         y0 = e.clientY - dy;
+        ux = e.clientX;
+        uy = e.clientY;
+        ut = e.timeStamp;
+        vx = vy = 0;
+        subir();
         lam.setPointerCapture(e.pointerId);
       });
       lam.addEventListener('pointermove', (e) => {
         if (!activo) return;
         const nx = e.clientX - x0, ny = e.clientY - y0;
         if (!movido && Math.hypot(nx - dx, ny - dy) < 4) return;
-        movido = true;
+        if (!movido) {
+          movido = true;
+          lam.classList.add('lamina--arrastrando');
+          if (!reducir) bucle = requestAnimationFrame(balancear);
+        }
+        const dt = Math.max(1, e.timeStamp - ut);
+        vx = vx * 0.6 + ((e.clientX - ux) / dt) * 0.4;
+        vy = vy * 0.6 + ((e.clientY - uy) / dt) * 0.4;
+        ux = e.clientX;
+        uy = e.clientY;
+        ut = e.timeStamp;
         dx = nx;
         dy = ny;
-        lam.classList.add('lamina--arrastrando');
-        lam.style.setProperty('--dx', `${dx}px`);
-        lam.style.setProperty('--dy', `${dy}px`);
+        mover();
       });
-      const soltar = () => {
+      const soltar = (e: PointerEvent) => {
+        if (!activo) return;
         activo = false;
+        cancelAnimationFrame(bucle);
         lam.classList.remove('lamina--arrastrando');
-        if (movido) mesa.classList.add('mesa--tocada');
+        lam.style.setProperty('--giro', '0deg');
+        giro = 0;
+        if (!movido) return;
+        mesa.classList.add('mesa--tocada');
+        // si el ratón llevaba un rato quieto, no hay inercia
+        if (e.timeStamp - ut > 80) vx = vy = 0;
+        const v = Math.hypot(vx, vy);
+        if (v > 3) {
+          vx *= 3 / v;
+          vy *= 3 / v;
+        }
+        if (!reducir && v > 0.25) {
+          lam.classList.add('lamina--volando');
+          deslizar();
+        } else if (!reducir) soltada();
       };
       lam.addEventListener('pointerup', soltar);
       lam.addEventListener('pointercancel', soltar);
@@ -126,17 +221,22 @@ const capas = lista.map((p, i) => ({ p, h: huecos[i], z: lista.length - i })).re
     background: var(--lamina-fondo);
     border: var(--trazo-grueso) solid var(--lamina-fondo);
     box-shadow: 0 1px 0 var(--linea), 0 10px 24px -14px rgba(10, 20, 40, 0.45);
-    transform: translate(var(--dx, 0px), var(--dy, 0px)) rotate(var(--r));
+    /* translate (arrastre), rotate y scale van por separado: así cada uno
+       tiene su propia transición */
+    translate: var(--dx, 0px) var(--dy, 0px);
+    rotate: var(--r);
+    scale: 1;
     transition:
-      transform 0.35s cubic-bezier(0.2, 0.7, 0.2, 1),
+      rotate 0.6s cubic-bezier(0.34, 1.56, 0.64, 1),
+      scale 0.45s cubic-bezier(0.34, 1.56, 0.64, 1),
       box-shadow 0.35s;
     cursor: pointer;
     container-type: inline-size;
     user-select: none;
     -webkit-user-drag: none;
     touch-action: auto;
-    animation: repartir 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both;
-    animation-delay: calc(var(--i) * 90ms + 150ms);
+    animation: repartir 0.9s cubic-bezier(0.25, 0.8, 0.25, 1) backwards;
+    animation-delay: calc(var(--i) * 110ms + 350ms);
   }
   @media (hover: hover) and (pointer: fine) {
     .lamina {
@@ -145,17 +245,30 @@ const capas = lista.map((p, i) => ({ p, h: huecos[i], z: lista.length - i })).re
   }
   .lamina:hover,
   .lamina:focus-visible {
-    transform: translate(var(--dx, 0px), var(--dy, 0px)) rotate(0deg) scale(1.04);
+    rotate: 0deg;
+    scale: 1.04;
     box-shadow: 0 1px 0 var(--linea), 0 22px 40px -18px rgba(10, 20, 40, 0.55);
   }
   .lamina:hover .lamina__rotulo,
   .lamina:focus-visible .lamina__rotulo {
     color: #5f5e5a;
   }
-  .lamina--arrastrando {
-    transition: box-shadow 0.35s;
+  /* Cogida: se levanta (más grande, sombra más lejana) y se inclina con el movimiento */
+  .lamina.lamina--arrastrando {
+    rotate: var(--giro, 0deg);
+    scale: 1.09;
+    box-shadow: 0 1px 0 var(--linea), 0 40px 60px -22px rgba(0, 0, 0, 0.7);
+    transition:
+      scale 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+      box-shadow 0.3s;
     cursor: grabbing;
   }
+  /* Deslizándose tras soltarla: aún en el aire */
+  .lamina.lamina--volando {
+    scale: 1.06;
+    box-shadow: 0 1px 0 var(--linea), 0 32px 50px -22px rgba(0, 0, 0, 0.65);
+  }
+
   .lamina__imagen {
     display: block;
     aspect-ratio: 4 / 3;
@@ -195,6 +308,7 @@ const capas = lista.map((p, i) => ({ p, h: huecos[i], z: lista.length - i })).re
     position: relative;
     z-index: 200;
     transition: opacity 0.4s;
+    animation: aparecer-ayuda 0.8s ease 1.6s backwards;
   }
   .ayuda-tactil {
     display: none;
@@ -211,15 +325,33 @@ const capas = lista.map((p, i) => ({ p, h: huecos[i], z: lista.length - i })).re
     opacity: 0;
   }
 
-  /* Al cargar, las láminas caen sobre la mesa una tras otra */
+  /* Al cargar, las láminas salen de un mazo en el centro de la mesa y se
+     reparten una tras otra, como cartas */
   @keyframes repartir {
+    0% {
+      opacity: 0;
+      translate: var(--ox) calc(var(--oy) + 30%);
+      rotate: 0deg;
+      scale: 0.82;
+    }
+    25% {
+      opacity: 1;
+      translate: var(--ox) var(--oy);
+      rotate: calc(var(--r) * -1.5);
+      scale: 0.9;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+  @keyframes aparecer-ayuda {
     from {
       opacity: 0;
-      transform: translate(0, -28px) rotate(calc(var(--r) * 2.5)) scale(1.06);
     }
   }
   @media (prefers-reduced-motion: reduce) {
-    .lamina {
+    .lamina,
+    .mesa__ayuda {
       animation: none;
       transition: none;
     }

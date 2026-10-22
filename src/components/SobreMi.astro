@@ -10,8 +10,8 @@ const tx = t(lang);
 
 <section class="seccion" id="sobre-mi" aria-labelledby="sobre-mi-t">
   <div class="contenedor rejilla">
-    <h2 id="sobre-mi-t" class="titulo-seccion">{tx.sobreMiTitulo}</h2>
-    <div class="texto">
+    <h2 id="sobre-mi-t" class="titulo-seccion" data-aparecer>{tx.sobreMiTitulo}</h2>
+    <div class="texto" data-aparecer style="--retraso:0.15s">
       {sobreMi[lang].map((p, i) => <p class={i === 0 ? 'primero' : ''}>{p}</p>)}
       {persona.cv && (
         <a class="boton" href={persona.cv} download>
@@ -20,7 +20,7 @@ const tx = t(lang);
         </a>
       )}
     </div>
-    <aside class="programas" aria-labelledby="programas-t">
+    <aside class="programas" aria-labelledby="programas-t" data-aparecer style="--retraso:0.3s">
       <h3 id="programas-t" class="nota">{tx.programasTitulo}</h3>
       <ul>
         {persona.programas.map((p) => <li>{p}</li>)}

@@ -15,14 +15,14 @@ const otro: Lang = lang === 'es' ? 'en' : 'es';
 <Base lang={lang} titulo={tx.proyectosTitulo} descripcion={tx.proyectosIntro} alternativa={rutas.proyectos(otro)}>
   <section class="contenedor proyectos" aria-labelledby="proyectos-t">
     <header class="cabeza">
-      <h1 id="proyectos-t" class="titulo-seccion">{tx.proyectosTitulo}</h1>
-      <p class="entradilla">{tx.proyectosIntro}</p>
+      <h1 id="proyectos-t" class="titulo-seccion" data-aparecer>{tx.proyectosTitulo}</h1>
+      <p class="entradilla" data-aparecer style="--retraso:0.1s">{tx.proyectosIntro}</p>
     </header>
     {proyectos.length === 0 ? (
       <p>{tx.proyectosVacio}</p>
     ) : (
       <div class="galeria">
-        {proyectos.map((p, i) => <TarjetaProyecto proyecto={p} prioridad={i < 4} />)}
+        {proyectos.map((p, i) => <TarjetaProyecto proyecto={p} prioridad={i < 4} indice={i} />)}
       </div>
     )}
   </section>

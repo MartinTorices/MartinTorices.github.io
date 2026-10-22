@@ -7,10 +7,10 @@ const fases = lang === 'es'
   ? [['Idea', 'Problema, usuario y requisitos'], ['Boceto', 'Alternativas a mano y elección'], ['CAD', 'Modelado paramétrico y planos'], ['Prototipo', 'Maqueta, pruebas y ajustes'], ['Fabricación', 'Materiales, procesos y costes']]
   : [['Idea', 'Problem, user and requirements'], ['Sketch', 'Hand-drawn options and choice'], ['CAD', 'Parametric modelling and drawings'], ['Prototype', 'Mock-ups, tests and tweaks'], ['Manufacturing', 'Materials, processes and costs']];
 ---
-<section class="proceso" aria-label={lang === 'es' ? 'Cómo trabajo' : 'How I work'}>
+<section class="proceso" data-revelar aria-label={lang === 'es' ? 'Cómo trabajo' : 'How I work'}>
   <ol class="contenedor fases">
     {fases.map(([t, d], i) => (
-      <li><span class="n">{String(i + 1).padStart(2, '0')}</span><strong>{t}</strong><span class="d">{d}</span></li>
+      <li style={`--n:${i}`}><span class="n">{String(i + 1).padStart(2, '0')}</span><strong>{t}</strong><span class="d">{d}</span></li>
     ))}
   </ol>
 </section>
@@ -37,5 +37,31 @@ const fases = lang === 'es'
     .fases::before { left: calc(var(--gutter) + 4px); right: auto; top: 0.5rem; bottom: 0.5rem; border-top: 0; border-left: 1px solid var(--azul); }
     li { padding: 0 0 0 1.75rem; }
     li::before { top: 0.35rem; }
+    .fases::before { transform-origin: top; }
+  }
+  /* Al llegar con el scroll: la cota se traza y las fases aparecen en orden */
+  @media (prefers-reduced-motion: no-preference) {
+    :global(.js) .fases::before {
+      scale: 0 1;
+      transform-origin: left;
+      transition: scale 1.2s cubic-bezier(0.6, 0, 0.2, 1);
+    }
+    :global(.js) li {
+      opacity: 0;
+      translate: 0 1rem;
+      transition: opacity 0.6s ease, translate 0.7s cubic-bezier(0.2, 0.7, 0.2, 1);
+      transition-delay: calc(var(--n) * 0.18s + 0.15s);
+    }
+    :global(.js) li::before {
+      scale: 0;
+      transition: scale 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+      transition-delay: calc(var(--n) * 0.18s + 0.15s);
+    }
+    :global(.js) .visible .fases::before { scale: 1 1; }
+    :global(.js) .visible li { opacity: 1; translate: none; }
+    :global(.js) .visible li::before { scale: 1; }
+    @media (max-width: 50rem) {
+      :global(.js) .fases::before { scale: 1 0; transform-origin: top; }
+    }
   }
 </style>

@@ -8,13 +8,14 @@ import { rutas } from '../i18n';
 interface Props {
   proyecto: Proyecto;
   prioridad?: boolean;
+  indice?: number; // para que las tarjetas aparezcan una tras otra
 }
-const { proyecto, prioridad = false } = Astro.props;
+const { proyecto, prioridad = false, indice = 0 } = Astro.props;
 const { data } = proyecto;
 const href = rutas.proyecto(proyecto.lang, proyecto.slug);
 ---
 
-<article class="tarjeta">
+<article class="tarjeta" data-aparecer style={`--retraso:${(0.15 + (indice % 3) * 0.12).toFixed(2)}s`}>
   <a href={href} class="tarjeta__enlace">
     <div class="tarjeta__lamina">
       <div class="tarjeta__imagen">

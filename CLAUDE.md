@@ -35,6 +35,12 @@ Web estática con Astro 7, publicada en https://martintorices.github.io. Cada pu
 ## Diseño
 Concepto: hoja de plano técnico en «hormigón oscuro» (elegido por Martín): grises cálidos y un único acento amarillo señal #f2c14e (variable `--azul` por compatibilidad; apellido, enlaces, cotas, números de fase, botón principal). Fondo carbón #2a2927 que se funde en degradado con una banda algo más clara `--banda` #32312e (empieza al final de la portada, cubre la franja de las 5 fases de `Proceso.astro` y «Sobre mí», y vuelve al carbón antes de Contacto; sin cortes rectos), texto #efeeea, láminas y visores 3D sobre hormigón claro (`--lamina-fondo` #d8d7d3). La web es oscura siempre (no hay modo claro). Sin retícula ni cursor de coordenadas. Tipografía: Archivo Variable, jugando con su anchura. Mantén esta coherencia en los cambios.
 - Logo: monograma «MT» (la pata derecha de la M es el palo de la T), amarillo sobre carbón. Está en `public/favicon.svg`, `public/apple-touch-icon.png` y en la cabecera (`Base.astro`, en línea con `currentColor`). En el móvil la cabecera muestra solo el monograma.
+- Logo de la pestaña (`favicon.svg`): sin fondo; amarillo #f2c14e, y #d9a21b si el navegador está en tema claro.
+- Animaciones (se desactivan con «reducir movimiento»):
+  - Portada: la cabecera baja; el nombre sube línea a línea y el apellido se ensancha (font-stretch 62 % → 125 %); luego, el lema y los botones. Las láminas se reparten desde un mazo en el centro de la mesa.
+  - Láminas (`MesaProyectos.astro`): al cogerlas se levantan y se inclinan según la velocidad del ratón; al soltarlas se deslizan con inercia, rebotan en los bordes de la portada y caen con un pequeño golpe. Usan `translate`, `rotate` y `scale` por separado, no `transform`.
+  - Al hacer scroll: añade `data-aparecer` (y `style="--retraso:0.2s"` si quieres escalonar) a un bloque para que suba y aparezca; `data-aparecer-hijos` hace lo mismo con cada hijo (cuerpo de los proyectos); `data-revelar` solo añade `.visible` para animaciones propias (las 5 fases). En los `.titulo-seccion` la línea se traza sola.
+  - Entre páginas, fundido con `@view-transition` (la cabecera no vuelve a entrar si vienes de otra página de la web).
 - Dibujos con líneas o texto negro: el nombre del archivo debe terminar en `-dibujo` (p. ej. `05-alzado-cotas-dibujo.png`) y se ponen solos sobre una hoja clara; los renders sin fondo van directamente sobre el carbón.
 
 ## Cuidado
