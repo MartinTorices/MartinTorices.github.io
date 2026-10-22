@@ -150,52 +150,186 @@ def esfera(c, r, material):
     return Trozo(material, p, nn, uv)
 
 
-# ── Cuerda con la lámina A1 (sistema del módulo) ─────────────────────────────
-def agujero(perfil):
-    """Centro (y, z) de la perforación alta del ala perpendicular a x."""
+# ── Cuerda con la lámina A1, en la parte de atrás (sistema del módulo) ──────
+# En el sistema del módulo, y = 0 es la cara ancha (delante, hacia fuera del
+# pentágono) e y = 0,3 la estrecha (atrás). Los perfiles traseros (Part1.3 y
+# Part1.4) tienen la esquina hacia atrás y una perforación a 1,70 m en el ala
+# trasera: la cuerda sale por ellas, corre por detrás de los perfiles y la lámina
+# cuelga detrás, mirando hacia delante. Así, desde fuera, la maqueta de la balda
+# queda delante y la lámina de fondo.
+def agujero_trasero(perfil):
+    """Centro (x, y, z) de la perforación alta del ala trasera (eje del agujero en y)."""
     f = perfil.triangles_center
     n = perfil.face_normals
-    x0 = perfil.bounds[0][0]
-    pequenas = perfil.area_faces < 1e-4          # las paredes del agujero son caras pequeñas
-    sel = (f[:, 2] > 1.6) & (f[:, 2] < 1.76) & (np.abs(n[:, 0]) < 0.05) & (f[:, 0] < x0 + 0.006) & pequenas
+    y1 = perfil.bounds[1][1]
+    sel = ((f[:, 2] > 1.6) & (f[:, 2] < 1.76) & (np.abs(n[:, 1]) < 0.05)
+           & (f[:, 1] > y1 - 0.006) & (perfil.area_faces < 1e-4))
     c = f[sel]
-    return c[:, 1].mean(), c[:, 2].mean()
+    return c[:, 0].mean(), y1, c[:, 2].mean()
 
 
 def colgador(perfil_izq, perfil_der):
-    y, z = agujero(perfil_izq)
-    xi = perfil_izq.bounds[0][0]           # cara exterior del ala con el agujero
-    xd = perfil_der.bounds[1][0]
-    caida = 0.014                          # la cuerda cede con el peso de la lámina
-    xs = np.linspace(xi - 0.012, xd + 0.012, 121)
-    pinzas = [-0.2, 0.2]
-    # perfil de la cuerda: recta entre los apoyos (perfiles y pinzas), algo combada
-    apoyos_x = [xi, pinzas[0], pinzas[1], xd]
-    apoyos_z = [z, z - caida, z - caida * 1.05, z]
-    zs = np.interp(xs, apoyos_x, apoyos_z)
-    zs -= 0.003 * np.sin(np.clip((xs - pinzas[0]) / (pinzas[1] - pinzas[0]), 0, 1) * np.pi)
-    cuerda = tubo(np.stack([xs, np.full_like(xs, y), zs], 1), 0.0035)
-    trozos = [cuerda,
-              esfera([xi - 0.014, y, z], 0.008, 'cuerda'),      # nudos por fuera
-              esfera([xd + 0.014, y, z], 0.008, 'cuerda')]
+    xi, yb, z = agujero_trasero(perfil_izq)
+    xd, _, _ = agujero_trasero(perfil_der)
+    r = 0.0035
+    yc = yb + r + 0.001                    # la cuerda corre pegada por detrás de los perfiles
+    caida = 0.012                          # cede un poco con el peso de la lámina
+    pinzas = [-0.15, 0.15]
+    xs = np.linspace(xi, xd, 81)
+    zs = np.interp(xs, [xi, pinzas[0], pinzas[1], xd], [z, z - caida, z - caida * 1.05, z])
+    zs -= 0.002 * np.sin(np.clip((xs - pinzas[0]) / (pinzas[1] - pinzas[0]), 0, 1) * np.pi)
+    dentro = yb - 0.012                    # los extremos vuelven a entrar por el agujero
+    tramo = [[xi, dentro, z], [xi, yb - 0.004, z]] + [[x, yc, zz] for x, zz in zip(xs, zs)] + \
+            [[xd, yb - 0.004, z], [xd, dentro, z]]
+    trozos = [tubo(np.array(tramo), r),
+              esfera([xi, dentro - 0.004, z], 0.008, 'cuerda'),   # nudos por dentro
+              esfera([xd, dentro - 0.004, z], 0.008, 'cuerda')]
     # lámina A1 (594 × 841 mm) sobre cartón pluma de 5 mm
     ancho, alto, grueso = 0.594, 0.841, 0.005
-    arriba = z - caida - 0.028
-    c = [0, y, arriba - alto / 2]
+    yl = yc + r + grueso / 2 + 0.0005
+    arriba = z - caida - 0.03
 
     def uv_lamina(p, nn):
         return np.stack([(p[:, 0] + ancho / 2) / ancho, (arriba - p[:, 2]) / alto], 1)
 
-    tablero = caja('carton', c, [ancho, grueso, alto])
-    frente = tablero.nor[:, 1] < -0.9      # la cara que mira hacia fuera del pentágono
+    tablero = caja('carton', [0, yl, arriba - alto / 2], [ancho, grueso, alto])
+    frente = tablero.nor[:, 1] < -0.9      # la cara que mira hacia delante
     trozos.append(Trozo('lamina', tablero.pos[frente], tablero.nor[frente], uv_lamina(tablero.pos[frente], None)))
     trozos.append(Trozo('carton', tablero.pos[~frente], tablero.nor[~frente], tablero.uv[~frente]))
     # dos pinzas de madera que muerden la cuerda y el borde de la lámina
     for xp in pinzas:
-        zc = z - caida - 0.012
-        for dy in (-0.0055, 0.0055):
-            trozos.append(caja('pinza', [xp, y + dy, zc], [0.011, 0.0045, 0.072], uv_escala=0.3))
+        zc = z - caida - 0.014
+        for y in (yc - r - 0.0025, yl + grueso / 2 + 0.0025):
+            trozos.append(caja('pinza', [xp, y, zc], [0.011, 0.0045, 0.072], uv_escala=0.3))
     return trozos
+
+
+# ── Maquetas para las baldas (sistema del módulo; z0 = cara de arriba de la balda)
+def suave(m, material, escala_uv=0.3):
+    """Malla con normales suaves (piezas curvas: lámpara, figura)."""
+    p = m.vertices[m.faces].reshape(-1, 3)
+    nn = m.vertex_normals[m.faces].reshape(-1, 3)
+    uv = np.stack([p[:, 0] + p[:, 1], p[:, 2]], 1) / escala_uv
+    return Trozo(material, p, nn, uv)
+
+
+def peana(z0, ancho, fondo, cy=0.13, alto=0.006, material='carton_gris'):
+    return caja(material, [0, cy, z0 + alto / 2], [ancho, fondo, alto]), z0 + alto
+
+
+def maqueta_ciudad(z0):
+    """Maqueta de arquitectura: manzana de bloques de cartón blanco y una plaza de balsa."""
+    t, z = peana(z0, 0.30, 0.20)
+    trozos = [t]
+    r = np.random.default_rng(11)
+    for i, x in enumerate(np.linspace(-0.115, 0.115, 5)):
+        for j, y in enumerate([0.075, 0.13, 0.185]):
+            if (i, j) in [(2, 1), (1, 1)]:
+                continue                       # hueco para la plaza
+            a = r.uniform(0.032, 0.046)
+            b = r.uniform(0.03, 0.044)
+            h = r.choice([0.03, 0.05, 0.07, 0.1, 0.14]) * (1.3 if (i, j) == (3, 0) else 1)
+            trozos.append(caja('carton', [x, y, z + h / 2], [a, b, h], uv_escala=0.2))
+    trozos.append(caja('pinza', [-0.03, 0.13, z + 0.0015], [0.1, 0.045, 0.003], uv_escala=0.25))
+    return trozos
+
+
+def maqueta_silla(z0):
+    """Silla a escala 1:5 en balsa, sobre una peana blanca."""
+    t, z = peana(z0, 0.15, 0.15, material='carton')
+    trozos = [t]
+    a, h = 0.088, 0.09
+    for sx in (-1, 1):
+        for sy in (-1, 1):
+            trozos.append(caja('pinza', [sx * (a / 2 - 0.004), 0.13 + sy * (a / 2 - 0.004), z + h / 2], [0.006, 0.006, h], uv_escala=0.2))
+    trozos.append(caja('pinza', [0, 0.13, z + h + 0.003], [a, a, 0.006], uv_escala=0.2))
+    trozos.append(caja('pinza', [0, 0.13 + a / 2 - 0.003, z + h + 0.05], [a, 0.006, 0.08], uv_escala=0.2))
+    return trozos
+
+
+def maqueta_lampara(z0):
+    """Prototipo de lámpara de sobremesa impreso en resina."""
+    t, z = peana(z0, 0.16, 0.16, material='carton')
+    perfil = np.array([[0, 0], [0.06, 0], [0.062, 0.006], [0.02, 0.016], [0.009, 0.03], [0.008, 0.18],
+                       [0.015, 0.186], [0.075, 0.25], [0.078, 0.256], [0.07, 0.258], [0.012, 0.2], [0, 0.2]])
+    m = trimesh.creation.revolve(perfil, sections=48)
+    m.apply_translation([0, 0.13, z])
+    return [t, suave(m, 'resina')]
+
+
+def maqueta_torre(z0):
+    """Torre de forjados que giran, de cartón blanco con núcleo de balsa."""
+    t, z = peana(z0, 0.18, 0.15)
+    trozos = [t, caja('pinza', [0, 0.13, z + 0.13], [0.026, 0.026, 0.26], uv_escala=0.2)]
+    for k in range(13):
+        ang = np.radians(7 * k)
+        m = trimesh.creation.box(extents=[0.12, 0.075, 0.004])
+        m.apply_transform(trimesh.transformations.rotation_matrix(ang, [0, 0, 1]))
+        m.apply_translation([0, 0.13, z + 0.01 + k * 0.02])
+        p, nn = sueltos(m, np.ones(len(m.faces), bool))
+        trozos.append(Trozo('carton', p, nn, p[:, :2] / 0.2))
+    return trozos
+
+
+def maqueta_mies(z0, piezas_modulo, escala=1 / 6):
+    """El propio módulo MIES a escala 1:6, con sus tres baldas."""
+    t, z = peana(z0, 0.21, 0.09, cy=0.12)
+    trozos = [t]
+    S = np.diag([escala, escala, escala, 1.0])
+    S[:3, 3] = [0, 0.12 - 0.15 * escala, z]
+    for n, m in piezas_modulo:
+        trozos += [tr.transformar(S) for tr in pieza(n, m)]
+    return trozos
+
+
+# ── Figura humana a escala (1,75 m), como las de las maquetas de arquitectura ──
+def figura(altura=1.75):
+    from skimage.measure import marching_cubes
+
+    def cono(p, a, b, ra, rb):                 # cono redondeado entre a y b
+        a, b = np.array(a), np.array(b)
+        ba = b - a
+        pa = p - a
+        h = np.clip((pa @ ba) / (ba @ ba), 0, 1)
+        d = np.linalg.norm(pa - h[..., None] * ba, axis=-1)
+        return d - (ra + (rb - ra) * h)
+
+    def elipsoide(p, c, r):
+        q = (p - np.array(c)) / np.array(r)
+        k0 = np.linalg.norm(q, axis=-1)
+        k1 = np.linalg.norm(q / np.array(r), axis=-1)
+        return k0 * (k0 - 1) / np.maximum(k1, 1e-9)
+
+    def union(a, b, k=0.035):                  # unión suave
+        h = np.clip(0.5 + 0.5 * (b - a) / k, 0, 1)
+        return b * (1 - h) + a * h - k * h * (1 - h)
+
+    paso = 0.012
+    xs = np.arange(-0.36, 0.36, paso)
+    ys = np.arange(-0.16, 0.26, paso)
+    zs = np.arange(-0.01, 1.8, paso)
+    P = np.stack(np.meshgrid(xs, ys, zs, indexing='ij'), -1)
+    d = elipsoide(P, [0, 0.005, 1.635], [0.074, 0.088, 0.108])                       # cabeza
+    d = union(d, cono(P, [0, 0, 1.46], [0, 0.01, 1.56], 0.052, 0.045))               # cuello
+    d = union(d, elipsoide(P, [0, 0, 1.33], [0.185, 0.105, 0.16]), 0.05)            # pecho
+    d = union(d, elipsoide(P, [0, 0.005, 1.13], [0.155, 0.095, 0.17]), 0.06)        # vientre
+    d = union(d, elipsoide(P, [0, -0.005, 0.95], [0.17, 0.11, 0.12]), 0.05)         # cadera
+    for s in (-1, 1):
+        d = union(d, cono(P, [s * 0.165, 0, 1.415], [s * 0.215, -0.005, 1.15], 0.055, 0.042))   # brazo
+        d = union(d, cono(P, [s * 0.215, -0.005, 1.15], [s * 0.235, 0.03, 0.9], 0.04, 0.031))  # antebrazo
+        d = union(d, elipsoide(P, [s * 0.24, 0.04, 0.83], [0.024, 0.042, 0.075]), 0.02)      # mano
+        d = union(d, cono(P, [s * 0.09, 0, 0.93], [s * 0.1, 0.012, 0.5], 0.088, 0.056))      # muslo
+        d = union(d, cono(P, [s * 0.1, 0.012, 0.5], [s * 0.105, -0.005, 0.085], 0.055, 0.036))  # pierna
+        d = union(d, cono(P, [s * 0.105, -0.03, 0.04], [s * 0.115, 0.15, 0.025], 0.042, 0.03), 0.03)  # pie
+    d = np.maximum(d, -P[..., 2])              # planta de los pies en el suelo
+    v, f, _, _ = marching_cubes(d, 0.0, spacing=(paso, paso, paso))
+    v += [xs[0], ys[0], zs[0]]
+    m = trimesh.Trimesh(v, f[:, ::-1], process=True)
+    m = max(m.split(only_watertight=False), key=lambda c: len(c.faces))   # sin trocitos sueltos
+    trimesh.smoothing.filter_taubin(m, iterations=12)
+    m.apply_scale(altura / 1.75)
+    m.fix_normals()
+    return m
 
 
 # ── Escritura del glTF (texturas como archivos aparte) ──────────────────────
@@ -209,6 +343,9 @@ TEX = {
 SIMPLES = {
     # nombre: (color sRGB, rugosidad, imagen de color)
     'carton': ((238, 237, 232), 0.85, None),
+    'carton_gris': ((132, 130, 124), 0.9, None),
+    'resina': ((232, 230, 224), 0.38, None),
+    'figura': ((176, 172, 164), 0.75, None),
     'lamina': ((255, 255, 255), 0.62, 'texturas/lamina-mies-a1.jpg'),
 }
 
@@ -343,7 +480,9 @@ def main():
     sufijo = lambda n: ('_' + n.split('.')[1].split('_', 1)[1]) if '_' in n.split('.')[1] else ''
     sufijos = sorted({sufijo(n) for n in pen if n.startswith('base')})
     orden = ['inferior', 'media', 'superior', 'inferior', 'media']
-    trozos = []
+    trozos, marcos = [], []
+    # el módulo completo (base, perfiles y las tres baldas), para la maqueta a escala
+    modulo_completo = [(n, m) for n, m in inf] + [('balda', balda['media']), ('balda', balda['superior'])]
     for i, suf in enumerate(sufijos):
         M, _, _ = trimesh.registration.procrustes(ref.vertices, pen['base.1' + suf].vertices,
                                                   reflection=False, scale=False, return_cost=True)
@@ -357,9 +496,30 @@ def main():
             trozos += [t.transformar(M) for t in pieza(n, local)]
         trozos += [t.transformar(M) for t in pieza('balda', balda[orden[i]])]
         if orden[i] == 'inferior':
-            trozos += [t.transformar(M) for t in colgador(perfiles['Part1.1'], perfiles['Part1.2'])]
+            trozos += [t.transformar(M) for t in colgador(perfiles['Part1.3'], perfiles['Part1.4'])]
+        # una maqueta en cada balda (delante de la lámina en los módulos que la llevan)
+        z0 = balda[orden[i]].bounds[1][2]
+        maqueta = MAQUETAS[i](z0) if MAQUETAS[i] is not maqueta_mies else maqueta_mies(z0, modulo_completo)
+        trozos += [t.transformar(M) for t in maqueta]
+        marcos.append(M)
+    # figura humana de 1,75 m delante del primer módulo, algo a un lado, mirándolo
+    M = marcos[FIGURA[0]]
+    R = M[:3, :3]
+    frente = M[:3, 3]                               # centro de la cara ancha del módulo
+    fuera, lado = -R[:, 1], R[:, 0]
+    pos = frente + fuera * FIGURA[1] + lado * FIGURA[2]
+    mira = frente + lado * 0.1 - pos
+    ang = np.arctan2(-mira[0], mira[1])
+    T = trimesh.transformations.rotation_matrix(ang, [0, 0, 1])
+    T[:3, 3] = [pos[0], pos[1], frente[2]]
+    trozos.append(suave(figura(), 'figura').transformar(T))
     escribir(trozos, os.path.join(SALIDA, 'mies-pentagono.glb'))
 
+
+# maqueta de cada módulo del pentágono (en el orden de las baldas: inferior,
+# media, superior, inferior, media) y figura: (módulo, distancia delante, desplazamiento lateral)
+MAQUETAS = [maqueta_ciudad, maqueta_silla, maqueta_lampara, maqueta_mies, maqueta_torre]
+FIGURA = (0, 0.7, 0.62)
 
 if __name__ == '__main__':
     main()
