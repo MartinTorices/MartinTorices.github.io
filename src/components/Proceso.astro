@@ -15,7 +15,15 @@ const fases = lang === 'es'
   </ol>
 </section>
 <style>
-  .proceso { background: var(--banda); box-shadow: 0 0 0 100vmax var(--banda); clip-path: inset(0 -100vmax); padding-block: 2.5rem; }
+  /* Fondo fundido: el carbón de la portada se aclara poco a poco hasta la banda */
+  .proceso { position: relative; isolation: isolate; padding-block: 2.5rem; }
+  .proceso::before {
+    content: '';
+    position: absolute;
+    inset: -10rem 0 0;
+    z-index: -1;
+    background: linear-gradient(to bottom, var(--papel) 0%, var(--banda) 70%, var(--banda) 100%);
+  }
   .fases { list-style: none; margin: 0 auto; display: grid; grid-template-columns: repeat(5, minmax(0,1fr)); gap: 0; position: relative; }
   .fases::before { content: ''; position: absolute; left: var(--gutter); right: var(--gutter); top: 0.55rem; border-top: 1px solid var(--azul); }
   li { position: relative; padding: 1.6rem 1rem 0 0; display: grid; gap: 0.25rem; align-content: start; }
