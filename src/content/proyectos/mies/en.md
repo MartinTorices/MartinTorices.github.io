@@ -44,8 +44,8 @@ Arranged in a circle, the modules create open meeting areas for face-to-face con
 *Pentagon grouping and plan diagrams of the different layouts.*
 
 <figure class="visor-md">
-<model-viewer src="/modelos/mies-pentagono.glb" alt="Five MIES modules closing into a pentagon, in 3D" camera-controls touch-action="pan-y" auto-rotate auto-rotate-delay="1500" rotation-per-second="14deg" interaction-prompt="none" camera-orbit="30deg 62deg auto" shadow-intensity="0.6" exposure="1.05" tone-mapping="neutral" environment-image="neutral"></model-viewer>
-<figcaption>Pentagon grouping in 3D, with a different shelf in each module: drag to rotate.</figcaption>
+<model-viewer src="/modelos/mies-pentagono.glb" alt="Five MIES modules closing into a pentagon, in 3D" camera-controls touch-action="pan-y" auto-rotate auto-rotate-delay="1500" rotation-per-second="14deg" interaction-prompt="none" camera-orbit="30deg 62deg auto" shadow-intensity="0.85" shadow-softness="0.75" exposure="1" tone-mapping="neutral" environment-image="/modelos/estudio.hdr"></model-viewer>
+<figcaption>Pentagon grouping in 3D, with a different shelf in each module and A1 sheets hanging from cords threaded through the holes in the profiles: drag to rotate.</figcaption>
 </figure>
 
 ## Assembly and transport

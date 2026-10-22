@@ -30,11 +30,11 @@ const tx = t(lang);
       auto-rotate-delay="1500"
       rotation-per-second="18deg"
       interaction-prompt="none"
-      shadow-intensity="0.6"
-      shadow-softness="0.9"
-      exposure="1.05"
+      shadow-intensity="0.85"
+      shadow-softness="0.75"
+      exposure="1"
       tone-mapping="neutral"
-      environment-image="neutral"
+      environment-image="/modelos/estudio.hdr"
       ar
       ar-modes="webxr scene-viewer quick-look"
     >
@@ -62,7 +62,11 @@ const tx = t(lang);
 </figure>
 
 <script>
-  import '@google/model-viewer';
+  import { ModelViewerElement } from '@google/model-viewer';
+
+  // Calidad: model-viewer baja la resolución si cree que el equipo va justo; así
+  // siempre dibuja a la resolución completa de la pantalla (también los visores del texto)
+  (ModelViewerElement as any).minimumRenderScale = 1;
 
   document.querySelectorAll<HTMLElement>('[data-visor]').forEach((visor) => {
     const mv = visor.querySelector('model-viewer')!;

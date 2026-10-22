@@ -80,22 +80,25 @@ const mazo = (h: Hueco) => {
   document.querySelectorAll<HTMLElement>('[data-mesa]').forEach((mesa) => {
     let arriba = 100;
     const tablero = mesa.querySelector<HTMLElement>('.mesa__tablero')!;
-    const portada = (mesa.closest('section') ?? document.body) as HTMLElement;
+    const pie = document.querySelector<HTMLElement>('footer');
 
     mesa.querySelectorAll<HTMLAnchorElement>('.lamina').forEach((lam) => {
       let x = 0, y = 0; // desplazamiento actual
       let px = 0, py = 0; // desplazamiento que pide el puntero
+      let cx = 0, cy = 0; // puntero en la pantalla
       let ox = 0, oy = 0; // dónde se cogió la lámina
       let vx = 0, vy = 0; // velocidad (px/ms) para la inercia
       let sx = 0; // velocidad horizontal muy suavizada, solo para inclinarla
       let giro = 0;
       let activo = false, movido = false, bucle = 0, antes = 0, ultimoMovimiento = 0;
 
-      // Hasta dónde puede ir la lámina: el ancho de la pantalla y el alto de la
-      // portada. Se mide con la caja sin girar, para que el giro no haga temblar el límite.
+      // Hasta dónde puede ir la lámina: a los lados, el ancho de la pantalla (ahí
+      // rebota); hacia arriba y hacia abajo, toda la página (se puede llevar hasta
+      // «Sobre mí» o «Contacto»). Se mide con la caja sin girar, para que el giro
+      // no haga temblar el límite.
       const limites = () => {
         const t = tablero.getBoundingClientRect();
-        const p = portada.getBoundingClientRect();
+        const finPagina = pie ? pie.getBoundingClientRect().top : document.documentElement.scrollHeight - window.scrollY;
         const izq = t.left + lam.offsetLeft;
         const arr = t.top + lam.offsetTop;
         const ancho = document.documentElement.clientWidth;
@@ -106,8 +109,8 @@ const mazo = (h: Hueco) => {
         return {
           minX: mx - izq,
           maxX: ancho - mx - (izq + w),
-          minY: p.top + my - arr,
-          maxY: p.bottom - my - (arr + h),
+          minY: -window.scrollY + my - arr,
+          maxY: finPagina - my - (arr + h),
         };
       };
       // Al empujar contra un borde, la lámina cede un poco (como una goma), 18 px como mucho
@@ -127,6 +130,17 @@ const mazo = (h: Hueco) => {
         const L = limites();
 
         if (activo) {
+          // Cerca del borde de arriba o de abajo de la pantalla, la página se desplaza
+          // sola para poder llevar la lámina más abajo (o más arriba)
+          const zona = 80;
+          const abajo = cy - (window.innerHeight - zona);
+          const arriba = zona + 56 - cy; // 56 px: la cabecera fija
+          if (abajo > 0) window.scrollBy({ top: Math.min(1, abajo / zona) * 0.9 * dt, behavior: 'instant' });
+          else if (arriba > 0 && window.scrollY > 0)
+            window.scrollBy({ top: -Math.min(1, arriba / zona) * 0.9 * dt, behavior: 'instant' });
+          // la posición se cuenta sobre la página: si se desplaza, la lámina sigue al puntero
+          px = cx - ox;
+          py = cy + window.scrollY - oy;
           // Sigue al puntero (con resistencia si se sale) y mide la velocidad por fotograma
           const nx = goma(px, L.minX, L.maxX);
           const ny = goma(py, L.minY, L.maxY);
@@ -194,7 +208,9 @@ const mazo = (h: Hueco) => {
         activo = true;
         movido = false;
         ox = e.clientX - x;
-        oy = e.clientY - y;
+        oy = e.clientY + window.scrollY - y;
+        cx = e.clientX;
+        cy = e.clientY;
         px = x;
         py = y;
         vx = vy = 0;
@@ -203,8 +219,10 @@ const mazo = (h: Hueco) => {
       });
       lam.addEventListener('pointermove', (e) => {
         if (!activo) return;
-        px = e.clientX - ox;
-        py = e.clientY - oy;
+        cx = e.clientX;
+        cy = e.clientY;
+        px = cx - ox;
+        py = cy + window.scrollY - oy;
         ultimoMovimiento = e.timeStamp;
         if (!movido && Math.hypot(px - x, py - y) >= 4) {
           movido = true;
