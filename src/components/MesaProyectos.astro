@@ -69,125 +69,175 @@ const mazo = (h: Hueco) => {
 
 <script>
   // Arrastrar láminas con el ratón; un clic sin arrastrar abre el proyecto.
-  // Al cogerla se levanta, se balancea según la velocidad del ratón y, al
-  // soltarla, sigue deslizándose un poco y cae con un pequeño rebote.
+  // Todo (posición, velocidad, inclinación y rebotes) se calcula en un único
+  // bucle por fotograma: los eventos del ratón solo guardan dónde está el
+  // puntero. Así el movimiento no vibra aunque el ratón mande datos irregulares.
   const reducir = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const MARGEN = 12; // px libres entre la lámina y el borde de la pantalla
+  const REBOTE = 0.55; // velocidad que conserva al chocar con un borde
+  const lim = (v: number, a: number, b: number) => Math.min(b, Math.max(a, v));
 
   document.querySelectorAll<HTMLElement>('[data-mesa]').forEach((mesa) => {
     let arriba = 100;
-    const limites = (mesa.closest('section') ?? document.body) as HTMLElement;
+    const tablero = mesa.querySelector<HTMLElement>('.mesa__tablero')!;
+    const portada = (mesa.closest('section') ?? document.body) as HTMLElement;
 
     mesa.querySelectorAll<HTMLAnchorElement>('.lamina').forEach((lam) => {
-      let dx = 0, dy = 0, x0 = 0, y0 = 0;
-      let movido = false, activo = false;
-      let vx = 0, vy = 0, ux = 0, uy = 0, ut = 0; // velocidad (px/ms) y último punto
-      let giro = 0, bucle = 0;
+      let x = 0, y = 0; // desplazamiento actual
+      let px = 0, py = 0; // desplazamiento que pide el puntero
+      let ox = 0, oy = 0; // dónde se cogió la lámina
+      let vx = 0, vy = 0; // velocidad (px/ms) para la inercia
+      let sx = 0; // velocidad horizontal muy suavizada, solo para inclinarla
+      let giro = 0;
+      let activo = false, movido = false, bucle = 0, antes = 0, ultimoMovimiento = 0;
 
-      const subir = () => (lam.style.zIndex = String(++arriba));
-      const mover = () => {
-        lam.style.setProperty('--dx', `${dx}px`);
-        lam.style.setProperty('--dy', `${dy}px`);
+      // Hasta dónde puede ir la lámina: el ancho de la pantalla y el alto de la
+      // portada. Se mide con la caja sin girar, para que el giro no haga temblar el límite.
+      const limites = () => {
+        const t = tablero.getBoundingClientRect();
+        const p = portada.getBoundingClientRect();
+        const izq = t.left + lam.offsetLeft;
+        const arr = t.top + lam.offsetTop;
+        const ancho = document.documentElement.clientWidth;
+        const w = lam.offsetWidth, h = lam.offsetHeight;
+        // holgura fija para lo que crece al levantarla (escala) y al inclinarla (hasta ~10°)
+        const mx = MARGEN + w * 0.05 + h * 0.09;
+        const my = MARGEN + h * 0.05 + w * 0.09;
+        return {
+          minX: mx - izq,
+          maxX: ancho - mx - (izq + w),
+          minY: p.top + my - arr,
+          maxY: p.bottom - my - (arr + h),
+        };
       };
+      // Al empujar contra un borde, la lámina cede un poco (como una goma), 18 px como mucho
+      const ceder = (d: number) => 18 * (1 - Math.exp(-d / 90));
+      const goma = (v: number, a: number, b: number) =>
+        v < a ? a - ceder(a - v) : v > b ? b + ceder(v - b) : v;
 
-      // Balanceo: la lámina se inclina hacia donde va, como un papel cogido por arriba
-      const balancear = () => {
-        const objetivo = activo ? Math.max(-14, Math.min(14, vx * 9)) : 0;
-        giro += (objetivo - giro) * 0.2;
-        vx *= activo ? 0.9 : 1; // si el ratón se para, la inclinación vuelve sola
+      const pintar = () => {
+        lam.style.setProperty('--dx', `${x.toFixed(2)}px`);
+        lam.style.setProperty('--dy', `${y.toFixed(2)}px`);
         lam.style.setProperty('--giro', `${giro.toFixed(2)}deg`);
-        if (activo) bucle = requestAnimationFrame(balancear);
       };
 
-      // Inercia al soltar: sigue un poco y frena; rebota en los bordes de la portada
-      const deslizar = () => {
-        let t = performance.now();
-        const paso = (ahora: number) => {
-          const dt = Math.min(32, ahora - t);
-          t = ahora;
-          dx += vx * dt;
-          dy += vy * dt;
-          const roce = Math.pow(0.992, dt);
+      const fotograma = (ahora: number) => {
+        const dt = lim(ahora - antes, 1, 34);
+        antes = ahora;
+        const L = limites();
+
+        if (activo) {
+          // Sigue al puntero (con resistencia si se sale) y mide la velocidad por fotograma
+          const nx = goma(px, L.minX, L.maxX);
+          const ny = goma(py, L.minY, L.maxY);
+          vx += ((nx - x) / dt - vx) * 0.35;
+          vy += ((ny - y) / dt - vy) * 0.35;
+          x = nx;
+          y = ny;
+        } else {
+          // Inercia: sigue avanzando, frena poco a poco y rebota en los bordes
+          x += vx * dt;
+          y += vy * dt;
+          const roce = Math.pow(0.993, dt);
           vx *= roce;
           vy *= roce;
-          const r = lam.getBoundingClientRect();
-          const b = limites.getBoundingClientRect();
-          const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
-          if ((cx < b.left && vx < 0) || (cx > b.right && vx > 0)) vx *= -0.45;
-          if ((cy < b.top + 40 && vy < 0) || (cy > b.bottom && vy > 0)) vy *= -0.45;
-          mover();
-          if (Math.hypot(vx, vy) > 0.02 && !activo) bucle = requestAnimationFrame(paso);
-          else soltada();
-        };
-        bucle = requestAnimationFrame(paso);
+          if (x < L.minX && vx < 0) vx = -vx * REBOTE;
+          if (x > L.maxX && vx > 0) vx = -vx * REBOTE;
+          if (y < L.minY && vy < 0) vy = -vy * REBOTE;
+          if (y > L.maxY && vy > 0) vy = -vy * REBOTE;
+          // si ha quedado fuera, un muelle la devuelve dentro
+          const fx = x < L.minX ? L.minX - x : x > L.maxX ? L.maxX - x : 0;
+          const fy = y < L.minY ? L.minY - y : y > L.maxY ? L.maxY - y : 0;
+          vx += fx * 0.0012 * dt;
+          vy += fy * 0.0012 * dt;
+          if (fx) vx *= Math.pow(0.975, dt);
+          if (fy) vy *= Math.pow(0.975, dt);
+        }
+
+        // Inclinación: se basa en una velocidad muy suavizada y se acerca poco a poco
+        sx += (vx - sx) * (activo ? 0.08 : 0.2);
+        const objetivo = activo ? lim(sx * 7, -9, 9) : 0;
+        giro += (objetivo - giro) * Math.min(1, dt * 0.012);
+        pintar();
+
+        const quieta =
+          !activo &&
+          Math.hypot(vx, vy) < 0.015 &&
+          x >= L.minX - 0.5 && x <= L.maxX + 0.5 && y >= L.minY - 0.5 && y <= L.maxY + 0.5;
+        if (quieta) {
+          x = lim(x, L.minX, L.maxX);
+          y = lim(y, L.minY, L.maxY);
+          giro = 0;
+          pintar();
+          caer();
+        } else bucle = requestAnimationFrame(fotograma);
       };
-      const soltada = () => {
+
+      // Al terminar, un pequeño golpe contra la mesa
+      const caer = () => {
         lam.classList.remove('lamina--volando');
-        // Al caer sobre la mesa, un pequeño golpe (termina en su escala normal)
+        if (reducir) return;
         lam.animate([{ scale: '1.07' }, { scale: '0.985', offset: 0.45 }], {
           duration: 500,
           easing: 'cubic-bezier(0.3, 0.7, 0.4, 1)',
         });
       };
 
+      const subir = () => (lam.style.zIndex = String(++arriba));
       lam.addEventListener('pointerenter', subir);
       lam.addEventListener('focus', subir);
+
       lam.addEventListener('pointerdown', (e) => {
         if (e.pointerType !== 'mouse' || e.button !== 0) return;
         cancelAnimationFrame(bucle);
         lam.classList.remove('lamina--volando');
         activo = true;
         movido = false;
-        x0 = e.clientX - dx;
-        y0 = e.clientY - dy;
-        ux = e.clientX;
-        uy = e.clientY;
-        ut = e.timeStamp;
+        ox = e.clientX - x;
+        oy = e.clientY - y;
+        px = x;
+        py = y;
         vx = vy = 0;
         subir();
         lam.setPointerCapture(e.pointerId);
       });
       lam.addEventListener('pointermove', (e) => {
         if (!activo) return;
-        const nx = e.clientX - x0, ny = e.clientY - y0;
-        if (!movido && Math.hypot(nx - dx, ny - dy) < 4) return;
-        if (!movido) {
+        px = e.clientX - ox;
+        py = e.clientY - oy;
+        ultimoMovimiento = e.timeStamp;
+        if (!movido && Math.hypot(px - x, py - y) >= 4) {
           movido = true;
+          // empieza desde la inclinación que tenga ahora (sin saltos)
+          giro = parseFloat(getComputedStyle(lam).rotate) || 0;
+          sx = 0;
           lam.classList.add('lamina--arrastrando');
-          if (!reducir) bucle = requestAnimationFrame(balancear);
+          antes = performance.now();
+          bucle = requestAnimationFrame(fotograma);
         }
-        const dt = Math.max(1, e.timeStamp - ut);
-        vx = vx * 0.6 + ((e.clientX - ux) / dt) * 0.4;
-        vy = vy * 0.6 + ((e.clientY - uy) / dt) * 0.4;
-        ux = e.clientX;
-        uy = e.clientY;
-        ut = e.timeStamp;
-        dx = nx;
-        dy = ny;
-        mover();
       });
       const soltar = (e: PointerEvent) => {
         if (!activo) return;
         activo = false;
-        cancelAnimationFrame(bucle);
         lam.classList.remove('lamina--arrastrando');
-        lam.style.setProperty('--giro', '0deg');
-        giro = 0;
         if (!movido) return;
         mesa.classList.add('mesa--tocada');
-        // si el ratón llevaba un rato quieto, no hay inercia
-        if (e.timeStamp - ut > 80) vx = vy = 0;
+        // si el ratón llevaba un rato quieto al soltar, no hay inercia
+        if (e.timeStamp - ultimoMovimiento > 80) vx = vy = 0;
         const v = Math.hypot(vx, vy);
         if (v > 3) {
           vx *= 3 / v;
           vy *= 3 / v;
         }
-        if (!reducir && v > 0.25) {
-          lam.classList.add('lamina--volando');
-          deslizar();
-        } else if (!reducir) soltada();
+        if (reducir) {
+          vx = vy = 0;
+        }
+        lam.classList.add('lamina--volando');
+        // el bucle sigue: ahora con inercia y rebotes hasta que se pare
       };
       lam.addEventListener('pointerup', soltar);
       lam.addEventListener('pointercancel', soltar);
+      lam.addEventListener('lostpointercapture', soltar as EventListener);
       lam.addEventListener('click', (e) => {
         if (movido) {
           e.preventDefault();
@@ -262,9 +312,11 @@ const mazo = (h: Hueco) => {
       scale 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
       box-shadow 0.3s;
     cursor: grabbing;
+    will-change: translate, rotate;
   }
   /* Deslizándose tras soltarla: aún en el aire */
   .lamina.lamina--volando {
+    will-change: translate, rotate;
     scale: 1.06;
     box-shadow: 0 1px 0 var(--linea), 0 32px 50px -22px rgba(0, 0, 0, 0.65);
   }
