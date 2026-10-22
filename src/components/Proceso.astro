@@ -1,0 +1,33 @@
+---
+// Franja «De la idea a la fabricación»: las fases con las que trabaja Martín,
+// unidas por una línea de cota. Es una secuencia, por eso va numerada.
+interface Props { lang: 'es' | 'en' }
+const { lang } = Astro.props;
+const fases = lang === 'es'
+  ? [['Idea', 'Problema, usuario y requisitos'], ['Boceto', 'Alternativas a mano y elección'], ['CAD', 'Modelado paramétrico y planos'], ['Prototipo', 'Maqueta, pruebas y ajustes'], ['Fabricación', 'Materiales, procesos y costes']]
+  : [['Idea', 'Problem, user and requirements'], ['Sketch', 'Hand-drawn options and choice'], ['CAD', 'Parametric modelling and drawings'], ['Prototype', 'Mock-ups, tests and tweaks'], ['Manufacturing', 'Materials, processes and costs']];
+---
+<section class="proceso" aria-label={lang === 'es' ? 'Cómo trabajo' : 'How I work'}>
+  <ol class="contenedor fases">
+    {fases.map(([t, d], i) => (
+      <li><span class="n">{String(i + 1).padStart(2, '0')}</span><strong>{t}</strong><span class="d">{d}</span></li>
+    ))}
+  </ol>
+</section>
+<style>
+  .proceso { background: var(--banda); box-shadow: 0 0 0 100vmax var(--banda); clip-path: inset(0 -100vmax); padding-block: 2.5rem; }
+  .fases { list-style: none; margin: 0 auto; display: grid; grid-template-columns: repeat(5, minmax(0,1fr)); gap: 0; position: relative; }
+  .fases::before { content: ''; position: absolute; left: var(--gutter); right: var(--gutter); top: 0.55rem; border-top: 1px solid var(--azul); }
+  li { position: relative; padding: 1.6rem 1rem 0 0; display: grid; gap: 0.25rem; align-content: start; }
+  li::before { content: ''; position: absolute; top: 0.25rem; left: 0; width: 9px; height: 9px; background: var(--azul); }
+  .n { font-size: var(--t-0); color: var(--azul); font-weight: 700; font-variant-numeric: tabular-nums; }
+  strong { font-size: var(--t-3); font-stretch: 115%; font-weight: 750; }
+  .d { color: var(--tinta-suave); font-size: var(--t-0); }
+  /* En pantallas estrechas, la cota pasa a ser vertical */
+  @media (max-width: 50rem) {
+    .fases { grid-template-columns: 1fr; row-gap: 1.25rem; }
+    .fases::before { left: calc(var(--gutter) + 4px); right: auto; top: 0.5rem; bottom: 0.5rem; border-top: 0; border-left: 1px solid var(--azul); }
+    li { padding: 0 0 0 1.75rem; }
+    li::before { top: 0.35rem; }
+  }
+</style>

@@ -72,4 +72,10 @@ const tx = t(lang);
     font-weight: 650;
     font-stretch: 112%;
   }
+  /* Franja algo más clara: alterna con el carbón al bajar por la página */
+  #sobre-mi {
+    background: var(--banda);
+    box-shadow: 0 0 0 100vmax var(--banda);
+    clip-path: inset(0 -100vmax);
+  }
 </style>

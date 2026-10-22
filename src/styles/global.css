@@ -18,6 +18,7 @@
   --azul: #f2c14e;         /* acento: amarillo señal (RAL 1003 suavizado). Apellido, enlaces, cotas,
                               números de fase y botón principal. El nombre se mantiene por compatibilidad */
   --revision: #f2c14e;     /* foco y marcas */
+  --banda: #32312e;        /* franjas algo más claras para dar ritmo al bajar */
   /* Láminas: hojas de hormigón claro sobre el fondo oscuro */
   --lamina-fondo: #d8d7d3;
   --lamina-fondo-2: #cbcac5;

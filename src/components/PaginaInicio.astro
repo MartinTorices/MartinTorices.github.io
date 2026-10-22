@@ -2,6 +2,7 @@
 import Base from '../layouts/Base.astro';
 import Hoja from './Hoja.astro';
 import SobreMi from './SobreMi.astro';
+import Proceso from './Proceso.astro';
 import Contacto from './Contacto.astro';
 import { proyectosDe } from '../proyectos';
 import { rutas, type Lang } from '../i18n';
@@ -17,6 +18,7 @@ const otro: Lang = lang === 'es' ? 'en' : 'es';
   <Hoja lang={lang} proyectos={proyectos} />
 
 
+  <Proceso lang={lang} />
   <SobreMi lang={lang} />
   <Contacto lang={lang} />
 </Base>
