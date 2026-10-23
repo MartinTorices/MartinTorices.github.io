@@ -4,29 +4,21 @@ resumen: Tapón dosificador para especias en polvo que, con un tornillo sin fin 
 anio: 2026
 contexto: XVII Premios Nacionales de Envase · Reto Qiub
 herramientas: [CATIA V5, Impresión 3D (PET-G), Adobe Illustrator, Canva]
-equipo: [Nicolás Toribio González, Alba Martín, Óscar Ramón Mendiguchía]
+equipo: [Nicolás Toribio González, Alba Martín Fernández, Óscar Ramón Mendiguchía]
 etiquetas: [Envase, Mecanismo, Prototipado, Moldeo por inyección, Concurso]
 portada: ./01-portada.png
 portadaAlt: Bote de especias transparente con el tapón dosificador, junto a otro tapón suelto, sobre fondo turquesa
 orden: 2
 ---
 
-El dosificador QIUB es nuestra propuesta para el reto que planteó Qiub, fabricante de molinillos y envases para especias, en los XVII Premios Nacionales de Envase que organiza el Clúster de Innovación en Envase y Embalaje (2026). El reto pedía resolver la dosificación de productos en polvo. Lo desarrollamos entre cuatro estudiantes de 3.º de Ingeniería en Diseño Industrial de la Universidad de Valladolid y lo entregamos con un dosier técnico y un panel. No llegó a la final.
+El dosificador QIUB es nuestra propuesta para el reto que planteó Qiub, fabricante de molinillos y envases para especias, en los XVII Premios Nacionales de Envase que organiza el Clúster de Innovación en Envase y Embalaje (2026). El reto pedía resolver la dosificación de productos en polvo.
 
 ![Panel del proyecto: tapón dosificador, tornillo sin fin, tolva con difusores e instrucciones de uso](./02-panel.jpg)
 *Panel de entrega del concurso.*
 
 ## El problema
 
-Echar especias «a ojo» es impreciso y difícil de repetir: es fácil pasarse con una especia picante. Además, el bote se abre encima de la olla, el vapor entra, el polvo se apelmaza y pierde aroma; y los tapones perforados obligan a sacudir el bote, de modo que el polvo cae de golpe y no se corta en cuanto dejas de usarlo.
-
-Nos marcamos tres objetivos:
-
-- **Dosis constante y repetible** en cada uso, en lugar del vertido aleatorio.
-- **Estanqueidad** en reposo y durante el uso, como barrera frente al vapor.
-- **Vertido sin sacudir**: que la fuerza para sacar el producto no dependa de agitar el bote y que el flujo se corte al instante.
-
-Y una restricción de partida: no tocar la línea de envasado de Qiub. El tapón debía roscar en sus botes actuales, con sus tamaños y etiquetas, y fabricarse en el mismo material, rPET, para que el envase siguiera siendo monomaterial y fácil de reciclar.
+Echar especias «a ojo» es impreciso, el vapor de la olla entra en el bote abierto y apelmaza el polvo, y los tapones perforados obligan a sacudir. Por eso buscábamos una dosis constante en cada uso, un cierre estanco frente a la humedad y un vertido sin agitar el bote, todo ello sin tocar la línea de envasado de Qiub: el tapón debía roscar en sus botes actuales y fabricarse en rPET, como el resto del envase.
 
 ## Ideas y concepto
 
@@ -109,13 +101,6 @@ Imprimimos varias versiones en 3D para ajustar el embudo y calibrar el orificio 
 ![Prototipo final montado en un bote de sésamo](./14-prototipo-final.jpg)
 ![El prototipo junto a botes de especias de la gama actual](./15-gama.jpg)
 *Prototipo final en PET-G y comparación con los botes de la gama: la altura y el volumen encajan con el formato de molinillo.*
-
-## Etiquetas
-
-Repartimos la información en tres etiquetas: la del producto, que se queda como la usa el fabricante; una de **instrucciones**, con tres viñetas, en la franja que cubre la rosca; y una pequeña de **identificación** en la parte superior, para reconocer la especia desde arriba cuando los botes están en un cajón. Para que cupiera tuvimos que ensanchar un elemento superior de la tapa.
-
-![Bote con el dosificador y las etiquetas de instrucciones e identificación](./16-etiquetas.png)
-*Etiquetas de instrucciones (sobre la rosca) y de identificación (arriba).*
 
 ## Industrialización
 

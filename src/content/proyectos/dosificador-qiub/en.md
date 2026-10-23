@@ -4,29 +4,21 @@ resumen: A dosing cap for powdered spices that uses a worm screw and a ratchet t
 anio: 2026
 contexto: 17th National Packaging Awards · Qiub challenge
 herramientas: [CATIA V5, 3D printing (PETG), Adobe Illustrator, Canva]
-equipo: [Nicolás Toribio González, Alba Martín, Óscar Ramón Mendiguchía]
+equipo: [Nicolás Toribio González, Alba Martín Fernández, Óscar Ramón Mendiguchía]
 etiquetas: [Packaging, Mechanism, Prototyping, Injection moulding, Competition]
 portada: ./01-portada.png
 portadaAlt: Clear spice jar with the dosing cap, next to a loose cap, on a turquoise background
 orden: 2
 ---
 
-The QIUB dosing cap is our proposal for the challenge set by Qiub, a maker of spice grinders and jars, at the 17th Spanish National Packaging Awards (Premios Nacionales de Envase), organised by the Packaging Innovation Cluster (2026). The brief was to solve the dosing of powdered products. Four third-year Industrial Design Engineering students at the University of Valladolid developed it, and we submitted a technical dossier and a presentation board. It did not reach the final.
+The QIUB dosing cap is our proposal for the challenge set by Qiub, a maker of spice grinders and jars, at the 17th Spanish National Packaging Awards (Premios Nacionales de Envase), organised by the Packaging Innovation Cluster (2026). The brief was to solve the dosing of powdered products.
 
 ![Project board: dosing cap, worm screw, hopper with diffusers and instructions for use](./02-panel.jpg)
 *Competition board.*
 
 ## The problem
 
-Adding spices “by eye” is imprecise and hard to repeat: it is easy to overdo a hot spice. The jar is also opened right over the pan, so steam gets in, the powder cakes and loses its aroma; and shaker caps force you to shake the jar, so the powder falls in bursts and does not stop the moment you stop using it.
-
-We set three goals:
-
-- **A constant, repeatable dose** every time, instead of random pouring.
-- **Sealing** both at rest and during use, as a barrier against steam.
-- **Pouring without shaking**: the force needed to get the product out should not depend on shaking the jar, and the flow should stop instantly.
-
-And one constraint from the start: leave Qiub's filling line untouched. The cap had to screw onto their existing jars, with their sizes and labels, and be made of the same material, rPET, so the pack would stay mono-material and easy to recycle.
+Adding spices “by eye” is imprecise, steam from the pan gets into the open jar and cakes the powder, and shaker caps force you to shake. So we were after a constant dose every time, a seal against moisture and pouring without shaking, all without touching Qiub's filling line: the cap had to screw onto their existing jars and be made of rPET, like the rest of the pack.
 
 ## Ideas and concept
 
@@ -109,13 +101,6 @@ We 3D-printed several versions to tune the funnel and calibrate the outlet until
 ![Final prototype fitted to a sesame jar](./14-prototipo-final.jpg)
 ![The prototype next to spice jars from the current range](./15-gama.jpg)
 *Final PETG prototype and comparison with the jars in the range: its height and volume match the grinder format.*
-
-## Labels
-
-We split the information into three labels: the product label, kept as the manufacturer uses it; an **instructions** label with three pictograms on the band that covers the thread; and a small **identification** label on top, so the spice can be recognised from above when jars are stored in a drawer. To make room for it we widened an upper part of the cap.
-
-![Jar with the dosing cap and its instructions and identification labels](./16-etiquetas.png)
-*Instructions label (over the thread) and identification label (on top).*
 
 ## Industrialisation
 
