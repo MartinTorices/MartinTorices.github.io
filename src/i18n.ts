@@ -49,6 +49,8 @@ export const ui = {
     salirPantallaCompleta: 'Salir de pantalla completa',
     verEnAR: 'Ver en tu espacio (AR)',
     siguiente: 'Siguiente proyecto',
+    indice: 'Índice del proyecto',
+    subir: '↑ Volver arriba',
     pie: 'Web hecha con Astro y publicada en GitHub Pages.',
   },
   en: {
@@ -98,6 +100,8 @@ export const ui = {
     salirPantallaCompleta: 'Exit full screen',
     verEnAR: 'View in your space (AR)',
     siguiente: 'Next project',
+    indice: 'Project contents',
+    subir: '↑ Back to top',
     pie: 'Built with Astro and published on GitHub Pages.',
   },
 } as const;
