@@ -1,8 +1,6 @@
 ---
 // Visor 3D interactivo (model-viewer de Google).
 // Uso: <Visor3D src="/modelos/mi-pieza.glb" alt="..." lang="es" />
-import fs from 'node:fs';
-import path from 'node:path';
 import { t, type Lang } from '../i18n';
 import Icono from './Icono.astro';
 
@@ -17,12 +15,7 @@ interface Props {
 }
 const { src, alt, lang, poster, variantes = [], etiquetaVariantes } = Astro.props;
 const tx = t(lang);
-// Realidad aumentada en el iPhone (AR Quick Look): si junto al .glb hay un .usdz
-// con el mismo nombre (herramientas/usdz.py), se usa; si no, model-viewer lo genera al vuelo.
-const usdz = (glb: string) => {
-  const u = glb.replace(/\.glb$/, '.usdz');
-  return fs.existsSync(path.join(process.cwd(), 'public', u)) ? u : undefined;
-};
+
 ---
 
 <figure class="visor" data-visor>
@@ -43,20 +36,14 @@ const usdz = (glb: string) => {
       exposure="1"
       tone-mapping="neutral"
       environment-image="/modelos/estudio.hdr"
-      ar
-      ar-modes="scene-viewer webxr quick-look"
-      ar-scale="auto"
-      ar-placement="floor"
-      ios-src={usdz(src)}
     >
       <div slot="progress-bar" class="visor__carga nota">{tx.vista3dCargando}</div>
-      <button slot="ar-button" class="boton visor__ar">{tx.verEnAR}</button>
     </model-viewer>
     {variantes.length > 1 && (
       <div class="visor__variantes" role="group" aria-label={etiquetaVariantes}>
         {etiquetaVariantes && <span class="visor__variantes-titulo">{etiquetaVariantes}</span>}
         {variantes.map((v) => (
-          <button type="button" class="visor__variante" data-src={v.src} data-ios-src={usdz(v.src)} aria-pressed={v.src === src ? 'true' : 'false'}>
+          <button type="button" class="visor__variante" data-src={v.src} aria-pressed={v.src === src ? 'true' : 'false'}>
             {v.nombre}
           </button>
         ))}
@@ -88,9 +75,6 @@ const usdz = (glb: string) => {
       b.addEventListener('click', () => {
         const orbita = (mv as any).getCameraOrbit?.();
         mv.setAttribute('src', b.dataset.src!);
-        // la realidad aumentada del iPhone también pasa a la balda elegida
-        if (b.dataset.iosSrc) mv.setAttribute('ios-src', b.dataset.iosSrc);
-        else mv.removeAttribute('ios-src');
         mv.addEventListener('load', () => {
           if (orbita) (mv as any).cameraOrbit = orbita.toString();
         }, { once: true });
@@ -191,13 +175,6 @@ const usdz = (glb: string) => {
   .visor__variante[aria-pressed='true'] {
     background: var(--azul);
     color: var(--papel);
-  }
-  .visor__ar {
-    position: absolute;
-    left: 0.75rem;
-    bottom: 0.75rem;
-    background: var(--papel);
-    font-size: var(--t-0);
   }
   @media (max-width: 40rem) {
     .visor__marco {

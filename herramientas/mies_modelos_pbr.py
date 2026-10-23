@@ -8,9 +8,9 @@
   public/modelos/texturas/: los cuatro modelos las comparten y el navegador las
   descarga una sola vez. Se generan con herramientas/mies_texturas.py.
 - En el pentágono: una cuerda de yute tensada por las perforaciones de los perfiles
-  exteriores, con una lámina A1 (la de MIES) colgada con dos pinzas de madera.
+  exteriores, con un cartel A1 de MIES (herramientas/cartel.py) colgado con dos pinzas de madera.
 
-Uso: python3 herramientas/mies_modelos_pbr.py <carpeta con los .glb de cascadio> [lámina A1 en .jpg]
+Uso: python3 herramientas/mies_modelos_pbr.py <carpeta con los .glb de cascadio>
      (expositor_tabla_inferior/media/superior.glb y expositor_todopentagono.glb,
       convertidos de los STEP; están en Z arriba y en metros)
 """
@@ -25,7 +25,8 @@ from PIL import Image
 ORIGEN = sys.argv[1] if len(sys.argv) > 1 else '/tmp/claude-0/glb'
 RAIZ = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')
 SALIDA = os.path.join(RAIZ, 'public', 'modelos')
-LAMINA = os.path.join(RAIZ, 'public', 'modelos', 'texturas', 'lamina-mies-a1.jpg')
+# cartel A1 que cuelga en el pentágono (se genera con herramientas/cartel.py)
+CARTEL = os.path.join(RAIZ, 'public', 'modelos', 'texturas', 'cartel-mies.jpg')
 rng = np.random.default_rng(3)
 
 
@@ -346,7 +347,7 @@ SIMPLES = {
     'carton_gris': ((132, 130, 124), 0.9, None),
     'resina': ((232, 230, 224), 0.38, None),
     'figura': ((176, 172, 164), 0.75, None),
-    'lamina': ((255, 255, 255), 0.62, 'texturas/lamina-mies-a1.jpg'),
+    'lamina': ((255, 255, 255), 0.7, 'texturas/cartel-mies.jpg'),
 }
 
 
@@ -399,6 +400,10 @@ def escribir(trozos, ruta):
             if img:
                 pbr.baseColorTexture = G.TextureInfo(index=textura(img))
             mat = G.Material(name=nombre, pbrMetallicRoughness=pbr)
+            if nombre == 'lamina':
+                # el cartel brilla un poco por sí mismo: se lee bien desde cualquier ángulo
+                mat.emissiveTexture = G.TextureInfo(index=textura(img))
+                mat.emissiveFactor = [0.35, 0.35, 0.35]
         materiales[nombre] = len(gl.materials)
         gl.materials.append(mat)
         return materiales[nombre]
@@ -450,11 +455,8 @@ def escribir(trozos, ruta):
 
 # ── Montaje ──────────────────────────────────────────────────────────────────
 def main():
-    if not os.path.exists(LAMINA):
-        # la lámina de entrega en JPG (no está en el repositorio: se pasa como 2.º argumento)
-        im = Image.open(sys.argv[2]).convert('RGB')
-        im.thumbnail((1448, 2048), Image.LANCZOS)
-        im.save(LAMINA, quality=86, optimize=True, progressive=True)
+    if not os.path.exists(CARTEL):
+        sys.exit('Falta el cartel: ejecuta antes python3 herramientas/cartel.py')
 
     inf = piezas('expositor_tabla_inferior.glb')
     med = piezas('expositor_tabla_media.glb')

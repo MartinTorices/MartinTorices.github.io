@@ -1,0 +1,33 @@
+<!doctype html>
+<!-- Cartel A1 que cuelga en el modelo 3D del pentágono (se convierte en imagen con
+     herramientas/cartel.py). Mismos colores y tipografía que la web, sobre fondo claro. -->
+<html lang="es"><head><meta charset="utf-8">
+<style>
+  @font-face { font-family: 'Archivo'; src: url('/node_modules/@fontsource-variable/archivo/files/archivo-latin-wdth-normal.woff2') format('woff2');
+    font-weight: 100 900; font-stretch: 62% 125%; }
+  html, body { margin: 0; }
+  body { width: 1446px; height: 2048px; background: #ecebe7; color: #1e1e1d; font-family: 'Archivo', sans-serif;
+    box-sizing: border-box; padding: 96px 104px 88px; display: grid; grid-template-rows: auto minmax(0, 1fr) auto; }
+  .banda { height: 22px; width: 320px; background: #f2c14e; margin-bottom: 64px; }
+  h1 { margin: 0; font-size: 400px; line-height: .8; font-weight: 800; font-stretch: 125%; letter-spacing: -0.03em; }
+  .sub { margin: 52px 0 0; font-size: 64px; line-height: 1.1; font-stretch: 100%; font-weight: 500; max-width: 15ch; }
+  .render { width: 100%; height: 100%; min-height: 0; object-fit: contain; margin: 0; padding: 48px 0; box-sizing: border-box; }
+  .pie { display: grid; grid-template-columns: 250px 1fr; gap: 64px; align-items: end; border-top: 6px solid #1e1e1d; padding-top: 48px; }
+  .pie img { width: 100%; height: 380px; object-fit: contain; object-position: left bottom; }
+  dl { margin: 0; display: grid; gap: 30px; }
+  dt { font-size: 30px; font-stretch: 85%; color: #6b6a65; text-transform: uppercase; letter-spacing: .08em; }
+  dd { margin: 4px 0 0; font-size: 46px; font-weight: 650; font-stretch: 100%; line-height: 1.15; }
+  .anio { color: #1e1e1d; background: #f2c14e; padding: 0 .25em; }
+</style></head>
+<body>
+  <div><div class="banda"></div><h1>MIES</h1><p class="sub">Mobiliario expositivo modular</p></div>
+  <img class="render" src="/src/content/proyectos/mies/01-portada-zigzag.png" alt="">
+  <div class="pie">
+    <img src="/src/content/proyectos/mies/05-alzado-cotas-dibujo.png" alt="">
+    <dl>
+      <div><dt>Materiales</dt><dd>Contrachapado de chopo 25 mm<br>Aluminio 5052 H32 plegado</dd></div>
+      <div><dt>Concurso</dt><dd>Proyecto de Cátedra · AEICE · ETSAVA</dd></div>
+      <div><dt>Universidad de Valladolid</dt><dd><span class="anio">2026</span></dd></div>
+    </dl>
+  </div>
+</body></html>
