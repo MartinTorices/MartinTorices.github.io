@@ -304,7 +304,7 @@ def figura(altura=1.75):
         h = np.clip(0.5 + 0.5 * (b - a) / k, 0, 1)
         return b * (1 - h) + a * h - k * h * (1 - h)
 
-    paso = 0.012
+    paso = 0.016
     xs = np.arange(-0.36, 0.36, paso)
     ys = np.arange(-0.16, 0.26, paso)
     zs = np.arange(-0.01, 1.8, paso)

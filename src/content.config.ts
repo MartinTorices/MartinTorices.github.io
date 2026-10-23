@@ -23,6 +23,7 @@ const proyectos = defineCollection({
       portada: image(),
       portadaAlt: z.string(),
       modelo: z.string().optional(), // p. ej. '/modelos/mi-proyecto.glb'
+      modeloAlt: z.string().optional(), // descripción del modelo 3D (si no, se usa portadaAlt)
       // Versiones del modelo a elegir en el visor (la primera o la que coincida con «modelo» sale al principio)
       modeloVariantes: z.array(z.object({ nombre: z.string(), src: z.string() })).default([]),
       etiquetaVariantes: z.string().optional(), // p. ej. 'Balda'

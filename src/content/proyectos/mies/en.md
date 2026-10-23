@@ -9,6 +9,7 @@ etiquetas: [Modular design, Exhibition furniture, Wood and aluminium, Competitio
 portada: ./01-portada-zigzag.png
 portadaAlt: Several MIES modules joined in a zigzag, with plywood shelves and tapered aluminium profiles
 modelo: /modelos/mies-inferior.glb
+modeloAlt: MIES module with its base, a poplar plywood shelf and four tapered aluminium profiles
 etiquetaVariantes: Shelf
 modeloVariantes:
   - { nombre: Lower, src: /modelos/mies-inferior.glb }
@@ -48,7 +49,7 @@ Arranged in a circle, the modules create open meeting areas for face-to-face con
 *Another view of the pentagon and an open grouping.*
 
 <figure class="visor-md">
-<model-viewer src="/modelos/mies-pentagono.glb" alt="Five MIES modules closing into a pentagon, in 3D" camera-controls touch-action="pan-y" auto-rotate auto-rotate-delay="1500" rotation-per-second="14deg" interaction-prompt="none" camera-orbit="112deg 68deg auto" shadow-intensity="0.85" shadow-softness="0.75" exposure="1" tone-mapping="neutral" environment-image="/modelos/estudio.hdr" ar ar-modes="webxr scene-viewer quick-look"><button slot="ar-button" class="boton visor-md__ar">View in your space (AR)</button></model-viewer>
+<model-viewer src="/modelos/mies-pentagono.glb" alt="Five MIES modules closing into a pentagon, in 3D" camera-controls touch-action="pan-y" auto-rotate auto-rotate-delay="1500" rotation-per-second="14deg" interaction-prompt="none" camera-orbit="112deg 68deg auto" shadow-intensity="0.85" shadow-softness="0.75" exposure="1" tone-mapping="neutral" environment-image="/modelos/estudio.hdr" ar ar-modes="webxr scene-viewer quick-look" ar-scale="auto" ar-placement="floor" ios-src="/modelos/mies-pentagono.usdz"><button slot="ar-button" class="boton visor-md__ar">View in your space (AR)</button></model-viewer>
 <figcaption>Pentagon grouping in 3D, set up as in an exhibition: a different shelf in each module holding scale models, A1 sheets hanging at the back from cords threaded through the holes in the profiles, and a 1.75 m figure for scale. Drag to rotate it or, on your phone, place it in your space with the augmented reality button.</figcaption>
 </figure>
 

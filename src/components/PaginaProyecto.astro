@@ -53,7 +53,7 @@ const { Content } = await render(proyecto);
 
     <div class="contenedor medios" data-aparecer style="--retraso:0.3s">
       {data.modelo ? (
-        <Visor3D src={data.modelo} alt={data.portadaAlt} lang={lang} variantes={data.modeloVariantes} etiquetaVariantes={data.etiquetaVariantes} />
+        <Visor3D src={data.modelo} alt={data.modeloAlt ?? data.portadaAlt} lang={lang} variantes={data.modeloVariantes} etiquetaVariantes={data.etiquetaVariantes} />
       ) : (
         <Image src={data.portada} alt={data.portadaAlt} widths={[800, 1400, 2000]} sizes="100vw" loading="eager" class="portada" />
       )}
