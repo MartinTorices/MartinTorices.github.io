@@ -108,3 +108,7 @@ El tapón está pensado para moldeo por inyección en rPET, el material que Qiub
 
 ![Plano del conjunto: alzado, perfil, sección A-A y planta, con 142 mm de altura](./17-plano-conjunto-dibujo.png)
 *Plano del conjunto: 142 mm de altura total y Ø 47,49 mm en la tapa. Tolerancia general ±0,10 mm.*
+
+## Panel de entrega
+
+<a class="boton boton--lleno" href="/proyectos/dosificador-qiub/QIUB-panel.pdf" download>Descargar el panel (PDF, 6 MB)</a>

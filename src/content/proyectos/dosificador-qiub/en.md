@@ -108,3 +108,7 @@ The cap is designed for injection moulding in rPET, the material Qiub already us
 
 ![Assembly drawing: front, side, section A-A and top views, 142 mm tall](./17-plano-conjunto-dibujo.png)
 *Assembly drawing: 142 mm overall height and Ø 47.49 mm at the cap. General tolerance ±0.10 mm.*
+
+## Submission board
+
+<a class="boton boton--lleno" href="/proyectos/dosificador-qiub/QIUB-panel.pdf" download>Download the board (PDF, 6 MB)</a>
