@@ -49,7 +49,7 @@ En círculo, los módulos crean zonas de reunión abiertas para charlar en grupo
 *Otra vista del pentágono y agrupación abierta.*
 
 <figure class="visor-md">
-<model-viewer src="/modelos/mies-pentagono.glb" alt="Cinco módulos MIES cerrando un pentágono, en 3D" camera-controls touch-action="pan-y" auto-rotate auto-rotate-delay="1500" rotation-per-second="14deg" interaction-prompt="none" camera-orbit="112deg 68deg auto" shadow-intensity="0.85" shadow-softness="0.75" exposure="1" tone-mapping="neutral" environment-image="/modelos/estudio.hdr" ar ar-modes="webxr scene-viewer quick-look" ar-scale="auto" ar-placement="floor" ios-src="/modelos/mies-pentagono.usdz"><button slot="ar-button" class="boton visor-md__ar">Ver en tu espacio (AR)</button></model-viewer>
+<model-viewer src="/modelos/mies-pentagono.glb" alt="Cinco módulos MIES cerrando un pentágono, en 3D" camera-controls touch-action="pan-y" auto-rotate auto-rotate-delay="1500" rotation-per-second="14deg" interaction-prompt="none" camera-orbit="112deg 68deg auto" shadow-intensity="0.85" shadow-softness="0.75" exposure="1" tone-mapping="neutral" environment-image="/modelos/estudio.hdr" ar ar-modes="scene-viewer webxr quick-look" ar-scale="auto" ar-placement="floor" ios-src="/modelos/mies-pentagono.usdz"><button slot="ar-button" class="boton visor-md__ar">Ver en tu espacio (AR)</button></model-viewer>
 <figcaption>Agrupación en pentágono en 3D, montada como en una exposición: una balda distinta en cada módulo con maquetas, láminas A1 colgadas al fondo de cuerdas que pasan por las perforaciones de los perfiles y una figura de 1,75 m para ver la escala. Arrastra para girarla o, en el móvil, ponla en tu espacio con el botón de realidad aumentada.</figcaption>
 </figure>
 
