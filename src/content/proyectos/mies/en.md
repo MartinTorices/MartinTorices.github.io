@@ -49,7 +49,7 @@ Arranged in a circle, the modules create open meeting areas for face-to-face con
 
 <figure class="visor-md">
 <model-viewer src="/modelos/mies-pentagono.glb" alt="Five MIES modules closing into a pentagon, in 3D" camera-controls touch-action="pan-y" auto-rotate auto-rotate-delay="1500" rotation-per-second="14deg" interaction-prompt="none" camera-orbit="112deg 68deg auto" shadow-intensity="0.85" shadow-softness="0.75" exposure="1" tone-mapping="neutral" environment-image="/modelos/estudio.hdr"></model-viewer>
-<figcaption>Pentagon grouping in 3D, set up as in an exhibition: a different shelf in each module holding scale models, A1 posters hanging at the back from cords threaded through the holes in the profiles, and a 1.75 m figure for scale. Drag to rotate it.</figcaption>
+<figcaption>Pentagon grouping in 3D, set up as in an exhibition: a different shelf in each module holding scale models, the A1 competition board hanging at the back from cords threaded through the holes in the profiles, and a 1.75 m figure for scale. Drag to rotate it.</figcaption>
 </figure>
 
 ## Assembly and transport

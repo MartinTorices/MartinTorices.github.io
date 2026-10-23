@@ -3,7 +3,7 @@
 Las texturas compartidas (public/modelos/texturas/) se descargan una sola vez en la
 web, pero la realidad aumentada de Android (Scene Viewer, la app de Google) no
 siempre carga archivos externos: se queda «pillada» y vuelve a la página. Con todo
-dentro del .glb funciona siempre. Las texturas se reducen a 1024 px como mucho.
+dentro del .glb funciona siempre. Las texturas se reducen a 1024 px como mucho (la lámina A1, a 2048).
 
 Uso: python3 herramientas/glb_autonomo.py public/modelos/x.glb [...]
 """
@@ -23,7 +23,9 @@ def autonomo(ruta, max_lado=1024, calidad=85):
         if not img.uri:
             continue
         im = Image.open(os.path.join(base, img.uri)).convert('RGB')
-        im.thumbnail((max_lado, max_lado), Image.LANCZOS)
+        # la lámina A1 conserva 2048 px para que se lea; el resto, max_lado
+        lado = 2048 if 'lamina' in img.uri else max_lado
+        im.thumbnail((lado, lado), Image.LANCZOS)
         buf = io.BytesIO()
         im.save(buf, 'JPEG', quality=calidad, optimize=True)
         b = buf.getvalue()
