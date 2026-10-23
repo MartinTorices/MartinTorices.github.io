@@ -4,7 +4,6 @@ import { render } from 'astro:content';
 import Base from '../layouts/Base.astro';
 import Visor3D from './Visor3D.astro';
 import PiezaPlano from './PiezaPlano.astro';
-import Icono from './Icono.astro';
 import type { Proyecto } from '../proyectos';
 import { persona } from '../config';
 import { t, rutas, type Lang } from '../i18n';
@@ -33,7 +32,11 @@ const fases = headings.filter((h) => h.depth === 2);
   <article class="proyecto">
     <header class:list={['contenedor', 'cabeza', { 'cabeza--plano': data.modelo }]}>
       <div class="cabeza__texto">
-      <a class="volver" href={rutas.proyectos(lang)}><Icono nombre="flecha-izq" />{tx.volver}</a>
+      <a class="volver" href={rutas.proyectos(lang)}>
+        <!-- flecha como una línea de cota: punta rellena y trazo que se alarga al pasar el ratón -->
+        <span class="volver__cota" aria-hidden="true"></span>
+        <span class="volver__texto">{tx.volver}</span>
+      </a>
       <h1 data-aparecer>{data.titulo}</h1>
       <p class="entradilla" data-aparecer style="--retraso:0.1s">{data.resumen}</p>
       <table class="cajetin datos" data-aparecer style="--retraso:0.2s">
@@ -130,16 +133,54 @@ const fases = headings.filter((h) => h.depth === 2);
     max-width: 30rem;
     justify-self: center;
   }
+  /* «Volver a proyectos»: rótulo pequeño, como el del índice, con una flecha de cota */
   .volver {
     display: inline-flex;
     align-items: center;
-    gap: 0.4em;
+    gap: 0.75rem;
     width: fit-content;
-    font-stretch: 92%;
+    padding-block: 0.35rem;
+    color: var(--tinta-suave);
+    text-decoration: none;
+    font-size: var(--t-0);
+    font-weight: 600;
+    font-stretch: 85%;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    transition: color 0.2s;
   }
-  .volver :global(svg) {
-    width: 1.1em;
-    height: 1.1em;
+  .volver__cota {
+    position: relative;
+    width: 1.75rem;
+    height: 1px;
+    background: var(--azul);
+    transition: width 0.3s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+  .volver__cota::before {
+    /* punta de flecha */
+    content: '';
+    position: absolute;
+    left: -1px;
+    top: -4px;
+    border-style: solid;
+    border-width: 4.5px 9px 4.5px 0;
+    border-color: transparent var(--azul) transparent transparent;
+  }
+  .volver__cota::after {
+    /* línea de referencia al final, como en una cota */
+    content: '';
+    position: absolute;
+    right: 0;
+    top: -5px;
+    width: 1px;
+    height: 11px;
+    background: var(--azul);
+  }
+  .volver:hover {
+    color: var(--tinta);
+  }
+  .volver:hover .volver__cota {
+    width: 2.75rem;
   }
   h1 {
     font-size: clamp(2.5rem, 7vw, 5.5rem);
