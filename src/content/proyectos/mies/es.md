@@ -48,7 +48,7 @@ En círculo, los módulos crean zonas de reunión abiertas para charlar en grupo
 *Otra vista del pentágono y agrupación abierta.*
 
 <figure class="visor-md">
-<model-viewer src="/modelos/mies-pentagono.glb" alt="Cinco módulos MIES cerrando un pentágono, en 3D" camera-controls touch-action="pan-y" auto-rotate auto-rotate-delay="1500" rotation-per-second="14deg" interaction-prompt="none" camera-orbit="112deg 68deg auto" shadow-intensity="0.85" shadow-softness="0.75" exposure="1" tone-mapping="neutral" environment-image="/modelos/estudio.hdr"></model-viewer>
+<model-viewer src="/modelos/mies-pentagono.glb?v=lamina-a1" alt="Cinco módulos MIES cerrando un pentágono, en 3D" camera-controls touch-action="pan-y" auto-rotate auto-rotate-delay="1500" rotation-per-second="14deg" interaction-prompt="none" camera-orbit="112deg 68deg auto" shadow-intensity="0.85" shadow-softness="0.75" exposure="1" tone-mapping="neutral" environment-image="/modelos/estudio.hdr"></model-viewer>
 <figcaption>Agrupación en pentágono en 3D, montada como en una exposición: una balda distinta en cada módulo con maquetas, la lámina A1 de la entrega colgada al fondo de cuerdas que pasan por las perforaciones de los perfiles y una figura de 1,75 m para ver la escala. Arrastra para girarla.</figcaption>
 </figure>
 
