@@ -33,6 +33,8 @@ const og = imagen ? new URL(imagen, Astro.site) : undefined;
     <title>{tituloCompleto}</title>
     <meta name="description" content={descripcion} />
     <meta name="author" content={persona.nombre} />
+    <!-- verificación de Google Search Console (cuenta de Martín): no la quites o Google deja de dar datos -->
+    <meta name="google-site-verification" content="kaDjt8igMA51cvfAQV3qHNJ_grIljD5s7z-RRzfqU3A" />
     {noindex && <meta name="robots" content="noindex" />}
     <link rel="canonical" href={canonical} />
     <link rel="alternate" hreflang={lang} href={canonical} />
