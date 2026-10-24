@@ -8,6 +8,8 @@ equipo: [Nicolás Toribio González, Alba Martín Fernández, Óscar Ramón Mend
 etiquetas: [Envase, Mecanismo, Prototipado, Moldeo por inyección, Concurso]
 portada: ./01-portada.png
 portadaAlt: Bote de especias transparente con el tapón dosificador, junto a otro tapón suelto, sobre fondo turquesa
+modelo: /modelos/dosificador-qiub.glb
+modeloAlt: "Modelo 3D del dosificador QIUB: bote transparente con la tapa dosificadora y el tornillo sin fin inclinado en su interior"
 orden: 2
 ---
 

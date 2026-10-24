@@ -8,6 +8,8 @@ equipo: [Nicolás Toribio González, Alba Martín Fernández, Óscar Ramón Mend
 etiquetas: [Packaging, Mechanism, Prototyping, Injection moulding, Competition]
 portada: ./01-portada.png
 portadaAlt: Clear spice jar with the dosing cap, next to a loose cap, on a turquoise background
+modelo: /modelos/dosificador-qiub.glb
+modeloAlt: "3D model of the QIUB dosing cap: clear jar with the dosing cap and the tilted worm screw inside"
 orden: 2
 ---
 
