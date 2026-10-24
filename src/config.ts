@@ -13,9 +13,14 @@ export const persona = {
   telefono: { prefijo: '34', partes: ['696', '997', '657'] },
   // Ruta del CV dentro de /public. Déjalo en null hasta tener el PDF:
   // mientras sea null, el botón de descarga no aparece.
-  cv: null as string | null, // ejemplo: '/cv/CV-Martin-Torices.pdf'
+  cv: '/cv/CV-Martin-Torices.pdf' as string | null, // sin la dirección de casa (borrada del PDF)
   // Programas que aparecen en «Sobre mí»
   programas: ['CATIA', 'SolidWorks', 'Illustrator', 'Blender'],
+  // Habilidades de taller que aparecen en «Sobre mí», junto a los programas
+  taller: {
+    es: ['Impresión 3D', 'Corte láser', 'Maquetas', 'Montaje eléctrico'],
+    en: ['3D printing', 'Laser cutting', 'Model making', 'Electrical assembly'],
+  },
 };
 
 export const estudios = {

@@ -16,7 +16,10 @@ Web estática con Astro 7, publicada en https://martintorices.github.io. Cada pu
 - Esquema de proyecto: `src/content.config.ts`
 - Proyectos: `src/content/proyectos/<slug>/es.md`, `en.md` y sus imágenes
 - Modelos 3D: `public/modelos/<slug>.glb`. Objetivo: menos de 10 MB. Si pesa más, simplifícalo (por ejemplo, con gltf-transform y compresión meshopt o draco).
-- CV: `public/cv/`. Pon la ruta en `persona.cv`.
+- CV: `public/cv/CV-Martin-Torices.pdf` (ruta en `persona.cv`; botón en «Sobre mí»). Es público: sin la dirección de casa (se borró del PDF con PyMuPDF, redacción real + línea reescrita en Caladea, que tiene las medidas de Cambria). Si Martín manda otro CV, quítale también la dirección antes de publicarlo.
+- Foto de «Sobre mí»: `src/assets/foto-martin.jpg` (sacada del CV, 400 px, en grises cálidos del carbón #22211f al blanco roto #efeeea), a la derecha del texto con marcas de esquina amarillas; en el móvil va antes del texto. Programas y Taller (`persona.taller`, ES/EN) van en dos columnas bajo el texto.
+- Página de error: `src/pages/404.astro` («Esta lámina no existe»: lámina con el hueco en cruz, cota 404 y cajetín; línea en inglés debajo; `noindex`).
+- Google: `src/pages/sitemap.xml.ts` (mapa del sitio con hreflang ES/EN, se genera solo con los proyectos) y `public/robots.txt`.
 
 ## Añadir un proyecto
 - Pide a Martín: nombre, de qué trata, año, contexto (asignatura, concurso…), herramientas, fotos o renders, bocetos y el modelo (.glb, o expórtalo desde SolidWorks con Guardar como → Extended Reality).
@@ -47,7 +50,7 @@ Concepto: hoja de plano técnico en «hormigón oscuro» (elegido por Martín): 
   - Al hacer scroll: añade `data-aparecer` (y `style="--retraso:0.2s"` si quieres escalonar) a un bloque para que suba y aparezca; `data-aparecer-hijos` hace lo mismo con cada hijo (cuerpo de los proyectos); `data-revelar` solo añade `.visible` para animaciones propias (las 5 fases). En los `.titulo-seccion` la línea se traza sola.
   - Entre páginas, fundido con `@view-transition` (la cabecera no vuelve a entrar si vienes de otra página de la web).
 - Páginas de proyecto: en pantallas anchas, índice fijo a la izquierda con las fases (`##`) numeradas en amarillo, que marca la que se está leyendo, y el caso de estudio a la derecha, alineado con la cabecera; el texto se limita a 68ch y las imágenes, tablas y visores ocupan todo el ancho de su columna. En el móvil no hay índice. Está en `PaginaProyecto.astro` (sale solo si hay dos fases o más). «Volver a proyectos» es un rótulo en versalitas gris con una flecha de cota amarilla (punta, trazo y marca de referencia) que se alarga al pasar el ratón; nada de enlaces subrayados con icono.
-- Índice lateral (`IndiceLateral.astro`): lo comparten las páginas de proyecto (columna de la rejilla de `.lectura`) y la de inicio (`PaginaInicio.astro`: empieza en la franja de las fases, con su borde a la altura de la línea de cota, y acompaña hasta Contacto; entradas Proyectos, Cómo trabajo, Sobre mí y Contacto). En inicio, las secciones dejan sitio con la variable `--hueco` (la usa `.contenedor` en `global.css` y la línea de cota de `Proceso.astro`); sus fondos siguen a todo el ancho. Si se añade una sección a la portada, ponle `id` y súmala a `secciones`.
+- Índice lateral (`IndiceLateral.astro`): lo comparten las páginas de proyecto (columna de la rejilla de `.lectura`) y la de inicio (`PaginaInicio.astro`: empieza en la franja de las fases, con su borde a la altura de la línea de cota, y acompaña hasta Contacto; entradas Cómo trabajo, Sobre mí y Contacto; debajo, aparte, el botón «Ver proyectos» que lleva a la pestaña Proyectos, pasado al índice por su `<slot />`). En inicio, las secciones dejan sitio con la variable `--hueco` (la usa `.contenedor` en `global.css` y la línea de cota de `Proceso.astro`); sus fondos siguen a todo el ancho. Si se añade una sección a la portada, ponle `id` y súmala a `secciones`.
 - Dibujos con líneas o texto negro: el nombre del archivo debe terminar en `-dibujo` (p. ej. `05-alzado-cotas-dibujo.png`) y se ponen solos sobre una hoja clara; los renders sin fondo van directamente sobre el carbón.
 
 ## Cuidado

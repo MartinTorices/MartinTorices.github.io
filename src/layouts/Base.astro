@@ -10,9 +10,11 @@ interface Props {
   // dirección de esta misma página en el otro idioma
   alternativa: string;
   imagen?: string;
+  // páginas que Google no debe guardar (la de error)
+  noindex?: boolean;
 }
 
-const { lang, titulo, descripcion, alternativa, imagen } = Astro.props;
+const { lang, titulo, descripcion, alternativa, imagen, noindex = false } = Astro.props;
 const tx = t(lang);
 const otro: Lang = lang === 'es' ? 'en' : 'es';
 const tituloCompleto = titulo ? `${titulo} | ${persona.nombreCorto}` : `${persona.nombre} | ${tx.tagline}`;
@@ -31,6 +33,7 @@ const og = imagen ? new URL(imagen, Astro.site) : undefined;
     <title>{tituloCompleto}</title>
     <meta name="description" content={descripcion} />
     <meta name="author" content={persona.nombre} />
+    {noindex && <meta name="robots" content="noindex" />}
     <link rel="canonical" href={canonical} />
     <link rel="alternate" hreflang={lang} href={canonical} />
     <link rel="alternate" hreflang={otro} href={urlAlternativa} />

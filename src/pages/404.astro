@@ -1,0 +1,244 @@
+---
+// Página de error (GitHub Pages la sirve como 404.html para cualquier dirección que no existe).
+// Una lámina en blanco con el hueco marcado con una cruz, como en un plano, su cota
+// «404» y el cajetín. En español, con una línea en inglés debajo.
+import Base from '../layouts/Base.astro';
+import { rutas } from '../i18n';
+---
+
+<Base lang="es" titulo="Página no encontrada" descripcion="Esta página no existe." alternativa="/en/" noindex>
+  <section class="error contenedor" aria-labelledby="error-t">
+    <div class="error__texto">
+      <p class="error__rotulo">Error 404 · Página no encontrada</p>
+      <h1 id="error-t">Esta lámina <span>no existe</span></h1>
+      <p class="error__entradilla">
+        Puede que el enlace esté mal escrito o que la página se haya movido. Los proyectos siguen en su sitio.
+      </p>
+      <div class="error__botones">
+        <a class="boton boton--lleno" href={rutas.proyectos('es')}>Ver proyectos</a>
+        <a class="boton" href={rutas.inicio('es')}>Ir al inicio</a>
+      </div>
+      <p class="error__en" lang="en">
+        This page doesn’t exist. <a href={rutas.inicio('en')}>Go to the English home page</a>
+      </p>
+    </div>
+
+    <!-- la lámina: marco, hueco con cruz, cotas y cajetín (medidas en mm de un A3 apaisado) -->
+    <figure class="lamina-error" aria-hidden="true">
+      <svg viewBox="0 0 420 297" xmlns="http://www.w3.org/2000/svg">
+        <rect class="marco" x="10" y="10" width="400" height="277" />
+        <!-- hueco: rectángulo con las dos diagonales -->
+        <g class="hueco">
+          <rect x="70" y="72" width="200" height="140" />
+          <path class="diagonal" d="M70 72L270 212" pathLength="1" />
+          <path class="diagonal" d="M270 72L70 212" pathLength="1" />
+        </g>
+        <!-- cota horizontal: 404 -->
+        <g class="cota">
+          <path d="M70 66V44M270 66V44" />
+          <path class="cota__linea" d="M70 50H270" />
+          <path class="flecha" d="M70 50l9 -3v6zM270 50l-9 -3v6z" />
+          <text x="170" y="43" text-anchor="middle" class="cota__texto">404</text>
+        </g>
+        <!-- cota vertical: sin medida -->
+        <g class="cota">
+          <path d="M276 72H300M276 212H300" />
+          <path class="cota__linea" d="M294 72V212" />
+          <path class="flecha" d="M294 72l-3 9h6zM294 212l-3 -9h6z" />
+          <text x="306" y="146" class="cota__texto cota__texto--peq">?</text>
+        </g>
+        <!-- cajetín -->
+        <g class="cajetin-svg">
+          <rect x="250" y="236" width="160" height="51" />
+          <path d="M250 253H410M250 270H410M300 236V287" />
+          <text x="256" y="248">HOJA</text><text x="306" y="248" class="dato">404</text>
+          <text x="256" y="265">ESTADO</text><text x="306" y="265" class="dato">NO ENCONTRADA</text>
+          <text x="256" y="282">ESCALA</text><text x="306" y="282" class="dato">—</text>
+        </g>
+      </svg>
+    </figure>
+  </section>
+</Base>
+
+<style>
+  .error {
+    min-height: calc(100svh - 10rem);
+    display: grid;
+    align-content: center;
+    gap: clamp(2.5rem, 6vw, 4rem);
+    padding-block: clamp(3rem, 8vw, 6rem);
+  }
+  @media (min-width: 56rem) {
+    .error {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+      align-items: center;
+    }
+  }
+  .error__texto {
+    display: grid;
+    gap: 1.25rem;
+    justify-items: start;
+  }
+  .error__rotulo {
+    margin: 0;
+    color: var(--azul);
+    font-size: var(--t-0);
+    font-weight: 600;
+    font-stretch: 85%;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  h1 {
+    margin: 0;
+    font-size: clamp(2.5rem, 6vw, 4.5rem);
+    line-height: 0.98;
+    font-weight: 800;
+    font-stretch: 112%;
+    text-wrap: balance;
+  }
+  h1 span {
+    display: block;
+    color: var(--azul);
+    font-weight: 400;
+    font-stretch: 125%;
+  }
+  .error__entradilla {
+    margin: 0;
+    max-width: 38ch;
+    font-size: var(--t-2);
+    color: var(--tinta-suave);
+  }
+  .error__botones {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+  }
+  .error__en {
+    margin: 1rem 0 0;
+    padding-top: 1rem;
+    border-top: var(--trazo) solid var(--linea);
+    font-size: var(--t-0);
+    color: var(--tinta-suave);
+  }
+  .error__en a {
+    color: var(--azul);
+  }
+
+  /* La lámina: hormigón claro, algo girada, como las de la mesa de la portada */
+  .lamina-error {
+    margin: 0;
+    background: var(--lamina-fondo);
+    rotate: -2.5deg;
+    box-shadow:
+      0 1px 2px rgb(0 0 0 / 0.35),
+      0 18px 40px -12px rgb(0 0 0 / 0.6);
+  }
+  .lamina-error svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    fill: none;
+    stroke: var(--lamina-tinta);
+    stroke-width: 0.6;
+    font-family: inherit;
+  }
+  .marco {
+    stroke-width: 1.4;
+  }
+  .hueco rect {
+    stroke-width: 1.4;
+  }
+  .diagonal {
+    stroke-width: 0.6;
+  }
+  .cota {
+    stroke: #8a6a12;
+    stroke-width: 0.5;
+  }
+  .cota .cota__linea {
+    stroke-width: 0.7;
+  }
+  .flecha {
+    fill: #8a6a12;
+    stroke: none;
+  }
+  .cota__texto {
+    fill: #8a6a12;
+    stroke: none;
+    font-size: 15px;
+    font-weight: 700;
+    font-stretch: 110%;
+  }
+  .cota__texto--peq {
+    font-size: 12px;
+  }
+  .cajetin-svg rect,
+  .cajetin-svg path {
+    stroke-width: 0.8;
+  }
+  .cajetin-svg text {
+    fill: var(--lamina-tinta);
+    stroke: none;
+    font-size: 6.5px;
+    letter-spacing: 0.05em;
+    opacity: 0.7;
+  }
+  .cajetin-svg .dato {
+    font-weight: 700;
+    font-size: 7.5px;
+    opacity: 1;
+  }
+
+  /* Al entrar: la lámina cae sobre la mesa, la cruz se traza y la cota aparece */
+  @media (prefers-reduced-motion: no-preference) {
+    .lamina-error {
+      animation: caer 0.8s cubic-bezier(0.2, 0.8, 0.25, 1) 0.15s backwards;
+    }
+    .diagonal {
+      stroke-dasharray: 1;
+      stroke-dashoffset: 1;
+      animation: trazar 0.7s cubic-bezier(0.6, 0, 0.3, 1) forwards;
+    }
+    .diagonal:first-of-type {
+      animation-delay: 0.85s;
+    }
+    .diagonal:last-of-type {
+      animation-delay: 1.15s;
+    }
+    .cota {
+      animation: aparecer 0.5s ease 1.5s backwards;
+    }
+    .error__texto > * {
+      animation: subir-404 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) backwards;
+    }
+    .error__texto > :nth-child(2) { animation-delay: 0.08s; }
+    .error__texto > :nth-child(3) { animation-delay: 0.16s; }
+    .error__texto > :nth-child(4) { animation-delay: 0.24s; }
+    .error__texto > :nth-child(5) { animation-delay: 0.32s; }
+  }
+  @keyframes caer {
+    from {
+      opacity: 0;
+      translate: 0 -1.5rem;
+      rotate: -7deg;
+      scale: 1.04;
+    }
+  }
+  @keyframes trazar {
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+  @keyframes aparecer {
+    from {
+      opacity: 0;
+    }
+  }
+  @keyframes subir-404 {
+    from {
+      opacity: 0;
+      translate: 0 1rem;
+    }
+  }
+</style>

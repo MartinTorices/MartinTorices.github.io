@@ -16,7 +16,6 @@ const otro: Lang = lang === 'es' ? 'en' : 'es';
 const tx = t(lang);
 // Índice lateral: las secciones de la página, en el orden en que aparecen
 const secciones = [
-  { id: 'portada', texto: tx.navProyectos },
   { id: 'proceso', texto: tx.navProceso },
   { id: 'sobre-mi', texto: tx.navSobreMi },
   { id: 'contacto', texto: tx.navContacto },
@@ -30,7 +29,13 @@ const secciones = [
        secciones a la derecha; los fondos de las secciones siguen a todo el ancho -->
   <div class="inicio-cuerpo">
     <div class="inicio-pista">
-      <IndiceLateral lang={lang} titulo={persona.nombreCorto} etiqueta={tx.indiceInicio} entradas={secciones} />
+      <IndiceLateral lang={lang} titulo={persona.nombreCorto} etiqueta={tx.indiceInicio} entradas={secciones}>
+        <!-- aparte de la lista: lleva a la pestaña Proyectos -->
+        <a class="boton indice-proyectos" href={rutas.proyectos(lang)}>
+          <span>{tx.verProyectos}</span>
+          <span class="indice-proyectos__cota" aria-hidden="true"></span>
+        </a>
+      </IndiceLateral>
     </div>
     <Proceso lang={lang} />
     <SobreMi lang={lang} />
@@ -67,6 +72,52 @@ const secciones = [
       /* el borde de arriba, a la altura de la línea de cota de las fases */
       margin-top: calc(2.5rem + 0.55rem - 1px);
     }
+  }
+  /* Botón a la pestaña Proyectos, separado de la lista por una línea fina */
+  .indice-proyectos {
+    justify-content: space-between;
+    width: 100%;
+    margin-top: 0.25rem;
+    border-color: var(--azul);
+    color: var(--azul);
+    font-size: var(--t-0);
+    font-stretch: 85%;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .indice-proyectos:hover {
+    background: var(--azul);
+    border-color: var(--azul);
+    color: var(--papel);
+  }
+  /* flecha de cota hacia la derecha (como la de «Volver a proyectos», al revés) */
+  .indice-proyectos__cota {
+    position: relative;
+    width: 1.5rem;
+    height: 1px;
+    background: currentColor;
+    transition: width 0.3s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+  .indice-proyectos__cota::before {
+    content: '';
+    position: absolute;
+    right: -1px;
+    top: -4px;
+    border-style: solid;
+    border-width: 4.5px 0 4.5px 9px;
+    border-color: transparent transparent transparent currentColor;
+  }
+  .indice-proyectos__cota::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: -5px;
+    width: 1px;
+    height: 11px;
+    background: currentColor;
+  }
+  .indice-proyectos:hover .indice-proyectos__cota {
+    width: 2.25rem;
   }
 </style>
 
