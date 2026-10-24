@@ -258,21 +258,26 @@ const fases = headings.filter((h) => h.depth === 2);
     object-fit: contain;
   }
   /* Varias imágenes seguidas en un párrafo: en fila */
+  /* Flex y no grid: con grid, el pie de foto (que ocupa toda la fila) impedía
+     que las columnas vacías se plegaran y las imágenes salían diminutas */
   .cuerpo :global(p:has(> img + img)) {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+    display: flex;
+    flex-wrap: wrap;
     gap: 0 1rem;
-    align-items: end;
+    align-items: flex-end;
     max-width: none;
   }
-  .cuerpo :global(p:has(> img[src$='.svg'] + img)) {
-    grid-template-columns: 1fr;
-  }
   .cuerpo :global(p:has(> img + img) > img) {
+    flex: 1 1 12rem;
+    width: auto;
+    min-width: 0;
     margin-bottom: 0;
   }
+  .cuerpo :global(p:has(> img[src$='.svg'] + img) > img) {
+    flex-basis: 100%;
+  }
   .cuerpo :global(p:has(> img + img) > em) {
-    grid-column: 1 / -1;
+    flex-basis: 100%;
   }
   /* Pie de foto: la línea en cursiva justo debajo de la imagen */
   .cuerpo :global(table + p > em:only-child) {

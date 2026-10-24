@@ -19,7 +19,7 @@ type Hueco = [number, number, number, number];
 const disposiciones: Record<number, Hueco[]> = {
   1: [[10, 10, 78, -2.5]],
   2: [[2, 6, 58, -5], [38, 34, 58, 4]],
-  3: [[0, 4, 54, -6], [46, 2, 52, 5], [20, 42, 56, -1.5]],
+  3: [[0, 4, 54, -6], [46, 2, 52, 5], [22, 40, 52, -2]],
   4: [[0, 2, 50, -6], [50, 0, 48, 4], [4, 50, 46, 3], [48, 44, 50, -4]],
 };
 const general: Hueco[] = [
@@ -45,8 +45,8 @@ const mazo = (h: Hueco) => {
 const utiles: { nombre: string; x: number; y: number; w: number; r: number; svg: string }[] = [
   { nombre: 'escuadra', x: -9, y: 36, w: 32, r: 7, svg: escuadra },
   { nombre: 'cartabon', x: 64, y: -9, w: 38, r: -14, svg: cartabon },
-  { nombre: 'escalimetro', x: 46, y: 95, w: 52, r: -3, svg: escalimetro },
-  { nombre: 'portaminas', x: 14, y: 95, w: 33, r: 9, svg: portaminas },
+  { nombre: 'escalimetro', x: 46, y: 99, w: 52, r: -3, svg: escalimetro },
+  { nombre: 'portaminas', x: 14, y: 99, w: 33, r: 9, svg: portaminas },
 ];
 ---
 
