@@ -4,6 +4,7 @@ import { render } from 'astro:content';
 import Base from '../layouts/Base.astro';
 import Visor3D from './Visor3D.astro';
 import PiezaPlano from './PiezaPlano.astro';
+import IndiceLateral from './IndiceLateral.astro';
 import type { Proyecto } from '../proyectos';
 import { persona } from '../config';
 import { t, rutas, type Lang } from '../i18n';
@@ -66,20 +67,12 @@ const fases = headings.filter((h) => h.depth === 2);
 
     <div class:list={['contenedor', 'lectura', { 'lectura--indice': fases.length > 1 }]}>
       {fases.length > 1 && (
-        <nav class="indice" aria-label={tx.indice}>
-          <p class="indice__titulo">{data.titulo}</p>
-          <ol>
-            {fases.map((f, i) => (
-              <li>
-                <a href={`#${f.slug}`} data-fase={f.slug}>
-                  <span class="indice__n">{i + 1}</span>
-                  <span>{f.text}</span>
-                </a>
-              </li>
-            ))}
-          </ol>
-          <a class="indice__arriba nota" href="#contenido">{tx.subir}</a>
-        </nav>
+        <IndiceLateral
+          lang={lang}
+          titulo={data.titulo}
+          etiqueta={tx.indice}
+          entradas={fases.map((f) => ({ id: f.slug, texto: f.text }))}
+        />
       )}
       <div class="cuerpo" data-aparecer-hijos>
         <Content />
@@ -95,23 +88,6 @@ const fases = headings.filter((h) => h.depth === 2);
   </article>
 </Base>
 
-<script>
-  // Índice lateral: marca la fase que se está leyendo
-  const enlaces = new Map(
-    [...document.querySelectorAll<HTMLAnchorElement>('.indice [data-fase]')].map((a) => [a.dataset.fase!, a])
-  );
-  if (enlaces.size) {
-    const titulos = [...enlaces.keys()].map((id) => document.getElementById(id)).filter(Boolean) as HTMLElement[];
-    const marcar = () => {
-      // la fase activa es la última cuyo título ya ha pasado del primer tercio de la pantalla
-      let activa = titulos[0];
-      for (const h of titulos) if (h.getBoundingClientRect().top < window.innerHeight * 0.33) activa = h;
-      enlaces.forEach((a, id) => a.toggleAttribute('aria-current', id === activa.id));
-    };
-    marcar();
-    window.addEventListener('scroll', marcar, { passive: true });
-  }
-</script>
 
 <style>
   .cabeza {
@@ -219,66 +195,6 @@ const fases = headings.filter((h) => h.depth === 2);
       align-items: start;
     }
   }
-  .indice {
-    display: none;
-  }
-  @media (min-width: 60rem) {
-    .indice {
-      display: grid;
-      gap: 1rem;
-      position: sticky;
-      top: 5.5rem;
-      margin-top: 3.5rem;
-      padding-top: 1rem;
-      border-top: var(--trazo-grueso) solid var(--tinta);
-    }
-  }
-  .indice__titulo {
-    margin: 0;
-    font-size: var(--t-0);
-    font-stretch: 85%;
-    color: var(--tinta-suave);
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-  }
-  .indice ol {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: grid;
-    gap: 0.15rem;
-  }
-  .indice li a {
-    display: grid;
-    grid-template-columns: 1.6rem 1fr;
-    align-items: baseline;
-    padding: 0.35rem 0 0.35rem 0.6rem;
-    border-left: var(--trazo-grueso) solid transparent;
-    color: var(--tinta-suave);
-    text-decoration: none;
-    font-weight: 500;
-    font-stretch: 95%;
-    line-height: 1.3;
-    transition: color 0.2s, border-color 0.2s;
-  }
-  .indice__n {
-    color: var(--azul);
-    font-weight: 300;
-    font-variant-numeric: tabular-nums;
-  }
-  .indice li a:hover {
-    color: var(--tinta);
-  }
-  .indice li a[aria-current] {
-    color: var(--tinta);
-    font-weight: 700;
-    border-left-color: var(--azul);
-  }
-  .indice__arriba {
-    width: fit-content;
-    margin-top: 0.5rem;
-  }
-
   /* Cuerpo del caso de estudio: cada ## es una fase numerada */
   .cuerpo {
     counter-reset: fase;

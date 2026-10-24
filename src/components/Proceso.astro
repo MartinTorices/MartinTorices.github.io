@@ -7,7 +7,7 @@ const fases = lang === 'es'
   ? [['Idea', 'Problema, usuario y requisitos'], ['Boceto', 'Alternativas a mano y elección'], ['CAD', 'Modelado paramétrico y planos'], ['Prototipo', 'Maqueta, pruebas y ajustes'], ['Fabricación', 'Materiales, procesos y costes']]
   : [['Idea', 'Problem, user and requirements'], ['Sketch', 'Hand-drawn options and choice'], ['CAD', 'Parametric modelling and drawings'], ['Prototype', 'Mock-ups, tests and tweaks'], ['Manufacturing', 'Materials, processes and costs']];
 ---
-<section class="proceso" data-revelar aria-label={lang === 'es' ? 'Cómo trabajo' : 'How I work'}>
+<section class="proceso" id="proceso" data-revelar aria-label={lang === 'es' ? 'Cómo trabajo' : 'How I work'}>
   <ol class="contenedor fases">
     {fases.map(([t, d], i) => (
       <li style={`--n:${i}`}><span class="n">{String(i + 1).padStart(2, '0')}</span><strong>{t}</strong><span class="d">{d}</span></li>
@@ -25,11 +25,17 @@ const fases = lang === 'es'
     background: linear-gradient(to bottom, var(--papel) 0%, var(--banda) 70%, var(--banda) 100%);
   }
   .fases { list-style: none; margin: 0 auto; display: grid; grid-template-columns: repeat(5, minmax(0,1fr)); gap: 0; position: relative; }
-  .fases::before { content: ''; position: absolute; left: var(--gutter); right: var(--gutter); top: 0.55rem; border-top: 1px solid var(--azul); }
+  .fases::before { content: ''; position: absolute; left: calc(var(--gutter) + var(--hueco, 0px)); right: var(--gutter); top: 0.55rem; border-top: 1px solid var(--azul); }
   li { position: relative; padding: 1.6rem 1rem 0 0; display: grid; gap: 0.25rem; align-content: start; }
   li::before { content: ''; position: absolute; top: 0.25rem; left: 0; width: 9px; height: 9px; background: var(--azul); }
   .n { font-size: var(--t-0); color: var(--azul); font-weight: 700; font-variant-numeric: tabular-nums; }
   strong { font-size: var(--t-3); font-stretch: 115%; font-weight: 750; }
+  /* Con el índice lateral al lado, las columnas son más estrechas: el título se ajusta
+     al ancho de su columna para que «Fabricación» o «Manufacturing» no se salgan */
+  @media (min-width: 60rem) {
+    li { container-type: inline-size; }
+    strong { font-size: min(var(--t-3), 11.5cqi); font-stretch: 105%; }
+  }
   .d { color: var(--tinta-suave); font-size: var(--t-0); }
   /* En pantallas estrechas, la cota pasa a ser vertical */
   @media (max-width: 50rem) {

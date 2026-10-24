@@ -112,6 +112,8 @@ p {
   max-width: var(--ancho);
   margin-inline: auto;
   padding-inline: var(--gutter);
+  /* --hueco: espacio para el índice lateral fijo (página de inicio) */
+  padding-inline-start: calc(var(--gutter) + var(--hueco, 0px));
 }
 
 .salto {

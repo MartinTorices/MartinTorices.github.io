@@ -1,0 +1,119 @@
+---
+// Índice lateral fijo (pantallas anchas): un rótulo, las secciones numeradas en
+// amarillo y «Volver arriba». Marca la sección que se está leyendo.
+// Lo usan la página de inicio y las de proyecto; quien lo coloca decide la columna.
+import { t, type Lang } from '../i18n';
+
+interface Entrada { id: string; texto: string }
+interface Props {
+  lang: Lang;
+  titulo: string;
+  etiqueta: string; // nombre del índice para lectores de pantalla
+  entradas: Entrada[];
+}
+const { lang, titulo, etiqueta, entradas } = Astro.props;
+const tx = t(lang);
+---
+
+<nav class="indice" aria-label={etiqueta}>
+  <p class="indice__titulo">{titulo}</p>
+  <ol>
+    {entradas.map((e, i) => (
+      <li>
+        <a href={`#${e.id}`} data-fase={e.id}>
+          <span class="indice__n">{i + 1}</span>
+          <span>{e.texto}</span>
+        </a>
+      </li>
+    ))}
+  </ol>
+  <a class="indice__arriba nota" href="#contenido">{tx.subir}</a>
+</nav>
+
+<script>
+  // Marca la sección que se está leyendo: la última cuyo comienzo ya ha pasado del
+  // primer tercio de la pantalla (y la última de todas si se llega al final de la página)
+  for (const nav of document.querySelectorAll<HTMLElement>('.indice')) {
+    const enlaces = [...nav.querySelectorAll<HTMLAnchorElement>('[data-fase]')];
+    // si la sección tiene título, cuenta el título (las secciones llevan mucho margen arriba)
+    const destinos = enlaces.map((a) => {
+      const el = document.getElementById(a.dataset.fase!);
+      return el?.matches('h1, h2, h3') ? el : (el?.querySelector('h2') ?? el);
+    });
+    if (!enlaces.length || destinos.some((d) => !d)) continue;
+    const marcar = () => {
+      let activa = 0;
+      destinos.forEach((d, i) => {
+        if (d!.getBoundingClientRect().top < window.innerHeight * 0.33) activa = i;
+      });
+      const raiz = document.documentElement;
+      if (window.scrollY + window.innerHeight >= raiz.scrollHeight - 4) activa = enlaces.length - 1;
+      enlaces.forEach((a, i) => a.toggleAttribute('aria-current', i === activa));
+    };
+    marcar();
+    window.addEventListener('scroll', marcar, { passive: true });
+    window.addEventListener('resize', marcar, { passive: true });
+  }
+</script>
+
+<style>
+  .indice {
+    display: none;
+  }
+  @media (min-width: 60rem) {
+    .indice {
+      display: grid;
+      gap: 1rem;
+      position: sticky;
+      top: 5.5rem;
+      margin-top: 3.5rem;
+      padding-top: 1rem;
+      border-top: var(--trazo-grueso) solid var(--tinta);
+    }
+  }
+  .indice__titulo {
+    margin: 0;
+    font-size: var(--t-0);
+    font-stretch: 85%;
+    color: var(--tinta-suave);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  ol {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.15rem;
+  }
+  li a {
+    display: grid;
+    grid-template-columns: 1.6rem 1fr;
+    align-items: baseline;
+    padding: 0.35rem 0 0.35rem 0.6rem;
+    border-left: var(--trazo-grueso) solid transparent;
+    color: var(--tinta-suave);
+    text-decoration: none;
+    font-weight: 500;
+    font-stretch: 95%;
+    line-height: 1.3;
+    transition: color 0.2s, border-color 0.2s;
+  }
+  .indice__n {
+    color: var(--azul);
+    font-weight: 300;
+    font-variant-numeric: tabular-nums;
+  }
+  li a:hover {
+    color: var(--tinta);
+  }
+  li a[aria-current] {
+    color: var(--tinta);
+    font-weight: 700;
+    border-left-color: var(--azul);
+  }
+  .indice__arriba {
+    width: fit-content;
+    margin-top: 0.5rem;
+  }
+</style>
