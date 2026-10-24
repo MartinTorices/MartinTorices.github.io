@@ -49,6 +49,11 @@ const tx = t(lang);
         ))}
       </div>
     )}
+    <button class="boton visor__anim" type="button" data-anim hidden data-pausar={tx.pausar} data-reanudar={tx.reanudar} aria-pressed="false">
+      <span class="visor__anim-icono" data-icono="pausa"><Icono nombre="pausa" /></span>
+      <span class="visor__anim-icono" data-icono="play" hidden><Icono nombre="play" /></span>
+      <span data-texto>{tx.pausar}</span>
+    </button>
     <button class="boton visor__pantalla" type="button" data-pantalla data-entrar={tx.pantallaCompleta} data-salir={tx.salirPantallaCompleta}>
       <Icono nombre="expandir" />
       <span>{tx.pantallaCompleta}</span>
@@ -70,13 +75,46 @@ const tx = t(lang);
     const mv = visor.querySelector('model-viewer')!;
     const carga = visor.querySelector<HTMLElement>('.visor__carga');
     mv.addEventListener('load', () => carga?.remove());
-    // Cambiar de versión del modelo sin mover la cámara
+    // Modelos animados (p. ej. el dosificador en funcionamiento): se reproducen en
+    // bucle, sin girar solos, y con un botón para pausar
+    const anim = visor.querySelector<HTMLButtonElement>('[data-anim]')!;
+    const animTexto = anim.querySelector<HTMLElement>('[data-texto]')!;
+    const giraSolo = mv.hasAttribute('auto-rotate');
+    const quieto = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const pintarAnim = (enMarcha: boolean) => {
+      animTexto.textContent = enMarcha ? anim.dataset.pausar! : anim.dataset.reanudar!;
+      anim.setAttribute('aria-pressed', String(!enMarcha));
+      anim.querySelector<HTMLElement>('[data-icono="pausa"]')!.hidden = !enMarcha;
+      anim.querySelector<HTMLElement>('[data-icono="play"]')!.hidden = enMarcha;
+    };
+    mv.addEventListener('load', () => {
+      const m = mv as any;
+      const animado = (m.availableAnimations?.length ?? 0) > 0;
+      anim.hidden = !animado;
+      m.autoRotate = giraSolo && !animado;
+      if (animado) {
+        if (quieto) m.pause(); else m.play({ repetitions: Infinity });
+        pintarAnim(!quieto);
+      }
+    });
+    anim.addEventListener('click', () => {
+      const m = mv as any;
+      if (m.paused) m.play({ repetitions: Infinity }); else m.pause();
+      pintarAnim(!m.paused);
+    });
+    // Cambiar de versión del modelo sin mover el ángulo de la cámara
+    // (la distancia se recalcula: cada versión puede ocupar más o menos)
     visor.querySelectorAll<HTMLButtonElement>('.visor__variante').forEach((b) => {
       b.addEventListener('click', () => {
         const orbita = (mv as any).getCameraOrbit?.();
         mv.setAttribute('src', b.dataset.src!);
         mv.addEventListener('load', () => {
-          if (orbita) (mv as any).cameraOrbit = orbita.toString();
+          const m = mv as any;
+          m.cameraTarget = 'auto auto auto';
+          // la vista animada empieza en el ángulo inicial (el movimiento se ve de perfil)
+          if ((m.availableAnimations?.length ?? 0) > 0) m.cameraOrbit = mv.getAttribute('camera-orbit');
+          else if (orbita) m.cameraOrbit = `${orbita.theta}rad ${orbita.phi}rad auto`;
+          m.jumpCameraToGoal?.();
         }, { once: true });
         visor.querySelectorAll('.visor__variante').forEach((o) => o.setAttribute('aria-pressed', String(o === b)));
       });
@@ -134,6 +172,20 @@ const tx = t(lang);
     top: 0.75rem;
     background: var(--papel);
     font-size: var(--t-0);
+  }
+  .visor__anim {
+    position: absolute;
+    right: 0.75rem;
+    bottom: 0.75rem;
+    background: var(--papel);
+    font-size: var(--t-0);
+  }
+  .visor__anim[hidden],
+  .visor__anim-icono[hidden] {
+    display: none;
+  }
+  .visor__anim-icono {
+    display: inline-flex;
   }
   .visor__variantes {
     position: absolute;

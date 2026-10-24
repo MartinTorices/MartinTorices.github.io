@@ -10,6 +10,10 @@ portada: ./01-portada.png
 portadaAlt: Bote de especias transparente con el tapón dosificador, junto a otro tapón suelto, sobre fondo turquesa
 modelo: /modelos/dosificador-qiub.glb
 modeloAlt: "Modelo 3D del dosificador QIUB: bote transparente con la tapa dosificadora y el tornillo sin fin inclinado en su interior"
+etiquetaVariantes: Vista
+modeloVariantes:
+  - { nombre: Quieto, src: /modelos/dosificador-qiub.glb }
+  - { nombre: En funcionamiento, src: /modelos/dosificador-qiub-uso.glb }
 orden: 2
 ---
 
@@ -50,6 +54,8 @@ Para que el tapón encajara en los botes de Qiub, hicimos ingeniería inversa de
 ![Render del tornillo sin fin con su ruleta](./05-tornillo.png)
 ![Detalle del trinquete entre la ruleta y la tapa](./07-trinquete.png)
 *Tornillo sin fin con la ruleta y detalle del trinquete: el giro avanza de 120° en 120°.*
+
+En el visor 3D de arriba, la vista «En funcionamiento» muestra el ciclo completo: el bote se vuelca sobre un cuenco, la ruleta gira tres clics de 120° y en cada uno cae una dosis, unos 0,6 g de pimentón.
 
 ## Estanqueidad
 

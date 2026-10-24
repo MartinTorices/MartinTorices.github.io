@@ -10,6 +10,10 @@ portada: ./01-portada.png
 portadaAlt: Clear spice jar with the dosing cap, next to a loose cap, on a turquoise background
 modelo: /modelos/dosificador-qiub.glb
 modeloAlt: "3D model of the QIUB dosing cap: clear jar with the dosing cap and the tilted worm screw inside"
+etiquetaVariantes: View
+modeloVariantes:
+  - { nombre: Still, src: /modelos/dosificador-qiub.glb }
+  - { nombre: In use, src: /modelos/dosificador-qiub-uso.glb }
 orden: 2
 ---
 
@@ -50,6 +54,8 @@ So that the cap would fit Qiub's jars, we reverse-engineered the neck thread fro
 ![Render of the worm screw with its dial](./05-tornillo.png)
 ![Close-up of the ratchet between the dial and the cap](./07-trinquete.png)
 *Worm screw with its dial and a close-up of the ratchet: rotation advances in 120° steps.*
+
+In the 3D viewer above, the “In use” view shows the whole cycle: the jar tips over a bowl, the dial turns three 120° clicks and each one drops a dose, about 0.6 g of paprika.
 
 ## Sealing
 

@@ -1,6 +1,6 @@
 ---
 // Iconos de trazo sencillo (24x24)
-interface Props { nombre: 'correo' | 'linkedin' | 'telefono' | 'whatsapp' | 'descarga' | 'flecha-izq' | 'expandir' }
+interface Props { nombre: 'correo' | 'linkedin' | 'telefono' | 'whatsapp' | 'descarga' | 'flecha-izq' | 'expandir' | 'pausa' | 'play' }
 const { nombre } = Astro.props;
 ---
 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
@@ -11,4 +11,6 @@ const { nombre } = Astro.props;
   {nombre === 'descarga' && (<><path d="M12 4v11M7 10l5 5 5-5" /><path d="M4 20h16" /></>)}
   {nombre === 'flecha-izq' && <path d="M19 12H5M11 6l-6 6 6 6" />}
   {nombre === 'expandir' && <path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" />}
+  {nombre === 'pausa' && <path d="M9 5v14M15 5v14" />}
+  {nombre === 'play' && <path d="M8 5l11 7-11 7z" />}
 </svg>
