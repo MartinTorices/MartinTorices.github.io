@@ -135,15 +135,6 @@ Pintamos el prototipo de PLA y no el de resina a propósito: las irregularidades
 
 Para contrastar los datos digitales con la realidad, probamos las gafas en varias personas y comprobamos que la montura y los puentes intercambiables se ajustaban bien a caras reales, sin puntos de presión y sin moverse.
 
-![Dos personas probándose el prototipo blanco con el puente gris](./23-ergonomia-a.jpg)
-*Pruebas del prototipo en caras reales.*
-
-![Primer plano de una chica con el prototipo puesto](./23-ergonomia-c.jpg)
-*Ajuste del puente nasal sobre la nariz.*
-
-![Chico de perfil con el prototipo pintado puesto](./23-ergonomia-b.jpg)
-*Prototipo pintado puesto, de perfil.*
-
 ## Estuche
 
 Completamos la propuesta con un estuche en forma de cápsula, también modelado en Fusion.

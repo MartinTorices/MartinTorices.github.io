@@ -135,15 +135,6 @@ We deliberately painted the PLA prototype rather than the resin one: once painte
 
 To check our digital data against reality, we tried the glasses on several people and confirmed that the frame and the interchangeable bridges sat well on real faces, with no pressure points and no wobble.
 
-![Two people trying on the white prototype with the grey bridge](./23-ergonomia-a.jpg)
-*Testing the prototype on real faces.*
-
-![Close-up of a young woman wearing the prototype](./23-ergonomia-c.jpg)
-*Fit of the nose bridge.*
-
-![Young man in profile wearing the painted prototype](./23-ergonomia-b.jpg)
-*Painted prototype worn, in profile.*
-
 ## Case
 
 We completed the proposal with a capsule-shaped case, also modelled in Fusion.
