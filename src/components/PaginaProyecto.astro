@@ -290,6 +290,23 @@ const fases = headings.filter((h) => h.depth === 2);
     margin-top: 0.5rem;
     width: fit-content;
   }
+  /* Vídeo dentro del texto (<figure class="video-md">) */
+  .cuerpo :global(.video-md) {
+    margin: 2rem 0;
+  }
+  .cuerpo :global(.video-md video) {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9;
+    background: #1d1c1a;
+  }
+  .cuerpo :global(.video-md figcaption) {
+    font-size: var(--t-0);
+    font-stretch: 85%;
+    color: var(--tinta-suave);
+    margin-top: 0.5rem;
+  }
   /* Visor 3D dentro del texto (<figure class="visor-md">) */
   .cuerpo :global(.visor-md) {
     margin: 2rem 0;

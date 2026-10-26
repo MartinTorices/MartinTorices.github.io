@@ -8,10 +8,25 @@ equipo: [Óscar Ramón Mendiguchía, Nicolás Toribio González]
 etiquetas: [Eyewear, Generative design, Topology optimisation, Biomaterials, Prototyping, Competition]
 portada: ./01-portada.png
 portadaAlt: Bone-coloured OVUM G-1 frame emerging from a broken eggshell, with shell fragments on the floor
+modelo: /modelos/ovum-g1.glb
+modeloAlt: "3D model of the OVUM G-1 glasses with an eggshell finish: front, nose bridge and two perforated temples"
+etiquetaVariantes: View
+modeloVariantes:
+  - { nombre: Assembled, src: /modelos/ovum-g1.glb }
+  - { nombre: Exploded, src: /modelos/ovum-g1-montaje.glb }
 orden: 3
 ---
 
 OVUM G-1 is our proposal for the SILMO 2026 design contest, which asked for a look into the future of responsible eyewear. Our answer was to turn a biological waste, eggshell, into a technical and ergonomic frame, and to let the structure itself make up for the limits of the material.
+
+<figure class="video-md">
+  <video controls playsinline preload="metadata" poster="/proyectos/ovum-g1/OVUM-G1-video-poster.jpg">
+    <source src="/proyectos/ovum-g1/OVUM-G1-video.mp4" type="video/mp4">
+  </video>
+  <figcaption>OVUM G-1 presentation video (56 s), animated in Blender.</figcaption>
+</figure>
+
+In the 3D viewer above you can rotate the glasses, zoom in to see the eggshell texture and, in the «Exploded» view, watch the front, the nose bridge and the temples come apart and click back together.
 
 ## The challenge and the material
 

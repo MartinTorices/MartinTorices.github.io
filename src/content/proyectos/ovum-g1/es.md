@@ -8,10 +8,25 @@ equipo: [Óscar Ramón Mendiguchía, Nicolás Toribio González]
 etiquetas: [Gafas, Diseño generativo, Optimización topológica, Biomateriales, Prototipado, Concurso]
 portada: ./01-portada.png
 portadaAlt: Montura OVUM G-1 de color hueso saliendo de una cáscara de huevo rota, con trozos de cáscara en el suelo
+modelo: /modelos/ovum-g1.glb
+modeloAlt: "Modelo 3D de las gafas OVUM G-1 con acabado de cáscara de huevo: frontal, puente nasal y dos patillas caladas"
+etiquetaVariantes: Vista
+modeloVariantes:
+  - { nombre: Montadas, src: /modelos/ovum-g1.glb }
+  - { nombre: Despiece, src: /modelos/ovum-g1-montaje.glb }
 orden: 3
 ---
 
 OVUM G-1 es nuestra propuesta para el concurso de diseño SILMO 2026, que pedía imaginar el futuro de unas gafas responsables. Nuestra respuesta fue convertir un residuo biológico, la cáscara de huevo, en una montura técnica y ergonómica, y dejar que fuera la propia estructura la que compensara las limitaciones del material.
+
+<figure class="video-md">
+  <video controls playsinline preload="metadata" poster="/proyectos/ovum-g1/OVUM-G1-video-poster.jpg">
+    <source src="/proyectos/ovum-g1/OVUM-G1-video.mp4" type="video/mp4">
+  </video>
+  <figcaption>Vídeo de presentación de OVUM G-1 (56 s), animado en Blender.</figcaption>
+</figure>
+
+En el visor 3D de arriba puedes girar las gafas, acercarte para ver la textura de la cáscara y, en la vista «Despiece», ver cómo se separan y vuelven a encajar el frontal, el puente nasal y las patillas.
 
 ## El reto y el material
 
