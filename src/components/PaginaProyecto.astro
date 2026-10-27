@@ -33,7 +33,7 @@ const fases = headings.filter((h) => h.depth === 2);
   <article class="proyecto">
     <header class:list={['contenedor', 'cabeza', { 'cabeza--plano': data.modelo }]}>
       <div class="cabeza__texto">
-      <a class="volver" href={rutas.proyectos(lang)}>
+      <a class="volver" href={data.grupo === 'ingenieria-inversa' ? `${rutas.proyectos(lang)}#ingenieria-inversa` : rutas.proyectos(lang)}>
         <!-- flecha como una línea de cota: punta rellena y trazo que se alarga al pasar el ratón -->
         <span class="volver__cota" aria-hidden="true"></span>
         <span class="volver__texto">{tx.volver}</span>

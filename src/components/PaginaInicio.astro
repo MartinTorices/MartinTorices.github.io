@@ -5,19 +5,23 @@ import SobreMi from './SobreMi.astro';
 import Proceso from './Proceso.astro';
 import Contacto from './Contacto.astro';
 import IndiceLateral from './IndiceLateral.astro';
-import { proyectosDe } from '../proyectos';
+import IngenieriaInversa from './IngenieriaInversa.astro';
+import { proyectosDeGrupo } from '../proyectos';
 import { rutas, t, type Lang } from '../i18n';
 import { persona, estudios } from '../config';
 import foto from '../assets/foto-martin.jpg';
 
 interface Props { lang: Lang }
 const { lang } = Astro.props;
-const proyectos = await proyectosDe(lang);
+// en la mesa de la portada, solo los proyectos grandes
+const proyectos = await proyectosDeGrupo(lang, 'principal');
+const hayInversa = (await proyectosDeGrupo(lang, 'ingenieria-inversa')).length > 0;
 const otro: Lang = lang === 'es' ? 'en' : 'es';
 const tx = t(lang);
 // Índice lateral: las secciones de la página, en el orden en que aparecen
 const secciones = [
   { id: 'proceso', texto: tx.navProceso },
+  ...(hayInversa ? [{ id: 'ingenieria-inversa', texto: tx.inversaTitulo }] : []),
   { id: 'sobre-mi', texto: tx.navSobreMi },
   { id: 'contacto', texto: tx.navContacto },
 ];
@@ -81,6 +85,7 @@ const datosGoogle = lang === 'es' && {
       </IndiceLateral>
     </div>
     <Proceso lang={lang} />
+    <IngenieriaInversa lang={lang} class="inversa--banda" />
     <SobreMi lang={lang} />
     <Contacto lang={lang} />
   </div>

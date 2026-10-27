@@ -1,14 +1,15 @@
 ---
 import PaginaProyecto from '../../../components/PaginaProyecto.astro';
-import { proyectosDe } from '../../../proyectos';
+import { proyectosDe, siguienteDe } from '../../../proyectos';
 
 export async function getStaticPaths() {
   const lista = await proyectosDe('en');
-  return lista.map((proyecto, i) => ({
+  // «Siguiente proyecto» dentro del mismo grupo (proyectos grandes o ingeniería inversa)
+  return lista.map((proyecto) => ({
     params: { slug: proyecto.slug },
-    props: { proyecto, siguiente: lista[(i + 1) % lista.length] },
+    props: { proyecto, siguiente: siguienteDe(lista, proyecto) },
   }));
 }
 const { proyecto, siguiente } = Astro.props;
 ---
-<PaginaProyecto lang="en" proyecto={proyecto} siguiente={siguiente.slug !== proyecto.slug ? siguiente : undefined} />
+<PaginaProyecto lang="en" proyecto={proyecto} siguiente={siguiente} />

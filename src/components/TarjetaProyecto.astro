@@ -9,13 +9,14 @@ interface Props {
   proyecto: Proyecto;
   prioridad?: boolean;
   indice?: number; // para que las tarjetas aparezcan una tras otra
+  compacta?: boolean; // tarjeta pequeña (sección «Ingeniería inversa»)
 }
-const { proyecto, prioridad = false, indice = 0 } = Astro.props;
+const { proyecto, prioridad = false, indice = 0, compacta = false } = Astro.props;
 const { data } = proyecto;
 const href = rutas.proyecto(proyecto.lang, proyecto.slug);
 ---
 
-<article class="tarjeta" data-aparecer style={`--retraso:${(0.15 + (indice % 3) * 0.12).toFixed(2)}s`}>
+<article class:list={['tarjeta', { 'tarjeta--compacta': compacta }]} data-aparecer style={`--retraso:${(0.15 + (indice % 3) * 0.12).toFixed(2)}s`}>
   <a href={href} class="tarjeta__enlace">
     <div class="tarjeta__lamina">
       <div class="tarjeta__imagen">
@@ -23,7 +24,7 @@ const href = rutas.proyecto(proyecto.lang, proyecto.slug);
           src={data.portada}
           alt={data.portadaAlt}
           widths={[480, 800, 1200]}
-          sizes="(max-width: 48rem) 100vw, 50vw"
+          sizes={compacta ? '(max-width: 36rem) 100vw, 22rem' : '(max-width: 48rem) 100vw, 50vw'}
           loading={prioridad ? 'eager' : 'lazy'}
         />
       </div>
@@ -116,6 +117,17 @@ const href = rutas.proyecto(proyecto.lang, proyecto.slug);
   .tarjeta__datos li {
     border: var(--trazo) solid var(--linea);
     padding: 0.1rem 0.5rem;
+  }
+  /* Tarjeta pequeña: rótulo y resumen más pequeños */
+  .tarjeta--compacta h3 {
+    font-size: var(--t-2);
+    padding: 0.55rem 0.75rem;
+  }
+  .tarjeta--compacta .tarjeta__anio {
+    padding: 0.55rem 0.75rem;
+  }
+  .tarjeta--compacta .tarjeta__resumen {
+    font-size: var(--t-0);
   }
   .tarjeta__datos .con-3d {
     border-color: var(--azul);

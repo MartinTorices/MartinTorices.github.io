@@ -16,3 +16,17 @@ export async function proyectosDe(lang: Lang): Promise<Proyecto[]> {
     .filter(Boolean)
     .sort((a, b) => a.data.orden - b.data.orden || b.data.anio - a.data.anio);
 }
+
+export type Grupo = Proyecto['data']['grupo'];
+
+// Proyectos de un grupo: «principal» (mesa y galería) o «ingenieria-inversa»
+export async function proyectosDeGrupo(lang: Lang, grupo: Grupo): Promise<Proyecto[]> {
+  return (await proyectosDe(lang)).filter((p) => p.data.grupo === grupo);
+}
+
+// «Siguiente proyecto»: el que va detrás dentro de su mismo grupo (en bucle)
+export function siguienteDe(lista: Proyecto[], proyecto: Proyecto): Proyecto | undefined {
+  const grupo = lista.filter((p) => p.data.grupo === proyecto.data.grupo);
+  const sig = grupo[(grupo.findIndex((p) => p.slug === proyecto.slug) + 1) % grupo.length];
+  return sig && sig.slug !== proyecto.slug ? sig : undefined;
+}

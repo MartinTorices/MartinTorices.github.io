@@ -33,6 +33,9 @@ const proyectos = defineCollection({
       etiquetaAcabados: z.string().optional(), // p. ej. 'Acabado'
       // Botón para encender y apagar las luces del modelo (materiales cuyo nombre empieza por «luz_»)
       interruptorLuz: z.boolean().default(false),
+      // «principal» = proyectos grandes (mesa de la portada y galería);
+      // «ingenieria-inversa» = piezas pequeñas, en su propia sección
+      grupo: z.enum(['principal', 'ingenieria-inversa']).default('principal'),
       orden: z.number().default(100), // menor = aparece antes
       borrador: z.boolean().default(false), // true = no se publica
     }),
