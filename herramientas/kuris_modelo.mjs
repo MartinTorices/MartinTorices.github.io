@@ -16,7 +16,7 @@
 //    los enciende con el botón de la luz.
 // Los colores base van en espacio lineal. Necesita @gltf-transform (devDependencies).
 
-import { NodeIO } from '@gltf-transform/core';
+import { NodeIO, VertexLayout } from '@gltf-transform/core';
 import {
   ALL_EXTENSIONS,
   KHRMaterialsEmissiveStrength,
@@ -31,7 +31,20 @@ if (!ENTRADA) {
   console.error('Uso: node herramientas/kuris_modelo.mjs <dronreal1.glb>');
   process.exit(1);
 }
-const io = new NodeIO().registerExtensions(ALL_EXTENSIONS);
+// Atributos separados (no intercalados): PiezaPlano.astro (three.js, mergeVertices)
+// falla con los intercalados y el plano en alambre de la cabecera no sale.
+const io = new NodeIO().registerExtensions(ALL_EXTENSIONS).setVertexLayout(VertexLayout.SEPARATE);
+// El modelo de 3ds Max está a escala ×10: el Kuris real mide unos 318 × 121 × 362 mm.
+const ESCALA = 0.1;
+// mete todo lo que cuelga de la escena en un nodo a escala real (el glTF trabaja en metros)
+function aEscalaReal(doc, escena) {
+  const real = doc.createNode('escala_real').setScale([ESCALA, ESCALA, ESCALA]);
+  for (const n of escena.listChildren()) {
+    escena.removeChild(n);
+    real.addChild(n);
+  }
+  escena.addChild(real);
+}
 
 // ---------- utilidades ----------
 const lin = (v) => {
@@ -238,6 +251,7 @@ async function quieto() {
   escena.addChild(kuris);
   const b = getBounds(kuris);
   kuris.setTranslation([-(b.min[0] + b.max[0]) / 2, -b.min[1], -(b.min[2] + b.max[2]) / 2]);
+  aEscalaReal(doc, escena);
   await io.write('public/modelos/kuris.glb', doc);
   console.log('Guardado public/modelos/kuris.glb');
 }
@@ -430,6 +444,7 @@ async function enMarcha() {
   // posición de partida (por si el visor no reproduce la animación)
   kuris.setTranslation(tras.slice(0, 3)).setRotation(rots.slice(0, 4));
 
+  aEscalaReal(doc, escena);
   await io.write('public/modelos/kuris-marcha.glb', doc);
   console.log(`Guardado public/modelos/kuris-marcha.glb (circuito de ${L.toFixed(1)} u, ${DURACION} s)`);
 }

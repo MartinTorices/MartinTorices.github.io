@@ -7,11 +7,11 @@ herramientas: [3ds Max]
 etiquetas: [Dron, Robótica, Diseño conceptual, Modelado 3D, Render]
 portada: ./01-portada.png
 portadaAlt: Dron Kuris de color bronce oscuro, con la cabeza en cúpula, el ojo de luz verde y un anillo de luz blanca bajo el cuerpo
-modelo: /modelos/kuris.glb?v=acabados
+modelo: /modelos/kuris.glb?v=escala
 etiquetaVariantes: Vista
 modeloVariantes:
-  - { nombre: Quieto, src: /modelos/kuris.glb?v=acabados }
-  - { nombre: En marcha, src: /modelos/kuris-marcha.glb, orbita: 30deg 60deg 80% }
+  - { nombre: Quieto, src: /modelos/kuris.glb?v=escala }
+  - { nombre: En marcha, src: /modelos/kuris-marcha.glb?v=escala, orbita: 30deg 60deg 80% }
 etiquetaAcabados: Acabado
 acabados:
   - { nombre: Bronce, variante: bronce }
@@ -22,13 +22,13 @@ modeloAlt: "Modelo 3D del dron terrestre Kuris: cuerpo en cúpula de bronce oscu
 orden: 4
 ---
 
-El Kuris es un dron terrestre pensado para moverse por cualquier terreno. En lugar de hélices, se apoya en tres brazos curvados que terminan en ruedas esféricas, así que puede avanzar en cualquier dirección y salvar desniveles sin perder el equilibrio, y todo el carácter del producto se concentra en una cabeza en cúpula con un único ojo de luz verde.
+Kuris es un dron terrestre pensado para moverse por cualquier terreno. En lugar de hélices, se apoya en tres brazos curvados que terminan en ruedas esféricas, así que puede avanzar en cualquier dirección y salvar desniveles sin perder el equilibrio, y todo el carácter del producto se concentra en una cabeza en cúpula con un único ojo de luz verde.
 
-En el visor 3D de arriba puedes girar el dron, acercarte a los brazos y a las ruedas, cambiar el acabado (el bronce de los renders finales, blanco o arena) y apagar o encender la luz del ojo y del anillo. En la vista «En marcha», el Kuris recorre en bucle un circuito sobre una plataforma como la de los renders y sube un badén para que se vea cómo salva los desniveles.
+En el visor 3D de arriba puedes girar el dron, acercarte a los brazos y a las ruedas, cambiar el acabado (bronce, blanco o arena) y apagar o encender la luz del ojo y del anillo. En la vista «En marcha», Kuris recorre en bucle un circuito y sube un badén para que se vea cómo salva los desniveles.
 
 ## La idea
 
-Quería que el Kuris se leyera como un vehículo robusto y, a la vez, como un pequeño personaje, ya que es lo que hace que un producto así se recuerde. Por eso la forma es muy sencilla (una cúpula, un disco y tres brazos) y la expresión la pone el ojo: una ranura alargada con luz verde que funciona como mirada y como indicador de estado.
+Quería que Kuris se leyera como un vehículo robusto y, a la vez, como un pequeño personaje, ya que es lo que hace que un producto así se recuerde. Por eso la forma es muy sencilla (una cúpula, un disco y tres brazos) y la expresión la pone el ojo: una ranura alargada con luz verde que funciona como mirada y como indicador de estado.
 
 ![Kuris visto de frente sobre una plataforma verde, con el ojo encendido](./02-frontal.jpg)
 *Vista frontal: la cúpula, el ojo de luz verde y los brazos abiertos hacia las ruedas.*
@@ -42,12 +42,10 @@ El cuerpo es una cúpula que descansa sobre un disco rodeado por un anillo de lu
 *Apoyado en dos bloques de distinta altura y visto en planta, con los tres brazos a 120°.*
 
 ![Detalle de la cúpula con el ojo de luz verde](./04-frontal-cerca.jpg)
-![Vista trasera del Kuris sobre un bloque, con el anillo de luz blanca](./05-trasera.jpg)
+![Vista trasera de Kuris sobre un bloque, con el anillo de luz blanca](./05-trasera.jpg)
 *Frontal de cerca y vista trasera, con el anillo de luz bajo el disco.*
 
 ## Acabado y renders
-
-Para el acabado elegí un metal bronce oscuro y brillante, que hace que el dron se vea sólido y que contrasta con la luz verde del ojo y con el anillo blanco. Lo modelé y lo rendericé en 3ds Max, y monté las escenas con bloques verdes de distintas alturas para que se viera cómo salva los desniveles.
 
 ![Detalle del arranque de un brazo y de su rueda esférica](./07-detalle-rueda.jpg)
 ![Detalle de un brazo curvado bajando hacia la rueda](./08-detalle-brazo.jpg)

@@ -122,7 +122,7 @@ const tx = t(lang);
 
     new GLTFLoader().load(caja.dataset.plano!, (gltf) => {
       const modelo = gltf.scene;
-      const caja3 = new THREE.Box3().setFromObject(modelo);
+      const caja3 = new THREE.Box3().setFromObject(modelo, true); // exacta, también con piezas giradas
       const centro = caja3.getCenter(new THREE.Vector3());
       modelo.position.sub(centro);
       caja3.translate(centro.clone().negate());

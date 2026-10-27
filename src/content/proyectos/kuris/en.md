@@ -7,11 +7,11 @@ herramientas: [3ds Max]
 etiquetas: [Drone, Robotics, Concept design, 3D modelling, Rendering]
 portada: ./01-portada.png
 portadaAlt: Dark bronze Kuris drone with its domed head, green light eye and a white light ring under the body
-modelo: /modelos/kuris.glb?v=acabados
+modelo: /modelos/kuris.glb?v=escala
 etiquetaVariantes: View
 modeloVariantes:
-  - { nombre: Still, src: /modelos/kuris.glb?v=acabados }
-  - { nombre: On the move, src: /modelos/kuris-marcha.glb, orbita: 30deg 60deg 80% }
+  - { nombre: Still, src: /modelos/kuris.glb?v=escala }
+  - { nombre: On the move, src: /modelos/kuris-marcha.glb?v=escala, orbita: 30deg 60deg 80% }
 etiquetaAcabados: Finish
 acabados:
   - { nombre: Bronze, variante: bronce }
@@ -24,7 +24,7 @@ orden: 4
 
 Kuris is a ground drone designed to move over any terrain. Instead of propellers, it stands on three curved arms that end in spherical wheels, so it can move in any direction and cross uneven ground without losing its balance, and all the character of the product sits in a domed head with a single green light eye.
 
-In the 3D viewer above you can turn the drone around, zoom in on the arms and wheels, change the finish (the bronze of the final renders, white or sand) and switch the light of the eye and the ring off or on. In the "On the move" view, Kuris loops around a track on a platform like the one in the renders and climbs over a bump to show how it handles uneven ground.
+In the 3D viewer above you can turn the drone around, zoom in on the arms and wheels, change the finish (bronze, white or sand) and switch the light of the eye and the ring off or on. In the "On the move" view, Kuris loops around a track and climbs over a bump to show how it handles uneven ground.
 
 ## The idea
 
@@ -46,8 +46,6 @@ The body is a dome resting on a disc surrounded by a white light ring, which out
 *Front close-up and rear view, with the light ring under the disc.*
 
 ## Finish and renders
-
-For the finish I chose a glossy dark bronze metal, which makes the drone look solid and contrasts with the green eye and the white ring. I modelled and rendered it in 3ds Max, and set up the scenes with green blocks of different heights to show how it handles uneven ground.
 
 ![Close-up of where an arm meets the disc, with its spherical wheel](./07-detalle-rueda.jpg)
 ![Close-up of a curved arm sloping down to the wheel](./08-detalle-brazo.jpg)
