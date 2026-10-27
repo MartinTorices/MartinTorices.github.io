@@ -2,14 +2,14 @@
 // Portada: tu nombre y la mesa de dibujo con una lámina por proyecto.
 import { persona } from '../config';
 import { t, rutas, type Lang } from '../i18n';
-import type { Proyecto } from '../proyectos';
+import type { Ficha } from '../proyectos';
 import MesaProyectos from './MesaProyectos.astro';
 
 interface Props {
   lang: Lang;
-  proyectos: Proyecto[];
+  fichas: Ficha[];
 }
-const { lang, proyectos } = Astro.props;
+const { lang, fichas } = Astro.props;
 const tx = t(lang);
 const [nombre1, ...resto] = persona.nombre.split(' ');
 const linea1 = `${nombre1} ${resto[0]}`;
@@ -31,7 +31,7 @@ const inicio = rutas.inicio(lang);
   </div>
 
   <div class="portada__mesa">
-    <MesaProyectos lang={lang} proyectos={proyectos} />
+    <MesaProyectos lang={lang} fichas={fichas} />
   </div>
 </section>
 

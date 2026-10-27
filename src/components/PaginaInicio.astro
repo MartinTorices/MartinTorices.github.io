@@ -5,23 +5,20 @@ import SobreMi from './SobreMi.astro';
 import Proceso from './Proceso.astro';
 import Contacto from './Contacto.astro';
 import IndiceLateral from './IndiceLateral.astro';
-import IngenieriaInversa from './IngenieriaInversa.astro';
-import { proyectosDeGrupo } from '../proyectos';
+import { fichasPortada } from '../proyectos';
 import { rutas, t, type Lang } from '../i18n';
 import { persona, estudios } from '../config';
 import foto from '../assets/foto-martin.jpg';
 
 interface Props { lang: Lang }
 const { lang } = Astro.props;
-// en la mesa de la portada, solo los proyectos grandes
-const proyectos = await proyectosDeGrupo(lang, 'principal');
-const hayInversa = (await proyectosDeGrupo(lang, 'ingenieria-inversa')).length > 0;
+// en la mesa: los proyectos grandes y una lámina más con todos los de ingeniería inversa
+const fichas = await fichasPortada(lang);
 const otro: Lang = lang === 'es' ? 'en' : 'es';
 const tx = t(lang);
 // Índice lateral: las secciones de la página, en el orden en que aparecen
 const secciones = [
   { id: 'proceso', texto: tx.navProceso },
-  ...(hayInversa ? [{ id: 'ingenieria-inversa', texto: tx.inversaTitulo }] : []),
   { id: 'sobre-mi', texto: tx.navSobreMi },
   { id: 'contacto', texto: tx.navContacto },
 ];
@@ -70,7 +67,7 @@ const datosGoogle = lang === 'es' && {
 
 <Base lang={lang} descripcion={tx.descripcionWeb} alternativa={rutas.inicio(otro)}>
   {datosGoogle && <script slot="head" type="application/ld+json" set:html={JSON.stringify(datosGoogle)} />}
-  <Hoja lang={lang} proyectos={proyectos} />
+  <Hoja lang={lang} fichas={fichas} />
 
   <!-- Bajo la portada, el índice fijo a la izquierda (como en los proyectos) y las
        secciones a la derecha; los fondos de las secciones siguen a todo el ancho -->
@@ -85,7 +82,6 @@ const datosGoogle = lang === 'es' && {
       </IndiceLateral>
     </div>
     <Proceso lang={lang} />
-    <IngenieriaInversa lang={lang} class="inversa--banda" />
     <SobreMi lang={lang} />
     <Contacto lang={lang} />
   </div>

@@ -2,7 +2,7 @@
 // Cada página va con su versión en el otro idioma (hreflang), para que Google
 // enseñe la española o la inglesa según quien busque.
 import type { APIRoute } from 'astro';
-import { proyectosDe } from '../proyectos';
+import { proyectosDe, proyectosDeGrupo } from '../proyectos';
 import { rutas } from '../i18n';
 
 export const GET: APIRoute = async ({ site }) => {
@@ -10,6 +10,7 @@ export const GET: APIRoute = async ({ site }) => {
   const pares: [string, string][] = [
     [rutas.inicio('es'), rutas.inicio('en')],
     [rutas.proyectos('es'), rutas.proyectos('en')],
+    ...((await proyectosDeGrupo('es', 'ingenieria-inversa')).length ? [[rutas.inversa('es'), rutas.inversa('en')] as [string, string]] : []),
     ...(await proyectosDe('es')).map((p): [string, string] => [rutas.proyecto('es', p.slug), rutas.proyecto('en', p.slug)]),
   ];
   const entrada = (ruta: string, es: string, en: string) => `  <url>

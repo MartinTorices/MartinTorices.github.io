@@ -21,6 +21,8 @@ const otro: Lang = lang === 'es' ? 'en' : 'es';
 const { Content, headings } = await render(proyecto);
 // Índice lateral: las fases del caso de estudio (los títulos ##)
 const fases = headings.filter((h) => h.depth === 2);
+// proyectos de ingeniería inversa: «Volver» lleva a su página
+const pequeno = data.grupo === 'ingenieria-inversa';
 ---
 
 <Base
@@ -33,10 +35,10 @@ const fases = headings.filter((h) => h.depth === 2);
   <article class="proyecto">
     <header class:list={['contenedor', 'cabeza', { 'cabeza--plano': data.modelo }]}>
       <div class="cabeza__texto">
-      <a class="volver" href={data.grupo === 'ingenieria-inversa' ? `${rutas.proyectos(lang)}#ingenieria-inversa` : rutas.proyectos(lang)}>
+      <a class="volver" href={pequeno ? rutas.inversa(lang) : rutas.proyectos(lang)}>
         <!-- flecha como una línea de cota: punta rellena y trazo que se alarga al pasar el ratón -->
         <span class="volver__cota" aria-hidden="true"></span>
-        <span class="volver__texto">{tx.volver}</span>
+        <span class="volver__texto">{pequeno ? tx.volverInversa : tx.volver}</span>
       </a>
       <h1 data-aparecer>{data.titulo}</h1>
       <p class="entradilla" data-aparecer style="--retraso:0.1s">{data.resumen}</p>

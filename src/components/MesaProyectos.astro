@@ -3,15 +3,15 @@
 // repartidas y solapadas sobre la mesa. Se pueden arrastrar con el ratón
 // y al hacer clic se abre el proyecto. Se reparten solas según cuántos haya.
 import { Image } from 'astro:assets';
-import type { Proyecto } from '../proyectos';
+import type { Ficha } from '../proyectos';
 import { t, rutas, type Lang } from '../i18n';
 import { escuadra, cartabon, escalimetro, portaminas } from '../utiles-dibujo';
 
 interface Props {
   lang: Lang;
-  proyectos: Proyecto[];
+  fichas: Ficha[]; // proyectos grandes y la lámina de ingeniería inversa
 }
-const { lang, proyectos } = Astro.props;
+const { lang, fichas } = Astro.props;
 const tx = t(lang);
 
 // Posiciones sobre la mesa en % (x, y, ancho, giro en grados) según el número de láminas
@@ -21,12 +21,13 @@ const disposiciones: Record<number, Hueco[]> = {
   2: [[2, 6, 58, -5], [38, 34, 58, 4]],
   3: [[0, 4, 54, -6], [46, 2, 52, 5], [22, 40, 52, -2]],
   4: [[0, 2, 50, -6], [50, 0, 48, 4], [4, 50, 46, 3], [48, 44, 50, -4]],
+  5: [[0, 4, 34, -4], [34, 0, 33, 3], [67, 5, 33, -3], [7, 46, 42, 4], [52, 44, 44, -3]],
 };
 const general: Hueco[] = [
   [0, 3, 37, -5], [31, 0, 36, 3], [63, 5, 36, -3], [5, 36, 36, 4],
   [36, 31, 38, -2], [66, 39, 34, 5], [14, 62, 36, -4], [50, 63, 36, 3],
 ];
-const lista = proyectos.slice(0, 12);
+const lista = fichas.slice(0, 12);
 const huecos = disposiciones[lista.length] ?? lista.map((_, i) => general[i % general.length]);
 // La primera lámina (proyecto con menor «orden») queda encima
 const capas = lista.map((p, i) => ({ p, h: huecos[i], z: lista.length - i })).reverse();
@@ -55,17 +56,17 @@ const utiles: { nombre: string; x: number; y: number; w: number; r: number; svg:
     <div class="mesa__tablero">
       {capas.map(({ p, h, z }, i) => (
         <a
-          class="lamina"
-          href={rutas.proyecto(lang, p.slug)}
+          class:list={['lamina', { 'lamina--grupo': p.grupo }]}
+          href={p.href}
           style={`--x:${h[0]}%;--y:${h[1]}%;--w:${h[2]}%;--r:${h[3]}deg;--z:${z};--i:${capas.length - 1 - i};${mazo(h)}`}
           draggable="false"
         >
           <span class="lamina__imagen">
-            <Image src={p.data.portada} alt="" widths={[360, 640, 960]} sizes="(max-width: 60rem) 70vw, 32vw" loading="eager" draggable="false" />
+            <Image src={p.portada} alt="" widths={[360, 640, 960]} sizes="(max-width: 60rem) 70vw, 32vw" loading="eager" draggable="false" />
           </span>
           <span class="lamina__rotulo">
-            <span class="lamina__titulo">{p.data.titulo}</span>
-            <span class="lamina__anio">{p.data.anio}</span>
+            <span class="lamina__titulo">{p.titulo}</span>
+            <span class="lamina__anio">{p.anio}</span>
           </span>
         </a>
       ))}
@@ -308,7 +309,7 @@ const utiles: { nombre: string; x: number; y: number; w: number; r: number; svg:
     text-decoration: none;
     background: var(--lamina-fondo);
     border: var(--trazo-grueso) solid var(--lamina-fondo);
-    box-shadow: 0 1px 0 var(--linea), 0 10px 24px -14px rgba(10, 20, 40, 0.45);
+    box-shadow: var(--pila, 0 0 transparent), 0 1px 0 var(--linea), 0 10px 24px -14px rgba(10, 20, 40, 0.45);
     /* translate (arrastre), rotate y scale van por separado: así cada uno
        tiene su propia transición */
     translate: var(--dx, 0px) var(--dy, 0px);
@@ -331,11 +332,15 @@ const utiles: { nombre: string; x: number; y: number; w: number; r: number; svg:
       cursor: grab;
     }
   }
+  /* Lámina de «Ingeniería inversa»: lleva otras hojas debajo, como un taco de láminas */
+  .lamina--grupo {
+    --pila: 6px -6px 0 -1px #c2c1bc, 12px -12px 0 -2px #adaca7;
+  }
   .lamina:hover,
   .lamina:focus-visible {
     rotate: 0deg;
     scale: 1.04;
-    box-shadow: 0 1px 0 var(--linea), 0 22px 40px -18px rgba(10, 20, 40, 0.55);
+    box-shadow: var(--pila, 0 0 transparent), 0 1px 0 var(--linea), 0 22px 40px -18px rgba(10, 20, 40, 0.55);
   }
   .lamina:hover .lamina__rotulo,
   .lamina:focus-visible .lamina__rotulo {
@@ -345,7 +350,7 @@ const utiles: { nombre: string; x: number; y: number; w: number; r: number; svg:
   .lamina.lamina--arrastrando {
     rotate: var(--giro, 0deg);
     scale: 1.09;
-    box-shadow: 0 1px 0 var(--linea), 0 40px 60px -22px rgba(0, 0, 0, 0.7);
+    box-shadow: var(--pila, 0 0 transparent), 0 1px 0 var(--linea), 0 40px 60px -22px rgba(0, 0, 0, 0.7);
     transition:
       scale 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
       box-shadow 0.3s;
@@ -356,7 +361,7 @@ const utiles: { nombre: string; x: number; y: number; w: number; r: number; svg:
   .lamina.lamina--volando {
     will-change: translate, rotate;
     scale: 1.06;
-    box-shadow: 0 1px 0 var(--linea), 0 32px 50px -22px rgba(0, 0, 0, 0.65);
+    box-shadow: var(--pila, 0 0 transparent), 0 1px 0 var(--linea), 0 32px 50px -22px rgba(0, 0, 0, 0.65);
   }
 
   .lamina__imagen {

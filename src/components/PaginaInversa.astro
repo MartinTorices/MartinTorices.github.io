@@ -1,0 +1,105 @@
+---
+// Página «Ingeniería inversa»: como la de Proyectos, pero con los proyectos
+// pequeños (piezas medidas, rediseñadas y fabricadas). En la portada y en la
+// galería de Proyectos aparece como una lámina más que lleva aquí.
+import Base from '../layouts/Base.astro';
+import TarjetaProyecto from './TarjetaProyecto.astro';
+import { proyectosDeGrupo, fichaDe } from '../proyectos';
+import { t, rutas, type Lang } from '../i18n';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const tx = t(lang);
+const piezas = (await proyectosDeGrupo(lang, 'ingenieria-inversa')).map(fichaDe);
+const otro: Lang = lang === 'es' ? 'en' : 'es';
+---
+
+<Base lang={lang} titulo={tx.inversaTitulo} descripcion={tx.inversaIntro} alternativa={rutas.inversa(otro)}>
+  <section class="contenedor inversa" aria-labelledby="inversa-t">
+    <header class="cabeza">
+      <a class="volver" href={rutas.proyectos(lang)}>
+        <span class="volver__cota" aria-hidden="true"></span>
+        <span class="volver__texto">{tx.volver}</span>
+      </a>
+      <h1 id="inversa-t" class="titulo-seccion" data-aparecer>{tx.inversaTitulo}</h1>
+      <p class="entradilla" data-aparecer style="--retraso:0.1s">{tx.inversaIntro}</p>
+    </header>
+    <div class="galeria">
+      {piezas.map((p, i) => <TarjetaProyecto ficha={p} prioridad={i < 4} indice={i} />)}
+    </div>
+  </section>
+</Base>
+
+<style>
+  .inversa {
+    padding-block: clamp(2.5rem, 6vw, 4.5rem) clamp(4rem, 9vw, 7rem);
+    min-height: calc(100svh - 8rem);
+  }
+  .cabeza h1 {
+    font-size: clamp(2.5rem, 6.5vw, 5rem);
+    font-stretch: 125%;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    margin-top: 1.25rem;
+  }
+  .cabeza h1::after {
+    transform: translateY(-0.2em);
+  }
+  .entradilla {
+    margin-top: 1rem;
+    max-width: 60ch;
+  }
+  /* misma rejilla que la galería de Proyectos */
+  .galeria {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 22rem), 1fr));
+    gap: clamp(2.5rem, 5vw, 4rem) clamp(1.5rem, 3vw, 2.5rem);
+  }
+  /* «Volver a proyectos»: rótulo en versalitas con flecha de cota (como en las fichas) */
+  .volver {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    width: fit-content;
+    padding-block: 0.35rem;
+    color: var(--tinta-suave);
+    text-decoration: none;
+    font-size: var(--t-0);
+    font-weight: 600;
+    font-stretch: 85%;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    transition: color 0.2s;
+  }
+  .volver__cota {
+    position: relative;
+    width: 1.75rem;
+    height: 1px;
+    background: var(--azul);
+    transition: width 0.3s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+  .volver__cota::before {
+    content: '';
+    position: absolute;
+    left: -1px;
+    top: -4px;
+    border-style: solid;
+    border-width: 4.5px 9px 4.5px 0;
+    border-color: transparent var(--azul) transparent transparent;
+  }
+  .volver__cota::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: -5px;
+    width: 1px;
+    height: 11px;
+    background: var(--azul);
+  }
+  .volver:hover {
+    color: var(--tinta);
+  }
+  .volver:hover .volver__cota {
+    width: 2.75rem;
+  }
+</style>

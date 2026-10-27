@@ -2,14 +2,14 @@
 // Página con la galería de todos los proyectos
 import Base from '../layouts/Base.astro';
 import TarjetaProyecto from './TarjetaProyecto.astro';
-import IngenieriaInversa from './IngenieriaInversa.astro';
-import { proyectosDeGrupo } from '../proyectos';
+import { fichasPortada } from '../proyectos';
 import { t, rutas, type Lang } from '../i18n';
 
 interface Props { lang: Lang }
 const { lang } = Astro.props;
 const tx = t(lang);
-const proyectos = await proyectosDeGrupo(lang, 'principal');
+// proyectos grandes y, al final, la ficha de ingeniería inversa
+const proyectos = await fichasPortada(lang);
 const otro: Lang = lang === 'es' ? 'en' : 'es';
 ---
 
@@ -23,11 +23,10 @@ const otro: Lang = lang === 'es' ? 'en' : 'es';
       <p>{tx.proyectosVacio}</p>
     ) : (
       <div class="galeria">
-        {proyectos.map((p, i) => <TarjetaProyecto proyecto={p} prioridad={i < 4} indice={i} />)}
+        {proyectos.map((p, i) => <TarjetaProyecto ficha={p} prioridad={i < 4} indice={i} />)}
       </div>
     )}
   </section>
-  <IngenieriaInversa lang={lang} class="inversa--pestana" />
 </Base>
 
 <style>
@@ -35,14 +34,7 @@ const otro: Lang = lang === 'es' ? 'en' : 'es';
     padding-block: clamp(2.5rem, 6vw, 4.5rem) clamp(4rem, 9vw, 7rem);
     min-height: calc(100svh - 8rem);
   }
-  /* si hay sección de ingeniería inversa, va justo debajo de la galería */
-  .proyectos:has(+ .inversa) {
-    min-height: 0;
-    padding-bottom: 0;
-  }
-  :global(.inversa--pestana) {
-    padding-bottom: clamp(4rem, 9vw, 7rem) !important;
-  }
+
   .cabeza h1 {
     font-size: clamp(2.75rem, 7vw, 5.5rem);
     font-stretch: 125%;

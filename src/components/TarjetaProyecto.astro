@@ -2,43 +2,40 @@
 // Tarjeta de proyecto con forma de lámina: imagen enmarcada y
 // rótulo debajo (título y año), como el cajetín de un plano.
 import { Image } from 'astro:assets';
-import type { Proyecto } from '../proyectos';
-import { rutas } from '../i18n';
+import type { Ficha } from '../proyectos';
 
 interface Props {
-  proyecto: Proyecto;
+  ficha: Ficha;
   prioridad?: boolean;
   indice?: number; // para que las tarjetas aparezcan una tras otra
   compacta?: boolean; // tarjeta pequeña (sección «Ingeniería inversa»)
 }
-const { proyecto, prioridad = false, indice = 0, compacta = false } = Astro.props;
-const { data } = proyecto;
-const href = rutas.proyecto(proyecto.lang, proyecto.slug);
+const { ficha, prioridad = false, indice = 0, compacta = false } = Astro.props;
+const { href } = ficha;
 ---
 
-<article class:list={['tarjeta', { 'tarjeta--compacta': compacta }]} data-aparecer style={`--retraso:${(0.15 + (indice % 3) * 0.12).toFixed(2)}s`}>
+<article class:list={['tarjeta', { 'tarjeta--compacta': compacta, 'tarjeta--grupo': ficha.grupo }]} data-aparecer style={`--retraso:${(0.15 + (indice % 3) * 0.12).toFixed(2)}s`}>
   <a href={href} class="tarjeta__enlace">
     <div class="tarjeta__lamina">
       <div class="tarjeta__imagen">
         <Image
-          src={data.portada}
-          alt={data.portadaAlt}
+          src={ficha.portada}
+          alt={ficha.portadaAlt}
           widths={[480, 800, 1200]}
           sizes={compacta ? '(max-width: 36rem) 100vw, 22rem' : '(max-width: 48rem) 100vw, 50vw'}
           loading={prioridad ? 'eager' : 'lazy'}
         />
       </div>
       <div class="tarjeta__rotulo">
-        <h3>{data.titulo}</h3>
-        <span class="tarjeta__anio">{data.anio}</span>
+        <h3>{ficha.titulo}</h3>
+        <span class="tarjeta__anio">{ficha.anio}</span>
       </div>
     </div>
-    <p class="tarjeta__resumen">{data.resumen}</p>
+    <p class="tarjeta__resumen">{ficha.resumen}</p>
   </a>
   <ul class="tarjeta__datos nota">
-    {data.contexto && <li>{data.contexto}</li>}
-    {data.herramientas.map((h) => <li>{h}</li>)}
-    {data.modelo && <li class="con-3d">3D</li>}
+    {ficha.datos.map((d) => <li>{d}</li>)}
+    {ficha.con3d && <li class="con-3d">3D</li>}
   </ul>
 </article>
 
@@ -117,6 +114,11 @@ const href = rutas.proyecto(proyecto.lang, proyecto.slug);
   .tarjeta__datos li {
     border: var(--trazo) solid var(--linea);
     padding: 0.1rem 0.5rem;
+  }
+  /* Ficha de un grupo (Ingeniería inversa): otras láminas asoman detrás */
+  .tarjeta--grupo .tarjeta__lamina {
+    box-shadow: 7px -7px 0 -1px #c2c1bc, 14px -14px 0 -2px #adaca7;
+    margin-right: 14px;
   }
   /* Tarjeta pequeña: rótulo y resumen más pequeños */
   .tarjeta--compacta h3 {

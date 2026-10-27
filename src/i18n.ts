@@ -25,6 +25,8 @@ export const ui = {
     proyectosIntro: 'Cada proyecto está contado de principio a fin, con su modelo en 3D para girarlo y verlo de cerca.',
     proyectosVacio: 'Todavía no hay proyectos publicados.',
     inversaTitulo: 'Ingeniería inversa',
+    inversaPiezas: (n: number) => (n === 1 ? '1 pieza' : `${n} piezas`),
+    volverInversa: 'Volver a ingeniería inversa',
     inversaIntro: 'Piezas pequeñas que se rompen o se pierden: las mido, las vuelvo a modelar mejorándolas y las fabrico.',
     sobreMiTitulo: 'Sobre mí',
     programasTitulo: 'Programas',
@@ -88,6 +90,8 @@ export const ui = {
     proyectosIntro: 'Every project is told from start to finish, with a 3D model you can rotate and inspect.',
     proyectosVacio: 'No projects published yet.',
     inversaTitulo: 'Reverse engineering',
+    inversaPiezas: (n: number) => (n === 1 ? '1 part' : `${n} parts`),
+    volverInversa: 'Back to reverse engineering',
     inversaIntro: 'Small parts that break or go missing: I measure them, remodel them with improvements and make them.',
     sobreMiTitulo: 'About me',
     programasTitulo: 'Software',
@@ -138,4 +142,5 @@ export const rutas = {
   inicio: (lang: Lang) => (lang === 'es' ? '/' : '/en/'),
   proyectos: (lang: Lang) => (lang === 'es' ? '/proyectos/' : '/en/projects/'),
   proyecto: (lang: Lang, slug: string) => (lang === 'es' ? `/proyectos/${slug}/` : `/en/projects/${slug}/`),
+  inversa: (lang: Lang) => (lang === 'es' ? '/proyectos/ingenieria-inversa/' : '/en/projects/reverse-engineering/'),
 };
