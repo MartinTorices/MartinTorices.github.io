@@ -11,7 +11,7 @@ modelo: /modelos/kuris.glb?v=escala
 etiquetaVariantes: Vista
 modeloVariantes:
   - { nombre: Quieto, src: /modelos/kuris.glb?v=escala }
-  - { nombre: En marcha, src: /modelos/kuris-marcha.glb?v=patas, orbita: 30deg 60deg 80% }
+  - { nombre: En marcha, src: /modelos/kuris-marcha.glb?v=cinematica, orbita: 30deg 60deg 80% }
 etiquetaAcabados: Acabado
 acabados:
   - { nombre: Bronce, variante: bronce }
