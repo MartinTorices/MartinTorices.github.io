@@ -11,7 +11,7 @@ modelo: /modelos/kuris.glb?v=escala
 etiquetaVariantes: Vista
 modeloVariantes:
   - { nombre: Quieto, src: /modelos/kuris.glb?v=escala }
-  - { nombre: En marcha, src: /modelos/kuris-marcha.glb?v=cinematica, orbita: 30deg 60deg 80% }
+  - { nombre: En marcha, src: /modelos/kuris-marcha.glb?v=anillo, orbita: 30deg 60deg 80% }
 etiquetaAcabados: Acabado
 acabados:
   - { nombre: Bronce, variante: bronce }
@@ -24,7 +24,7 @@ orden: 4
 
 Kuris es un dron terrestre pensado para moverse por cualquier terreno. En lugar de hélices, se apoya en tres brazos curvados que terminan en ruedas esféricas, así que puede avanzar en cualquier dirección y salvar desniveles sin perder el equilibrio, y todo el carácter del producto se concentra en una cabeza en cúpula con un único ojo de luz verde.
 
-En el visor 3D de arriba puedes girar el dron, acercarte a los brazos y a las ruedas, cambiar el acabado (bronce, blanco o arena) y apagar o encender la luz del ojo y del anillo. En la vista «En marcha», Kuris recorre en bucle un circuito con una rampa y un escalón, y cada brazo sube o baja por su cuenta para que la rueda siga el terreno mientras el cuerpo va nivelado.
+En el visor 3D de arriba puedes girar el dron, acercarte a los brazos y a las ruedas, cambiar el acabado (bronce, blanco o arena) y apagar o encender la luz del ojo y del anillo. En la vista «En marcha», Kuris recorre en bucle un circuito con dos bordillos: el anillo, con los tres brazos fijos, gira para buscar apoyo y se inclina para que las tres ruedas toquen siempre el suelo, mientras la cabeza va nivelada.
 
 ## La idea
 

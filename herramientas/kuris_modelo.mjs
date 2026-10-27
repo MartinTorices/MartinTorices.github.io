@@ -340,55 +340,53 @@ async function enMarcha() {
   const unlit = doc.createExtension(KHRMaterialsUnlit);
   const fuerza = doc.createExtension(KHRMaterialsEmissiveStrength);
 
-  // ---------- brazos articulados (en el sistema del archivo de 3ds Max) ----------
+  // ---------- anillo y cabeza (en el sistema del archivo de 3ds Max) ----------
+  // El anillo, los tres brazos, los conos, las ruedas y el aro de luz forman un trípode
+  // rígido que gira sobre su eje (para buscar apoyo) y se inclina en una rótula en el
+  // centro del anillo hasta que las tres ruedas tocan el terreno. La cabeza (cúpula, ojo,
+  // objetivo) va encima, siempre horizontal y mirando hacia donde avanza.
   const centroDe = (n) => { const b = getBounds(n); return b.min.map((v, i) => (v + b.max[i]) / 2); };
   const mallaDe = (n) => (n.getMesh() ?? n.listChildren()[0]?.getMesh())?.getName() ?? '';
   const bc0 = getBounds(cabeza);
   const C = [(bc0.min[0] + bc0.max[0]) / 2, (bc0.min[2] + bc0.max[2]) / 2];
-  const suelo0 = getBounds(escena.listChildren().find((n) => mallaDe(n) === 'Sphere001')).min[1];
-  const tubo = getBounds(escena.listChildren().find((n) => mallaDe(n) === 'Tube001'));
+  const tubo = getBounds(piezas.find((n) => mallaDe(n) === 'Tube001'));
   const rDisco = (tubo.max[0] - tubo.min[0]) / 2;
-  const angulo = (p) => Math.atan2(p[2] - C[1], p[0] - C[0]);
-  const ruedas = piezas.filter((n) => mallaDe(n) === 'Sphere001');
-  const patas = ruedas.map((rueda, k) => {
-    const cr = centroDe(rueda), ar = angulo(cr);
-    const cerca = (nombre) => piezas.filter((n) => mallaDe(n) === nombre)
-      .sort((a, b) => Math.abs(Math.sin((angulo(centroDe(a)) - ar) / 2)) - Math.abs(Math.sin((angulo(centroDe(b)) - ar) / 2)))[0];
-    const partes = [rueda, cerca('Cone001'), cerca('Loft001')];
-    const u = [Math.cos(ar), 0, Math.sin(ar)]; // hacia fuera, en horizontal
-    const bisagra = [C[0] + u[0] * rDisco * 0.9, suelo0 + (tubo.min[1] - suelo0) * 0.95, C[1] + u[2] * rDisco * 0.9];
-    const eje = [u[2], 0, -u[0]]; // Y × u: con ángulo positivo la rueda baja
-    const nodo = doc.createNode(`brazo_${k}`).setTranslation(bisagra);
-    const offs = doc.createNode(`brazo_${k}_piezas`).setTranslation(bisagra.map((v) => -v));
-    nodo.addChild(offs);
-    for (const p of partes) { escena.removeChild(p); offs.addChild(p); }
-    escena.addChild(nodo);
-    // rueda: esfera (recortada por arriba) de radio r; su centro, en el sistema de 3ds Max
-    const br = getBounds(rueda);
-    const r = (br.max[0] - br.min[0]) / 2;
-    const centro = [cr[0], br.min[1] + r, cr[2]];
-    return { nodo, rueda, eje, bisagra, centro, r };
+  const Praw = [C[0], (tubo.min[1] + tubo.max[1]) / 2, C[1]]; // rótula
+  const DE_CABEZA = ['cabeza', 'luz ojos', 'ChamferCyl001', 'Object001'];
+  const piezasCabeza = piezas.filter((n) => DE_CABEZA.includes(mallaDe(n)));
+  const piezasAnillo = piezas.filter((n) => !DE_CABEZA.includes(mallaDe(n)));
+  // ruedas: esferas (recortadas por arriba) de radio r; centro y arranque del brazo
+  const Ro = (p) => [-p[2], p[1], p[0]]; // giro de −90° en Y (el dron mira hacia +z)
+  const rel = (p) => Ro([p[0] - Praw[0], p[1] - Praw[1], p[2] - Praw[2]]);
+  const ruedas = piezas.filter((n) => mallaDe(n) === 'Sphere001').map((rueda) => {
+    const b = getBounds(rueda), cr = centroDe(rueda), r = (b.max[0] - b.min[0]) / 2;
+    const a = Math.atan2(cr[2] - C[1], cr[0] - C[0]);
+    const arranque = [C[0] + Math.cos(a) * rDisco, tubo.min[1], C[1] + Math.sin(a) * rDisco];
+    return { r, w: rel([cr[0], b.min[1] + r, cr[2]]), s: rel(arranque) };
   });
+  const fondoCabeza = bc0.min[1] - Praw[1];
 
-  // el dron mira hacia +z local, centrado en la cabeza y con las ruedas en y = 0
-  const orient = doc.createNode('orientacion').setRotation(quatY(-Math.PI / 2));
-  for (const p of escena.listChildren()) { escena.removeChild(p); orient.addChild(p); }
-  const kuris = doc.createNode('Kuris').addChild(orient);
+  const kuris = doc.createNode('Kuris'); // en la rótula, con el rumbo de la marcha
   escena.addChild(kuris);
-  const bc = getBounds(cabeza), bt = getBounds(orient);
-  orient.setTranslation([-(bc.min[0] + bc.max[0]) / 2, -bt.min[1], -(bc.min[2] + bc.max[2]) / 2]);
-  // posición de cada rueda en el sistema del dron (x, z)
-  for (const p of patas) { const c = centroDe(p.rueda); p.w = [c[0], c[2]]; }
+  const To = Ro(Praw).map((v) => -v);
+  const orientCabeza = doc.createNode('cabeza_orientacion').setRotation(quatY(-Math.PI / 2)).setTranslation(To);
+  const anillo = doc.createNode('anillo'); // giro e inclinación del trípode
+  const orientAnillo = doc.createNode('anillo_orientacion').setRotation(quatY(-Math.PI / 2)).setTranslation(To);
+  for (const p of piezasCabeza) { escena.removeChild(p); orientCabeza.addChild(p); }
+  for (const p of piezasAnillo) { escena.removeChild(p); orientAnillo.addChild(p); }
+  anillo.addChild(orientAnillo);
+  kuris.addChild(orientCabeza).addChild(anillo);
 
   // ---------- relieves ----------
-  // escalón de detrás: centrado en la huella de la rueda que va por el lado interior
-  // (el dron va hacia −x, yaw −90°: la rueda en w pasa por z = −ZDEL + w.x)
-  const interior = patas.reduce((a, p) => (p.w[0] > a.w[0] ? p : a));
-  const zEsc = -ZDEL + interior.w[0];
+  // Bordillos bajo los carriles de las ruedas (de 0,65 a 1,9 del centro del camino), como
+  // los bloques de los renders: la cabeza pasa siempre por encima, entre ellos, y como los
+  // brazos están a 120° siempre hay una rueda en cada carril (a 1,43–1,65 del centro), así
+  // que alguna sube a la fuerza, gire el anillo como gire.
+  const carril = (zc, lado) => (lado > 0 ? [zc + 0.65, zc + 1.9] : [zc - 1.9, zc - 0.65]);
   const relieves = [
-    { nombre: 'rampa', x0: -1.55, x1: 1.55, z0: ZDEL - ANCHO / 2 - 0.06, z1: ZDEL + ANCHO / 2 + 0.06, rampa: 0.6, alto: 0.7 },
-    { nombre: 'escalon', x0: -1.0, x1: 1.0, z0: zEsc - 0.45, z1: zEsc + 0.45, rampa: 0.35, alto: 0.6 },
-  ];
+    { nombre: 'bordillo_delante', x0: -2.6, x1: 2.6, z: carril(ZDEL, 1), rampa: 0.5, alto: 0.4 },
+    { nombre: 'bordillo_detras', x0: -2.6, x1: 2.6, z: carril(-ZDEL, -1), rampa: 0.5, alto: 0.32 },
+  ].map((r) => ({ ...r, z0: r.z[0], z1: r.z[1] }));
   const altura = (x, z) => Math.max(0, ...relieves.map((r) => alturaRelieve(r, x, z)));
 
   // sombra de contacto (la de model-viewer solo cae en el suelo, no en la plataforma)
@@ -455,27 +453,10 @@ async function enMarcha() {
       caja(doc, buffer, `bloque_${i}`, [x - l / 2, 0, z - l / 2], [x + l / 2, h, z + l / 2], verde)));
   });
 
-  // ---------- animación (cinemática) ----------
-  // En cada fotograma: posición y rumbo del dron en el circuito, altura del cuerpo y,
-  // para cada brazo, el ángulo exacto que deja la esfera de su rueda tangente al terreno
-  // (su centro, a la altura de la «envolvente» del relieve a una distancia r). El cuerpo
-  // va nivelado, a la altura media de los puntos de apoyo, y se sube lo justo si un brazo
-  // o el cuerpo fueran a tocar un bloque.
-  const To = orient.getTranslation();
-  const Ry = (p, a) => [p[0] * Math.cos(a) + p[2] * Math.sin(a), p[1], -p[0] * Math.sin(a) + p[2] * Math.cos(a)];
-  const aMundo = (praw, pose) => {
-    const k = Ry(praw, -Math.PI / 2);
-    const w = Ry([k[0] + To[0], k[1] + To[1], k[2] + To[2]], pose.yaw);
-    return [w[0] + pose.x, w[1] + pose.y, w[2] + pose.z];
-  };
-  const girar = (v, e, t) => {
-    const c = Math.cos(t), s2 = Math.sin(t), d = e[0] * v[0] + e[1] * v[1] + e[2] * v[2];
-    const x = [e[1] * v[2] - e[2] * v[1], e[2] * v[0] - e[0] * v[2], e[0] * v[1] - e[1] * v[0]];
-    return [0, 1, 2].map((i) => v[i] * c + x[i] * s2 + e[i] * d * (1 - c));
-  };
+  // ---------- animación (cinemática del trípode) ----------
   const suelo = (x, z) => altura(x, z) + 0.006; // la cara de arriba de los relieves va 6 milésimas por encima
   const OFF = [];
-  for (let i = -5; i <= 5; i++) for (let j = -5; j <= 5; j++) if (i * i + j * j <= 25) OFF.push([i / 5, j / 5]);
+  for (let i = -9; i <= 9; i++) for (let j = -9; j <= 9; j++) if (i * i + j * j <= 81) OFF.push([i / 9, j / 9]);
   const envolvente = (x, z, r) => {
     let m = r;
     for (const [dx, dz] of OFF) {
@@ -484,66 +465,88 @@ async function enMarcha() {
     }
     return m;
   };
-  const LIM = 0.95; // ±54°
-  const centroRueda = (pt, t, pose) => {
-    const v = pt.centro.map((c, i) => c - pt.bisagra[i]);
-    const g = girar(v, pt.eje, t);
-    return aMundo(g.map((c, i) => c + pt.bisagra[i]), pose);
+  const Ry = (p, a) => [p[0] * Math.cos(a) + p[2] * Math.sin(a), p[1], -p[0] * Math.sin(a) + p[2] * Math.cos(a)];
+  const Rx = (p, a) => [p[0], p[1] * Math.cos(a) - p[2] * Math.sin(a), p[1] * Math.sin(a) + p[2] * Math.cos(a)];
+  const Rz = (p, a) => [p[0] * Math.cos(a) - p[1] * Math.sin(a), p[0] * Math.sin(a) + p[1] * Math.cos(a), p[2]];
+  // giro del anillo en el sistema del dron: primero gira φ sobre su eje, luego cabecea (x) y alabea (z)
+  const Q = (p, phi, cab, ala) => Rx(Rz(Ry(p, phi), ala), cab);
+  const qAnillo = (phi, cab, ala) => mulQ(mulQ(quatX(cab), [0, 0, Math.sin(ala / 2), Math.cos(ala / 2)]), quatY(phi));
+  const mundo = (p, pose, u) => { const q = Ry(Q(p, pose.phi, u[1], u[2]), pose.yaw); return [q[0] + pose.x, q[1] + u[0], q[2] + pose.z]; };
+  // y de la rótula, cabeceo y alabeo para que las tres ruedas apoyen (Gauss-Newton)
+  const residuos = (pose, u) => ruedas.map((rd) => { const w = mundo(rd.w, pose, u); return w[1] - envolvente(w[0], w[2], rd.r); });
+  const resolver3 = (A, b) => {
+    const d = (m) => m[0][0] * (m[1][1] * m[2][2] - m[1][2] * m[2][1]) - m[0][1] * (m[1][0] * m[2][2] - m[1][2] * m[2][0]) + m[0][2] * (m[1][0] * m[2][1] - m[1][1] * m[2][0]);
+    const D = d(A);
+    return [0, 1, 2].map((c) => d(A.map((f, i) => f.map((v, j) => (j === c ? b[i] : v)))) / D);
   };
-  const resolverBrazo = (pt, pose) => {
-    const f = (t) => { const w = centroRueda(pt, t, pose); return w[1] - envolvente(w[0], w[2], pt.r); };
-    let a = -LIM, b = LIM;
-    if (f(a) < 0) return { t: a, falta: -f(a) }; // ni con el brazo arriba del todo: hay que subir el cuerpo
-    if (f(b) > 0) return { t: b, falta: 0 };
-    for (let i = 0; i < 40; i++) { const m = (a + b) / 2; if (f(m) > 0) a = m; else b = m; }
-    return { t: (a + b) / 2, falta: 0 };
-  };
-  // holgura de los brazos (de la bisagra a la rueda) y del cuerpo sobre los bloques
-  const yFondo = getBounds(cabeza).min[1];
-  const choque = (pose, ts) => {
-    let peor = 0;
-    patas.forEach((pt, k) => {
-      const hW = aMundo(pt.bisagra, pose);
-      const wW = centroRueda(pt, ts[k], pose);
-      for (let j = 1; j < 10; j++) {
-        const q = j / 10, x = hW[0] + (wW[0] - hW[0]) * q, y = hW[1] + (wW[1] - hW[1]) * q, z = hW[2] + (wW[2] - hW[2]) * q;
-        peor = Math.max(peor, suelo(x, z) + 0.07 - y);
+  const apoyar = (pose, u0) => {
+    let u = u0 ? [...u0] : [0, 0, 0];
+    if (!u0) { const r0 = residuos(pose, u); u[0] = -r0.reduce((a, b) => a + b, 0) / 3; }
+    for (let it = 0; it < 25; it++) {
+      const r = residuos(pose, u);
+      if (Math.max(...r.map(Math.abs)) < 1e-6) break;
+      const J = r.map(() => [0, 0, 0]);
+      for (let k = 0; k < 3; k++) {
+        const v = [...u]; v[k] += 1e-5;
+        const rk = residuos(pose, v);
+        for (let i = 0; i < 3; i++) J[i][k] = (rk[i] - r[i]) / 1e-5;
       }
-    });
-    for (const [dx, dz] of OFF) peor = Math.max(peor, suelo(pose.x + dx * 0.5, pose.z + dz * 0.5) + 0.03 - (pose.y + yFondo));
+      const du = resolver3(J, r.map((x) => -x));
+      u = u.map((v, k) => v + Math.max(-0.2, Math.min(0.2, du[k])));
+    }
+    return u;
+  };
+  // holgura: brazos (del arranque a la rueda) y fondo de la cabeza sobre el terreno
+  const choque = (pose, u, mb = 0.06, mc = 0.03) => {
+    let peor = -Infinity;
+    for (const rd of ruedas) {
+      const a = mundo(rd.s, pose, u), b = mundo(rd.w, pose, u);
+      for (let j = 1; j < 10; j++) {
+        const q = j / 10;
+        peor = Math.max(peor, suelo(a[0] + (b[0] - a[0]) * q, a[2] + (b[2] - a[2]) * q) + mb - (a[1] + (b[1] - a[1]) * q));
+      }
+    }
+    for (const [dx, dz] of OFF) peor = Math.max(peor, suelo(pose.x + dx * 0.45, pose.z + dz * 0.45) + mc - (u[0] + fondoCabeza));
     return peor;
   };
-  if (process.env.DEPURA) {
-    const pose0 = { x: 0, z: 0, yaw: 0, y: 0 };
-    patas.forEach((pt) => console.log('rueda', pt.r.toFixed(3), 'centro t=0', centroRueda(pt, 0, pose0).map((v) => v.toFixed(3)).join(','), 'bounds', JSON.stringify(getBounds(pt.rueda)), 'To', To.map((v) => v.toFixed(3)).join(','), 'centroRaw', pt.centro.map((v) => v.toFixed(3)).join(',')));
-  }
-  const F = 720;
-  const poses = [];
-  for (let i = 0; i <= F; i++) {
-    const p = punto((i / F) * L);
-    const pose = { x: p.x, z: p.z, yaw: Math.atan2(p.tx, p.tz), y: 0 };
-    // altura media de los apoyos (con el brazo recto)
-    const apoyos = patas.map((pt) => { const w = centroRueda(pt, 0, pose); return envolvente(w[0], w[2], pt.r) - pt.r; });
-    const yMedia = apoyos.reduce((a, b) => a + b, 0) / apoyos.length;
-    // altura mínima para que nada toque (bisección hacia arriba)
-    const malo = (y) => { const ps = { ...pose, y }; const r = patas.map((pt) => resolverBrazo(pt, ps)); return r.some((x) => x.falta > 0) || choque(ps, r.map((x) => x.t)) > 0; };
-    let yMin = 0;
-    if (malo(0)) { let a = 0, b = 1.2; for (let j = 0; j < 20; j++) { const m = (a + b) / 2; if (malo(m)) a = m; else b = m; } yMin = b + 0.003; }
-    poses.push({ ...pose, yMedia, yMin });
-  }
-  // altura del cuerpo: media suavizada, nunca por debajo de la mínima
-  const suavizar = (arr, rad) => arr.map((_, i) => {
-    let s3 = 0, w = 0;
-    for (let j = -rad; j <= rad; j++) { const k = (i + j + arr.length - 1) % (arr.length - 1); const g = Math.exp(-(j * j) / (2 * (rad / 2) ** 2)); s3 += arr[k] * g; w += g; }
-    return s3 / w;
-  });
-  let yC = poses.map((p) => Math.max(p.yMedia, p.yMin));
-  yC = suavizar(yC, 12).map((y, i) => Math.max(y, poses[i].yMin));
-  yC = suavizar(yC, 4).map((y, i) => Math.max(y, poses[i].yMin));
-  yC[F] = yC[0];
+  const inclinacion = (u) => Math.acos(Math.cos(u[1]) * Math.cos(u[2]));
 
-  const tiempos = [], tras = [], rots = [], somb = [];
-  const angs = patas.map(() => []);
+  // empieza en la recta de la izquierda (llana), para cerrar el bucle con el anillo sin girar
+  const F = 720;
+  const S0 = 2 * RECTA_X + (RADIO * Math.PI) / 2 * 3 + 2 * RECTA_Z + 2 * RECTA_X + 2 * RECTA_Z / 2;
+  const PHIS = []; for (let d = -60; d <= 60; d += 3) PHIS.push((d * Math.PI) / 180);
+  const marcos = [];
+  for (let i = 0; i <= F; i++) {
+    const p = punto(S0 + (i / F) * L);
+    const base = { x: p.x, z: p.z, yaw: Math.atan2(p.tx, p.tz) };
+    const coste = PHIS.map((phi) => {
+      const pose = { ...base, phi };
+      const u = apoyar(pose);
+      const res = Math.max(...residuos(pose, u).map(Math.abs));
+      return (inclinacion(u) * 180) / Math.PI + 4 * Math.abs((phi * 180) / Math.PI) / 60 + 1e4 * Math.max(0, choque(pose, u)) + 1e4 * res;
+    });
+    marcos.push({ base, coste });
+  }
+  // camino de φ más barato (programación dinámica): poca inclinación, sin choques y sin giros bruscos
+  const NP = PHIS.length, CERO = PHIS.findIndex((v) => Math.abs(v) < 1e-9), PASO = 2, KGIRO = 0.8;
+  let acum = marcos[0].coste.map((c, j) => (j === CERO ? c : Infinity));
+  const desde = [];
+  for (let i = 1; i <= F; i++) {
+    const nuevo = new Array(NP).fill(Infinity), arg = new Array(NP).fill(0);
+    for (let j = 0; j < NP; j++) for (let d = -PASO; d <= PASO; d++) {
+      const k = j + d; if (k < 0 || k >= NP) continue;
+      const v = acum[k] + KGIRO * Math.abs(d) * 3 + marcos[i].coste[j];
+      if (v < nuevo[j]) { nuevo[j] = v; arg[j] = k; }
+    }
+    desde.push(arg); acum = nuevo;
+  }
+  let j = CERO; const camino = [j];
+  for (let i = F - 1; i >= 0; i--) { j = desde[i][j]; camino.unshift(j); }
+  // suavizado del giro y solución exacta en cada fotograma
+  let phis = camino.map((k) => PHIS[k]);
+  for (let pasada = 0; pasada < 3; pasada++) phis = phis.map((v, i) => (i === 0 || i === F ? v : (phis[i - 1] + 2 * v + phis[i + 1]) / 4));
+
+  const tiempos = [], tras = [], rots = [], somb = [], rotAn = [];
   const continuo = (lista, q) => {
     if (lista.length) {
       const k = lista.length - 4;
@@ -551,25 +554,22 @@ async function enMarcha() {
     }
     lista.push(...q);
   };
-  let errMax = 0, angMax = 0, choqueMax = 0;
-  poses.forEach((p0, i) => {
-    const pose = { ...p0, y: yC[i] };
-    const res = patas.map((pt) => resolverBrazo(pt, pose));
+  let errMax = 0, incMax = 0, choqueMax = -Infinity, phiMax = 0, u = null;
+  marcos.forEach(({ base }, i) => {
+    const pose = { ...base, phi: phis[i] };
+    u = apoyar(pose, u);
+    errMax = Math.max(errMax, ...residuos(pose, u).map(Math.abs));
+    incMax = Math.max(incMax, inclinacion(u));
+    choqueMax = Math.max(choqueMax, choque(pose, u, 0, 0));
+    phiMax = Math.max(phiMax, Math.abs(phis[i]));
     tiempos.push((i / F) * DURACION);
-    tras.push(pose.x, pose.y, pose.z);
+    tras.push(pose.x, u[0], pose.z);
     continuo(rots, quatY(pose.yaw));
-    somb.push(0, altura(pose.x, pose.z) + 0.012 - pose.y, 0);
-    patas.forEach((pt, k) => {
-      continuo(angs[k], quatEje(pt.eje, res[k].t));
-      const w = centroRueda(pt, res[k].t, pose);
-      const e = Math.abs(w[1] - envolvente(w[0], w[2], pt.r));
-      if (process.env.DEPURA && e > 0.005) console.log('  f', i, 'brazo', k, 'err', e.toFixed(3), 't', res[k].t.toFixed(2), 'y', pose.y.toFixed(3), 'yMin', p0.yMin.toFixed(3), 'yMedia', p0.yMedia.toFixed(3), 'x', pose.x.toFixed(2), 'z', pose.z.toFixed(2));
-      errMax = Math.max(errMax, e);
-      angMax = Math.max(angMax, Math.abs(res[k].t));
-    });
-    choqueMax = Math.max(choqueMax, choque(pose, res.map((x) => x.t)));
+    continuo(rotAn, qAnillo(pose.phi, u[1], u[2]));
+    somb.push(0, altura(pose.x, pose.z) + 0.012 - u[0], 0);
   });
-  console.log(`  ruedas: error de apoyo máx. ${(errMax * 100).toFixed(2)} mm · brazos hasta ±${((angMax * 180) / Math.PI).toFixed(0)}° · solape máx. ${(choqueMax * 100).toFixed(2)} mm`);
+  const deg = (v) => ((v * 180) / Math.PI).toFixed(0);
+  console.log(`  ruedas: error de apoyo máx. ${(errMax * 100).toFixed(2)} mm · inclinación del anillo hasta ${deg(incMax)}° · giro del anillo hasta ±${deg(phiMax)}° · solape real máx. ${(Math.max(0, choqueMax) * 100).toFixed(2)} mm (holgura mínima ${(-choqueMax * 100).toFixed(1)} mm)`);
   const entrada = doc.createAccessor().setType('SCALAR').setArray(new Float32Array(tiempos)).setBuffer(buffer);
   const anim = doc.createAnimation('en_marcha');
   const canal = (nodo, ruta, datos, tipo) => {
@@ -580,14 +580,14 @@ async function enMarcha() {
   canal(kuris, 'translation', tras, 'VEC3');
   canal(kuris, 'rotation', rots, 'VEC4');
   canal(sombra, 'translation', somb, 'VEC3');
-  patas.forEach((pt, k) => canal(pt.nodo, 'rotation', angs[k], 'VEC4'));
+  canal(anillo, 'rotation', rotAn, 'VEC4');
   // posición de partida (por si el visor no reproduce la animación)
   kuris.setTranslation(tras.slice(0, 3)).setRotation(rots.slice(0, 4));
+  anillo.setRotation(rotAn.slice(0, 4));
 
   aEscalaReal(doc, escena);
   await io.write('public/modelos/kuris-marcha.glb', doc);
   console.log(`Guardado public/modelos/kuris-marcha.glb (circuito de ${L.toFixed(1)} u, ${DURACION} s)`);
-  console.log('ruedas (x, z en el dron):', patas.map((p) => p.w.map((v) => v.toFixed(2)).join(', ')).join(' | '), '· escalón en z =', zEsc.toFixed(2));
 }
 
 await quieto();
