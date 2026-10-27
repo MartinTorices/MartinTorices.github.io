@@ -11,7 +11,7 @@ modelo: /modelos/kuris.glb?v=escala
 etiquetaVariantes: View
 modeloVariantes:
   - { nombre: Still, src: /modelos/kuris.glb?v=escala }
-  - { nombre: On the move, src: /modelos/kuris-marcha.glb?v=anillo, orbita: 30deg 60deg 80% }
+  - { nombre: On the move, src: /modelos/kuris-marcha.glb?v=sin-saltos, orbita: 30deg 60deg 80% }
 etiquetaAcabados: Finish
 acabados:
   - { nombre: Bronze, variante: bronce }

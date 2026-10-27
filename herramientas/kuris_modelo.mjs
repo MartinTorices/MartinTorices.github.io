@@ -302,31 +302,31 @@ function circuito() {
 // Relieves: bloques con rampas a lo largo de x (en la dirección de la marcha)
 // { x0, x1, z0, z1, rampa, alto }: de x0 a x0 + rampa sube, de x1 - rampa a x1 baja.
 const suave = (t) => (t <= 0 ? 0 : t >= 1 ? 1 : t * t * (3 - 2 * t));
+// Los cuatro bordes van achaflanados (rampa en x, «lado» en z): una rueda que cruce un
+// borde de lado sube rodando, sin escalón vertical que la haga saltar.
 function alturaRelieve(r, x, z) {
-  if (x <= r.x0 || x >= r.x1 || z < r.z0 || z > r.z1) return 0;
-  return r.alto * Math.min(suave((x - r.x0) / r.rampa), suave((r.x1 - x) / r.rampa));
+  if (x <= r.x0 || x >= r.x1 || z <= r.z0 || z >= r.z1) return 0;
+  const lado = r.lado ?? r.rampa;
+  // producto (no mínimo) de los perfiles: esquinas redondeadas, sin pliegue
+  return r.alto * suave((x - r.x0) / r.rampa) * suave((r.x1 - x) / r.rampa)
+    * suave((z - r.z0) / lado) * suave((r.z1 - z) / lado);
 }
 
 function relieveMalla(doc, buffer, nombre, r, mat) {
+  // malla en rejilla que sigue la altura (bordes a ras de suelo, sin caras laterales)
   const pos = [], nor = [], idx = [];
-  const M = 60;
-  const xs = Array.from({ length: M + 1 }, (_, i) => r.x0 + ((r.x1 - r.x0) * i) / M);
-  const h = (x) => alturaRelieve({ ...r, z0: -1e9, z1: 1e9 }, x, 0) + 0.006;
-  // cara de arriba (normales según la pendiente)
-  for (const x of xs) {
-    const d = (h(x + 0.01) - h(x - 0.01)) / 0.02, n = Math.hypot(d, 1);
-    for (const z of [r.z0, r.z1]) { pos.push(x, h(x), z); nor.push(-d / n, 1 / n, 0); }
+  const MX = 300, MZ = 60, e = 0.005;
+  const h = (x, z) => alturaRelieve(r, x, z) + (x > r.x0 && x < r.x1 && z > r.z0 && z < r.z1 ? 0.006 : 0);
+  for (let i = 0; i <= MX; i++) for (let j = 0; j <= MZ; j++) {
+    const x = r.x0 + ((r.x1 - r.x0) * i) / MX, z = r.z0 + ((r.z1 - r.z0) * j) / MZ;
+    const dx = (alturaRelieve(r, x + e, z) - alturaRelieve(r, x - e, z)) / (2 * e);
+    const dz = (alturaRelieve(r, x, z + e) - alturaRelieve(r, x, z - e)) / (2 * e);
+    const n = Math.hypot(dx, 1, dz);
+    pos.push(x, h(x, z), z); nor.push(-dx / n, 1 / n, -dz / n);
   }
-  for (let i = 0; i < M; i++) { const a = 2 * i; idx.push(a, a + 1, a + 2, a + 2, a + 1, a + 3); }
-  // caras laterales
-  for (const [z, nz] of [[r.z1, 1], [r.z0, -1]]) {
-    const base = pos.length / 3;
-    for (const x of xs) { pos.push(x, 0, z, x, h(x), z); nor.push(0, 0, nz, 0, 0, nz); }
-    for (let i = 0; i < M; i++) {
-      const a = base + 2 * i;
-      if (nz > 0) idx.push(a, a + 2, a + 1, a + 1, a + 2, a + 3);
-      else idx.push(a, a + 1, a + 2, a + 1, a + 3, a + 2);
-    }
+  for (let i = 0; i < MX; i++) for (let j = 0; j < MZ; j++) {
+    const a = i * (MZ + 1) + j, b = a + MZ + 1;
+    idx.push(a, a + 1, b, b, a + 1, b + 1);
   }
   return mallaDesde(doc, buffer, nombre, pos, nor, idx, mat);
 }
@@ -378,14 +378,14 @@ async function enMarcha() {
   kuris.addChild(orientCabeza).addChild(anillo);
 
   // ---------- relieves ----------
-  // Bordillos bajo los carriles de las ruedas (de 0,65 a 1,9 del centro del camino), como
+  // Bordillos bajo los carriles de las ruedas (de 0,65 a 2,1 del centro del camino), como
   // los bloques de los renders: la cabeza pasa siempre por encima, entre ellos, y como los
   // brazos están a 120° siempre hay una rueda en cada carril (a 1,43–1,65 del centro), así
   // que alguna sube a la fuerza, gire el anillo como gire.
-  const carril = (zc, lado) => (lado > 0 ? [zc + 0.65, zc + 1.9] : [zc - 1.9, zc - 0.65]);
+  const carril = (zc, lado) => (lado > 0 ? [zc + 0.65, zc + 2.1] : [zc - 2.1, zc - 0.65]);
   const relieves = [
-    { nombre: 'bordillo_delante', x0: -2.6, x1: 2.6, z: carril(ZDEL, 1), rampa: 0.5, alto: 0.4 },
-    { nombre: 'bordillo_detras', x0: -2.6, x1: 2.6, z: carril(-ZDEL, -1), rampa: 0.5, alto: 0.32 },
+    { nombre: 'bordillo_delante', x0: -3.0, x1: 3.0, z: carril(ZDEL, 1), rampa: 0.8, lado: 0.4, alto: 0.4 },
+    { nombre: 'bordillo_detras', x0: -3.0, x1: 3.0, z: carril(-ZDEL, -1), rampa: 0.8, lado: 0.4, alto: 0.32 },
   ].map((r) => ({ ...r, z0: r.z[0], z1: r.z[1] }));
   const altura = (x, z) => Math.max(0, ...relieves.map((r) => alturaRelieve(r, x, z)));
 
@@ -514,28 +514,39 @@ async function enMarcha() {
   // empieza en la recta de la izquierda (llana), para cerrar el bucle con el anillo sin girar
   const F = 720;
   const S0 = 2 * RECTA_X + (RADIO * Math.PI) / 2 * 3 + 2 * RECTA_Z + 2 * RECTA_X + 2 * RECTA_Z / 2;
+  const KINC = +(process.env.KINC ?? 0.5), KCAMBIO = +(process.env.KCAMBIO ?? 1), KPEND = +(process.env.KPEND ?? 20);
   const PHIS = []; for (let d = -60; d <= 60; d += 3) PHIS.push((d * Math.PI) / 180);
   const marcos = [];
   for (let i = 0; i <= F; i++) {
     const p = punto(S0 + (i / F) * L);
     const base = { x: p.x, z: p.z, yaw: Math.atan2(p.tx, p.tz) };
+    const inc = [], alt = [];
     const coste = PHIS.map((phi) => {
       const pose = { ...base, phi };
       const u = apoyar(pose);
       const res = Math.max(...residuos(pose, u).map(Math.abs));
-      return (inclinacion(u) * 180) / Math.PI + 4 * Math.abs((phi * 180) / Math.PI) / 60 + 1e4 * Math.max(0, choque(pose, u)) + 1e4 * res;
+      inc.push((inclinacion(u) * 180) / Math.PI); alt.push(u[0]);
+      // buen apoyo: ruedas en zona plana (suelo o arriba del bordillo), no paradas en una pendiente
+      const pend = ruedas.reduce((a, rd) => {
+        const w = mundo(rd.w, pose, u), e = 0.01;
+        return a + Math.hypot(suelo(w[0] + e, w[2]) - suelo(w[0] - e, w[2]), suelo(w[0], w[2] + e) - suelo(w[0], w[2] - e)) / (2 * e);
+      }, 0);
+      return KPEND * pend + KINC * inc[inc.length - 1] + 2 * Math.abs((phi * 180) / Math.PI) / 60 + 1e4 * Math.max(0, choque(pose, u)) + 1e4 * res;
     });
-    marcos.push({ base, coste });
+    marcos.push({ base, coste, inc, alt });
   }
-  // camino de φ más barato (programación dinámica): poca inclinación, sin choques y sin giros bruscos
-  const NP = PHIS.length, CERO = PHIS.findIndex((v) => Math.abs(v) < 1e-9), PASO = 2, KGIRO = 0.8;
+  // camino de φ más barato (programación dinámica): sin choques, sin giros bruscos y sin
+  // cambios bruscos de inclinación o altura; ir inclinado cuesta poco
+  const NP = PHIS.length, CERO = PHIS.findIndex((v) => Math.abs(v) < 1e-9), PASO = 1, KGIRO = +(process.env.KGIRO ?? 0.3);
   let acum = marcos[0].coste.map((c, j) => (j === CERO ? c : Infinity));
   const desde = [];
   for (let i = 1; i <= F; i++) {
     const nuevo = new Array(NP).fill(Infinity), arg = new Array(NP).fill(0);
     for (let j = 0; j < NP; j++) for (let d = -PASO; d <= PASO; d++) {
       const k = j + d; if (k < 0 || k >= NP) continue;
-      const v = acum[k] + KGIRO * Math.abs(d) * 3 + marcos[i].coste[j];
+      // castiga los cambios bruscos de inclinación y de altura (el «sube y baja» de una rueda)
+      const v = acum[k] + KGIRO * Math.abs(d) * 3 + marcos[i].coste[j]
+        + KCAMBIO * Math.abs(marcos[i].inc[j] - marcos[i - 1].inc[k]) + 100 * KCAMBIO * Math.abs(marcos[i].alt[j] - marcos[i - 1].alt[k]);
       if (v < nuevo[j]) { nuevo[j] = v; arg[j] = k; }
     }
     desde.push(arg); acum = nuevo;
@@ -544,7 +555,7 @@ async function enMarcha() {
   for (let i = F - 1; i >= 0; i--) { j = desde[i][j]; camino.unshift(j); }
   // suavizado del giro y solución exacta en cada fotograma
   let phis = camino.map((k) => PHIS[k]);
-  for (let pasada = 0; pasada < 3; pasada++) phis = phis.map((v, i) => (i === 0 || i === F ? v : (phis[i - 1] + 2 * v + phis[i + 1]) / 4));
+  for (let pasada = 0; pasada < 12; pasada++) phis = phis.map((v, i) => (i === 0 || i === F ? v : (phis[i - 1] + 2 * v + phis[i + 1]) / 4));
 
   const tiempos = [], tras = [], rots = [], somb = [], rotAn = [];
   const continuo = (lista, q) => {
@@ -554,6 +565,7 @@ async function enMarcha() {
     }
     lista.push(...q);
   };
+  const serie = [];
   let errMax = 0, incMax = 0, choqueMax = -Infinity, phiMax = 0, u = null;
   marcos.forEach(({ base }, i) => {
     const pose = { ...base, phi: phis[i] };
@@ -564,12 +576,19 @@ async function enMarcha() {
     phiMax = Math.max(phiMax, Math.abs(phis[i]));
     tiempos.push((i / F) * DURACION);
     tras.push(pose.x, u[0], pose.z);
+    if (process.env.SERIE) serie.push({ i, x: pose.x, z: pose.z, y: u[0], cab: u[1], ala: u[2], phi: pose.phi, phiDP: PHIS[camino[i]], ruedas: ruedas.map((rd) => mundo(rd.w, pose, u)) });
     continuo(rots, quatY(pose.yaw));
     continuo(rotAn, qAnillo(pose.phi, u[1], u[2]));
     somb.push(0, altura(pose.x, pose.z) + 0.012 - u[0], 0);
   });
+  if (process.env.SERIE) (await import('node:fs')).writeFileSync(process.env.SERIE, JSON.stringify(serie));
+  // saltos: mayor cambio de velocidad vertical de la rótula y de inclinación entre fotogramas
+  const ys = [], cs = [];
+  for (let i = 0; i <= F; i++) { ys.push(tras[3 * i + 1]); }
+  let accMax = 0;
+  for (let i = 1; i < F; i++) accMax = Math.max(accMax, Math.abs(ys[i + 1] - 2 * ys[i] + ys[i - 1]));
   const deg = (v) => ((v * 180) / Math.PI).toFixed(0);
-  console.log(`  ruedas: error de apoyo máx. ${(errMax * 100).toFixed(2)} mm · inclinación del anillo hasta ${deg(incMax)}° · giro del anillo hasta ±${deg(phiMax)}° · solape real máx. ${(Math.max(0, choqueMax) * 100).toFixed(2)} mm (holgura mínima ${(-choqueMax * 100).toFixed(1)} mm)`);
+  console.log(`  ruedas: error de apoyo máx. ${(errMax * 100).toFixed(2)} mm · inclinación del anillo hasta ${deg(incMax)}° · giro del anillo hasta ±${deg(phiMax)}° · solape real máx. ${(Math.max(0, choqueMax) * 100).toFixed(2)} mm (holgura mínima ${(-choqueMax * 100).toFixed(1)} mm) · salto máx. ${(accMax * 100).toFixed(2)} mm/fotograma²`);
   const entrada = doc.createAccessor().setType('SCALAR').setArray(new Float32Array(tiempos)).setBuffer(buffer);
   const anim = doc.createAnimation('en_marcha');
   const canal = (nodo, ruta, datos, tipo) => {
