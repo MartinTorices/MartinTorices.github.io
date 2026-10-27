@@ -7,7 +7,8 @@ import Contacto from './Contacto.astro';
 import IndiceLateral from './IndiceLateral.astro';
 import { proyectosDe } from '../proyectos';
 import { rutas, t, type Lang } from '../i18n';
-import { persona, sobreMi } from '../config';
+import { persona, estudios } from '../config';
+import foto from '../assets/foto-martin.jpg';
 
 interface Props { lang: Lang }
 const { lang } = Astro.props;
@@ -20,9 +21,51 @@ const secciones = [
   { id: 'sobre-mi', texto: tx.navSobreMi },
   { id: 'contacto', texto: tx.navContacto },
 ];
+
+// Datos para Google (solo en la portada en español, que es la raíz del sitio):
+// el nombre del sitio («Martín Torices» en vez de «GitHub») y quién eres
+const raiz = new URL('/', Astro.site).href;
+const datosGoogle = lang === 'es' && {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'WebSite',
+      '@id': `${raiz}#web`,
+      name: persona.nombreCorto,
+      alternateName: [persona.nombre, 'martintorices.github.io'],
+      url: raiz,
+      inLanguage: ['es', 'en'],
+      author: { '@id': `${raiz}#persona` },
+    },
+    {
+      '@type': 'ProfilePage',
+      '@id': `${raiz}#perfil`,
+      url: raiz,
+      name: `${persona.nombre} | ${tx.tituloWeb}`,
+      isPartOf: { '@id': `${raiz}#web` },
+      mainEntity: { '@id': `${raiz}#persona` },
+    },
+    {
+      '@type': 'Person',
+      '@id': `${raiz}#persona`,
+      name: persona.nombre,
+      alternateName: persona.nombreCorto,
+      givenName: 'Martín',
+      familyName: 'Torices Sarmentero',
+      url: raiz,
+      image: new URL(foto.src, Astro.site).href,
+      jobTitle: `Estudiante de ${estudios.es.titulacion}`,
+      affiliation: { '@type': 'CollegeOrUniversity', name: 'Universidad de Valladolid', url: 'https://www.uva.es/' },
+      address: { '@type': 'PostalAddress', addressLocality: 'Valladolid', addressCountry: 'ES' },
+      knowsAbout: ['Diseño industrial', 'Diseño de producto', 'Desarrollo de producto', ...persona.programas, ...persona.taller.es],
+      sameAs: [persona.linkedin, 'https://github.com/MartinTorices'],
+    },
+  ],
+};
 ---
 
-<Base lang={lang} descripcion={sobreMi[lang][1]} alternativa={rutas.inicio(otro)}>
+<Base lang={lang} descripcion={tx.descripcionWeb} alternativa={rutas.inicio(otro)}>
+  {datosGoogle && <script slot="head" type="application/ld+json" set:html={JSON.stringify(datosGoogle)} />}
   <Hoja lang={lang} proyectos={proyectos} />
 
   <!-- Bajo la portada, el índice fijo a la izquierda (como en los proyectos) y las

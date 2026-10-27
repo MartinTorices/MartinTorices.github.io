@@ -9,6 +9,9 @@ export const ui = {
     cambiarIdioma: 'English',
     cambiarIdiomaCorto: 'EN',
     tagline: 'De la idea a la fabricación',
+    // título y descripción de la portada en Google: con lo que la gente busca
+    tituloWeb: 'Diseño industrial y de producto',
+    descripcionWeb: 'Porfolio de Martín Torices Sarmentero, estudiante de Ingeniería de Diseño Industrial en la Universidad de Valladolid: proyectos de producto contados de la idea a la fabricación, con modelos 3D.',
     lema: 'Diseño de producto, de la idea a la fabricación.',
     verProyectos: 'Ver proyectos',
     escribeme: 'Escríbeme',
@@ -66,6 +69,8 @@ export const ui = {
     cambiarIdioma: 'Español',
     cambiarIdiomaCorto: 'ES',
     tagline: 'From idea to manufacturing',
+    tituloWeb: 'Industrial and product design',
+    descripcionWeb: 'Portfolio of Martín Torices Sarmentero, Industrial Design Engineering student at the University of Valladolid: product design projects from idea to manufacturing, with 3D models.',
     lema: 'Product design, from idea to manufacturing.',
     verProyectos: 'See projects',
     escribeme: 'Get in touch',
