@@ -13,4 +13,5 @@ const { nombre } = Astro.props;
   {nombre === 'expandir' && <path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" />}
   {nombre === 'pausa' && <path d="M9 5v14M15 5v14" />}
   {nombre === 'play' && <path d="M8 5l11 7-11 7z" />}
+  {nombre === 'luz' && (<><path d="M9 18h6M10 21h4" /><path d="M8.5 15a6 6 0 1 1 7 0c-.6.5-1 1.2-1 2h-5c0-.8-.4-1.5-1-2" /></>)}
 </svg>

@@ -13,5 +13,10 @@
     "@google/model-viewer": "^4.4.0",
     "astro": "^7.4.1",
     "three": "^0.183.2"
+  },
+  "devDependencies": {
+    "@gltf-transform/core": "^4.5.1",
+    "@gltf-transform/extensions": "^4.5.1",
+    "@gltf-transform/functions": "^4.5.1"
   }
 }

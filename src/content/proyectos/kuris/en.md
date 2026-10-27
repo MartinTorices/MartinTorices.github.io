@@ -7,14 +7,24 @@ herramientas: [3ds Max]
 etiquetas: [Drone, Robotics, Concept design, 3D modelling, Rendering]
 portada: ./01-portada.png
 portadaAlt: Dark bronze Kuris drone with its domed head, green light eye and a white light ring under the body
-modelo: /modelos/kuris.glb
+modelo: /modelos/kuris.glb?v=acabados
+etiquetaVariantes: View
+modeloVariantes:
+  - { nombre: Still, src: /modelos/kuris.glb?v=acabados }
+  - { nombre: On the move, src: /modelos/kuris-marcha.glb, orbita: 30deg 60deg 80% }
+etiquetaAcabados: Finish
+acabados:
+  - { nombre: Bronze, variante: bronce }
+  - { nombre: White, variante: blanco }
+  - { nombre: Sand, variante: arena }
+interruptorLuz: true
 modeloAlt: "3D model of the Kuris ground drone: dark bronze domed body with a green light eye and three curved arms ending in black spherical wheels"
 orden: 4
 ---
 
 Kuris is a ground drone designed to move over any terrain. Instead of propellers, it stands on three curved arms that end in spherical wheels, so it can move in any direction and cross uneven ground without losing its balance, and all the character of the product sits in a domed head with a single green light eye.
 
-In the 3D viewer above you can turn the drone around and zoom in on the arms and wheels.
+In the 3D viewer above you can turn the drone around, zoom in on the arms and wheels, change the finish (the bronze of the final renders, white or sand) and switch the light of the eye and the ring off or on. In the "On the move" view, Kuris loops around a track on a platform like the one in the renders and climbs over a bump to show how it handles uneven ground.
 
 ## The idea
 

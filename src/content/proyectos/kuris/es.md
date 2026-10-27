@@ -7,14 +7,24 @@ herramientas: [3ds Max]
 etiquetas: [Dron, Robótica, Diseño conceptual, Modelado 3D, Render]
 portada: ./01-portada.png
 portadaAlt: Dron Kuris de color bronce oscuro, con la cabeza en cúpula, el ojo de luz verde y un anillo de luz blanca bajo el cuerpo
-modelo: /modelos/kuris.glb
+modelo: /modelos/kuris.glb?v=acabados
+etiquetaVariantes: Vista
+modeloVariantes:
+  - { nombre: Quieto, src: /modelos/kuris.glb?v=acabados }
+  - { nombre: En marcha, src: /modelos/kuris-marcha.glb, orbita: 30deg 60deg 80% }
+etiquetaAcabados: Acabado
+acabados:
+  - { nombre: Bronce, variante: bronce }
+  - { nombre: Blanco, variante: blanco }
+  - { nombre: Arena, variante: arena }
+interruptorLuz: true
 modeloAlt: "Modelo 3D del dron terrestre Kuris: cuerpo en cúpula de bronce oscuro con un ojo de luz verde y tres brazos curvados que terminan en ruedas esféricas negras"
 orden: 4
 ---
 
 El Kuris es un dron terrestre pensado para moverse por cualquier terreno. En lugar de hélices, se apoya en tres brazos curvados que terminan en ruedas esféricas, así que puede avanzar en cualquier dirección y salvar desniveles sin perder el equilibrio, y todo el carácter del producto se concentra en una cabeza en cúpula con un único ojo de luz verde.
 
-En el visor 3D de arriba puedes girar el dron y acercarte a los brazos y a las ruedas.
+En el visor 3D de arriba puedes girar el dron, acercarte a los brazos y a las ruedas, cambiar el acabado (el bronce de los renders finales, blanco o arena) y apagar o encender la luz del ojo y del anillo. En la vista «En marcha», el Kuris recorre en bucle un circuito sobre una plataforma como la de los renders y sube un badén para que se vea cómo salva los desniveles.
 
 ## La idea
 

@@ -25,8 +25,14 @@ const proyectos = defineCollection({
       modelo: z.string().optional(), // p. ej. '/modelos/mi-proyecto.glb'
       modeloAlt: z.string().optional(), // descripción del modelo 3D (si no, se usa portadaAlt)
       // Versiones del modelo a elegir en el visor (la primera o la que coincida con «modelo» sale al principio)
-      modeloVariantes: z.array(z.object({ nombre: z.string(), src: z.string() })).default([]),
+      // «orbita» (opcional): ángulo de cámara al elegir esa versión, p. ej. '30deg 60deg 80%'
+      modeloVariantes: z.array(z.object({ nombre: z.string(), src: z.string(), orbita: z.string().optional() })).default([]),
       etiquetaVariantes: z.string().optional(), // p. ej. 'Balda'
+      // Acabados del modelo (KHR_materials_variants dentro del .glb): nombre visible y nombre de la variante
+      acabados: z.array(z.object({ nombre: z.string(), variante: z.string() })).default([]),
+      etiquetaAcabados: z.string().optional(), // p. ej. 'Acabado'
+      // Botón para encender y apagar las luces del modelo (materiales cuyo nombre empieza por «luz_»)
+      interruptorLuz: z.boolean().default(false),
       orden: z.number().default(100), // menor = aparece antes
       borrador: z.boolean().default(false), // true = no se publica
     }),
