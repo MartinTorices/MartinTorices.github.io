@@ -258,22 +258,26 @@ async function quieto() {
 
 // ---------- dron en marcha ----------
 // Circuito: rectángulo de esquinas redondeadas (línea central) sobre una plataforma.
+// En la recta de delante hay un bloque con rampas que ocupa todo el camino; en la de
+// detrás, un escalón estrecho que solo pisa una rueda. Cada brazo gira en su arranque
+// (bisagra en el borde del disco) para que su rueda siga el terreno, como en los renders
+// finales apoyados en bloques de distinta altura; el cuerpo va nivelado, a la altura media
+// de las tres ruedas, así que cuando una rueda sube, las otras dos bajan un poco.
 const RECTA_X = 1.6, RECTA_Z = 0.6, RADIO = 1.9, ANCHO = 3.0;
-const BADEN = { centro: 0, largo: 2.8, alto: 0.3 }; // en la recta de delante (z > 0), a lo largo de x
 const PLAT = { x: 5.9, z: 4.9, grosor: 0.3 };
-const DURACION = 10;
+const DURACION = 12;
+const ZDEL = RECTA_Z + RADIO; // línea central de la recta de delante (z > 0) y de detrás (-ZDEL)
 
 // punto del circuito a una distancia s (0..L) y su tangente
 function circuito() {
   const tramos = [];
   const recta = (x0, z0, x1, z1) => tramos.push({ tipo: 'r', x0, z0, x1, z1, L: Math.hypot(x1 - x0, z1 - z0) });
   const curva = (cx, cz, a0) => tramos.push({ tipo: 'c', cx, cz, a0, L: (RADIO * Math.PI) / 2 });
-  // sentido antihorario visto desde arriba, empezando por la recta de delante (z = +)
-  recta(-RECTA_X, RECTA_Z + RADIO, RECTA_X, RECTA_Z + RADIO);
+  recta(-RECTA_X, ZDEL, RECTA_X, ZDEL);
   curva(RECTA_X, RECTA_Z, Math.PI / 2);
   recta(RECTA_X + RADIO, RECTA_Z, RECTA_X + RADIO, -RECTA_Z);
   curva(RECTA_X, -RECTA_Z, 0);
-  recta(RECTA_X, -RECTA_Z - RADIO, -RECTA_X, -RECTA_Z - RADIO);
+  recta(RECTA_X, -ZDEL, -RECTA_X, -ZDEL);
   curva(-RECTA_X, -RECTA_Z, -Math.PI / 2);
   recta(-RECTA_X - RADIO, -RECTA_Z, -RECTA_X - RADIO, RECTA_Z);
   curva(-RECTA_X, RECTA_Z, -Math.PI);
@@ -286,7 +290,6 @@ function circuito() {
           const k = s / t.L, tx = (t.x1 - t.x0) / t.L, tz = (t.z1 - t.z0) / t.L;
           return { x: t.x0 + (t.x1 - t.x0) * k, z: t.z0 + (t.z1 - t.z0) * k, tx, tz };
         }
-        // la curva gira en sentido decreciente del ángulo (de +z hacia +x, etc.)
         const a = t.a0 - s / RADIO;
         return { x: t.cx + RADIO * Math.cos(a), z: t.cz + RADIO * Math.sin(a), tx: Math.sin(a), tz: -Math.cos(a) };
       }
@@ -296,30 +299,104 @@ function circuito() {
   return { L, punto };
 }
 
-// altura del camino: badén en la recta de delante
-function altura(x, z) {
-  if (z < RECTA_Z) return 0;
-  const u = (x - BADEN.centro) / (BADEN.largo / 2);
-  if (Math.abs(u) >= 1) return 0;
-  return (BADEN.alto * (1 + Math.cos(Math.PI * u))) / 2;
+// Relieves: bloques con rampas a lo largo de x (en la dirección de la marcha)
+// { x0, x1, z0, z1, rampa, alto }: de x0 a x0 + rampa sube, de x1 - rampa a x1 baja.
+const suave = (t) => (t <= 0 ? 0 : t >= 1 ? 1 : t * t * (3 - 2 * t));
+function alturaRelieve(r, x, z) {
+  if (x <= r.x0 || x >= r.x1 || z < r.z0 || z > r.z1) return 0;
+  return r.alto * Math.min(suave((x - r.x0) / r.rampa), suave((r.x1 - x) / r.rampa));
 }
+
+function relieveMalla(doc, buffer, nombre, r, mat) {
+  const pos = [], nor = [], idx = [];
+  const M = 60;
+  const xs = Array.from({ length: M + 1 }, (_, i) => r.x0 + ((r.x1 - r.x0) * i) / M);
+  const h = (x) => alturaRelieve({ ...r, z0: -1e9, z1: 1e9 }, x, 0) + 0.006;
+  // cara de arriba (normales según la pendiente)
+  for (const x of xs) {
+    const d = (h(x + 0.01) - h(x - 0.01)) / 0.02, n = Math.hypot(d, 1);
+    for (const z of [r.z0, r.z1]) { pos.push(x, h(x), z); nor.push(-d / n, 1 / n, 0); }
+  }
+  for (let i = 0; i < M; i++) { const a = 2 * i; idx.push(a, a + 1, a + 2, a + 2, a + 1, a + 3); }
+  // caras laterales
+  for (const [z, nz] of [[r.z1, 1], [r.z0, -1]]) {
+    const base = pos.length / 3;
+    for (const x of xs) { pos.push(x, 0, z, x, h(x), z); nor.push(0, 0, nz, 0, 0, nz); }
+    for (let i = 0; i < M; i++) {
+      const a = base + 2 * i;
+      if (nz > 0) idx.push(a, a + 2, a + 1, a + 1, a + 2, a + 3);
+      else idx.push(a, a + 1, a + 2, a + 1, a + 3, a + 2);
+    }
+  }
+  return mallaDesde(doc, buffer, nombre, pos, nor, idx, mat);
+}
+
+// cuaternión de un giro de «ang» alrededor del eje unitario «e»
+const quatEje = (e, ang) => [e[0] * Math.sin(ang / 2), e[1] * Math.sin(ang / 2), e[2] * Math.sin(ang / 2), Math.cos(ang / 2)];
 
 async function enMarcha() {
   const doc = await io.read(ENTRADA);
-  const { root, buffer, escena, piezas, cabeza } = preparar(doc);
+  const { buffer, escena, piezas, cabeza } = preparar(doc);
   const unlit = doc.createExtension(KHRMaterialsUnlit);
   const fuerza = doc.createExtension(KHRMaterialsEmissiveStrength);
 
+  // ---------- brazos articulados (en el sistema del archivo de 3ds Max) ----------
+  const centroDe = (n) => { const b = getBounds(n); return b.min.map((v, i) => (v + b.max[i]) / 2); };
+  const mallaDe = (n) => (n.getMesh() ?? n.listChildren()[0]?.getMesh())?.getName() ?? '';
+  const bc0 = getBounds(cabeza);
+  const C = [(bc0.min[0] + bc0.max[0]) / 2, (bc0.min[2] + bc0.max[2]) / 2];
+  const suelo0 = getBounds(escena.listChildren().find((n) => mallaDe(n) === 'Sphere001')).min[1];
+  const tubo = getBounds(escena.listChildren().find((n) => mallaDe(n) === 'Tube001'));
+  const rDisco = (tubo.max[0] - tubo.min[0]) / 2;
+  const angulo = (p) => Math.atan2(p[2] - C[1], p[0] - C[0]);
+  const ruedas = piezas.filter((n) => mallaDe(n) === 'Sphere001');
+  const patas = ruedas.map((rueda, k) => {
+    const cr = centroDe(rueda), ar = angulo(cr);
+    const cerca = (nombre) => piezas.filter((n) => mallaDe(n) === nombre)
+      .sort((a, b) => Math.abs(Math.sin((angulo(centroDe(a)) - ar) / 2)) - Math.abs(Math.sin((angulo(centroDe(b)) - ar) / 2)))[0];
+    const partes = [rueda, cerca('Cone001'), cerca('Loft001')];
+    const u = [Math.cos(ar), 0, Math.sin(ar)]; // hacia fuera, en horizontal
+    const bisagra = [C[0] + u[0] * rDisco * 0.9, suelo0 + (tubo.min[1] - suelo0) * 0.95, C[1] + u[2] * rDisco * 0.9];
+    const eje = [-u[2], 0, u[0]]; // Y × u: con ángulo positivo la rueda baja
+    const Lh = Math.hypot(cr[0] - bisagra[0], cr[2] - bisagra[2]);
+    const vy = suelo0 - bisagra[1];
+    const nodo = doc.createNode(`brazo_${k}`).setTranslation(bisagra);
+    const offs = doc.createNode(`brazo_${k}_piezas`).setTranslation(bisagra.map((v) => -v));
+    nodo.addChild(offs);
+    for (const p of partes) { escena.removeChild(p); offs.addChild(p); }
+    escena.addChild(nodo);
+    // ángulo para que la rueda suba dh (bisección; y(θ) = vy·cosθ − Lh·senθ)
+    const anguloPara = (dh) => {
+      let a = -1.2, b = 1.2;
+      for (let i = 0; i < 50; i++) {
+        const m = (a + b) / 2;
+        if (vy * Math.cos(m) - Lh * Math.sin(m) - vy > dh) a = m; else b = m;
+      }
+      return (a + b) / 2;
+    };
+    return { nodo, rueda, eje, anguloPara };
+  });
+
   // el dron mira hacia +z local, centrado en la cabeza y con las ruedas en y = 0
   const orient = doc.createNode('orientacion').setRotation(quatY(-Math.PI / 2));
-  for (const p of piezas) {
-    escena.removeChild(p);
-    orient.addChild(p);
-  }
+  for (const p of escena.listChildren()) { escena.removeChild(p); orient.addChild(p); }
   const kuris = doc.createNode('Kuris').addChild(orient);
   escena.addChild(kuris);
   const bc = getBounds(cabeza), bt = getBounds(orient);
   orient.setTranslation([-(bc.min[0] + bc.max[0]) / 2, -bt.min[1], -(bc.min[2] + bc.max[2]) / 2]);
+  // posición de cada rueda en el sistema del dron (x, z)
+  for (const p of patas) { const c = centroDe(p.rueda); p.w = [c[0], c[2]]; }
+
+  // ---------- relieves ----------
+  // escalón de detrás: centrado en la huella de la rueda que va por el lado interior
+  // (el dron va hacia −x, yaw −90°: la rueda en w pasa por z = −ZDEL + w.x)
+  const interior = patas.reduce((a, p) => (p.w[0] > a.w[0] ? p : a));
+  const zEsc = -ZDEL + interior.w[0];
+  const relieves = [
+    { nombre: 'rampa', x0: -1.55, x1: 1.55, z0: ZDEL - ANCHO / 2 - 0.06, z1: ZDEL + ANCHO / 2 + 0.06, rampa: 0.6, alto: 0.7 },
+    { nombre: 'escalon', x0: -1.0, x1: 1.0, z0: zEsc - 0.45, z1: zEsc + 0.45, rampa: 0.35, alto: 0.6 },
+  ];
+  const altura = (x, z) => Math.max(0, ...relieves.map((r) => alturaRelieve(r, x, z)));
 
   // sombra de contacto (la de model-viewer solo cae en el suelo, no en la plataforma)
   const T = 128;
@@ -331,10 +408,11 @@ async function enMarcha() {
   const matSombra = doc.createMaterial('sombra').setBaseColorFactor([1, 1, 1, 1]).setBaseColorTexture(sombraTex)
     .setAlphaMode('BLEND').setExtension(unlit.extensionName, unlit.createUnlit());
   const S = 1.9;
-  kuris.addChild(doc.createNode('sombra_contacto').setTranslation([0, 0.012, 0]).setMesh(
+  const sombra = doc.createNode('sombra_contacto').setTranslation([0, 0.012, 0]).setMesh(
     mallaDesde(doc, buffer, 'sombra_contacto',
       [-S, 0, -S, S, 0, -S, S, 0, S, -S, 0, S], [0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0],
-      [0, 2, 1, 0, 3, 2], matSombra, [0, 0, 1, 0, 1, 1, 0, 1])));
+      [0, 2, 1, 0, 3, 2], matSombra, [0, 0, 1, 0, 1, 1, 0, 1]));
+  kuris.addChild(sombra);
 
   // ---------- escenario ----------
   const escenario = doc.createNode('escenario');
@@ -345,10 +423,8 @@ async function enMarcha() {
   const neon = doc.createMaterial('neon').setBaseColorFactor(color(240, 240, 235)).setEmissiveFactor([1, 1, 1])
     .setExtension(fuerza.extensionName, fuerza.createEmissiveStrength().setEmissiveStrength(1.6));
 
-  // plataforma
   escenario.addChild(doc.createNode('plataforma').setMesh(
     caja(doc, buffer, 'plataforma', [-PLAT.x, -PLAT.grosor, -PLAT.z], [PLAT.x, 0, PLAT.z], verdeOscuro)));
-  // líneas de luz en el borde de la plataforma
   const g = 0.05;
   for (const [n, min, max] of [
     ['borde_delante', [-PLAT.x, 0, PLAT.z - g], [PLAT.x, 0.006, PLAT.z]],
@@ -357,24 +433,17 @@ async function enMarcha() {
     ['borde_izq', [-PLAT.x, 0, -PLAT.z], [-PLAT.x + g, 0.006, PLAT.z]],
   ]) escenario.addChild(doc.createNode(n).setMesh(caja(doc, buffer, n, min, max, neon)));
 
-  // camino: cinta que sigue la altura del badén, con faldones en los laterales del badén
+  // camino plano con líneas de luz en los bordes (los relieves van encima)
   const { L, punto } = circuito();
   const N = 480;
   const filas = (desde, hasta, alto) => {
     const pos = [], nor = [], idx = [];
     for (let i = 0; i <= N; i++) {
       const p = punto((i / N) * L);
-      const nx = -p.tz, nz = p.tx; // normal hacia la izquierda de la marcha
-      for (const o of [desde, hasta]) {
-        const x = p.x + nx * o, z = p.z + nz * o;
-        pos.push(x, altura(x, z) + alto, z);
-        nor.push(0, 1, 0);
-      }
+      const nx = -p.tz, nz = p.tx;
+      for (const o of [desde, hasta]) { pos.push(p.x + nx * o, alto, p.z + nz * o); nor.push(0, 1, 0); }
     }
-    for (let i = 0; i < N; i++) {
-      const a = 2 * i;
-      idx.push(a, a + 1, a + 2, a + 2, a + 1, a + 3);
-    }
+    for (let i = 0; i < N; i++) { const a = 2 * i; idx.push(a, a + 1, a + 2, a + 2, a + 1, a + 3); }
     return { pos, nor, idx };
   };
   const c = filas(-ANCHO / 2, ANCHO / 2, 0.004);
@@ -383,26 +452,8 @@ async function enMarcha() {
     const l = filas(o - 0.035, o + 0.035, 0.008);
     escenario.addChild(doc.createNode(n).setMesh(mallaDesde(doc, buffer, n, l.pos, l.nor, l.idx, neon)));
   }
-  // faldones del badén (las dos caras laterales, de y = 0 a la altura del camino)
-  {
-    const pos = [], nor = [], idx = [];
-    const M = 40, z0 = RECTA_Z + RADIO;
-    for (const [lado, nz] of [[ANCHO / 2, 1], [-ANCHO / 2, -1]]) {
-      const base = pos.length / 3, z = z0 + lado;
-      for (let i = 0; i <= M; i++) {
-        const x = BADEN.centro - BADEN.largo / 2 + (BADEN.largo * i) / M;
-        pos.push(x, 0, z, x, altura(x, z0), z);
-        nor.push(0, 0, nz, 0, 0, nz);
-      }
-      for (let i = 0; i < M; i++) {
-        const a = base + 2 * i;
-        if (nz > 0) idx.push(a, a + 2, a + 1, a + 1, a + 2, a + 3);
-        else idx.push(a, a + 1, a + 2, a + 1, a + 3, a + 2);
-      }
-    }
-    escenario.addChild(doc.createNode('baden_lados').setMesh(mallaDesde(doc, buffer, 'baden_lados', pos, nor, idx, asfalto)));
-  }
-  // bloques verdes, como en los renders finales (fuera del camino)
+  for (const r of relieves) escenario.addChild(doc.createNode(r.nombre).setMesh(relieveMalla(doc, buffer, r.nombre, r, verde)));
+  // bloques verdes de adorno, fuera del camino
   const bloques = [
     [-5.0, 4.0, 0.9, 0.7], [5.1, 4.0, 0.7, 1.1], [5.0, -4.0, 1.0, 0.6], [-5.0, -4.0, 0.8, 1.3],
     [-0.5, 0, 0.9, 0.5], [0.9, -0.1, 0.6, 0.9],
@@ -413,40 +464,49 @@ async function enMarcha() {
   });
 
   // ---------- animación ----------
-  const F = 300;
-  const tiempos = [], tras = [], rots = [];
-  const ds = 0.25;
+  const F = 720;
+  const tiempos = [], tras = [], rots = [], somb = [];
+  const angs = patas.map(() => []);
+  const continuo = (lista, q) => {
+    if (lista.length) {
+      const k = lista.length - 4;
+      if (q[0] * lista[k] + q[1] * lista[k + 1] + q[2] * lista[k + 2] + q[3] * lista[k + 3] < 0) q = q.map((v) => -v);
+    }
+    lista.push(...q);
+  };
   for (let i = 0; i <= F; i++) {
     const s = (i / F) * L;
     const p = punto(s);
-    const y = altura(p.x, p.z);
-    const pa = punto(s - ds), pb = punto(s + ds);
-    const pend = Math.atan2(altura(pb.x, pb.z) - altura(pa.x, pa.z), 2 * ds);
-    // un pequeño balanceo al avanzar, como si el dron flotara sobre las ruedas
-    const bal = 0.012 * Math.sin((i / F) * Math.PI * 2 * 12);
+    const yaw = Math.atan2(p.tx, p.tz);
+    const cs = Math.cos(yaw), sn = Math.sin(yaw);
+    // altura del terreno bajo cada rueda
+    const h = patas.map(({ w }) => altura(p.x + w[0] * cs + w[1] * sn, p.z - w[0] * sn + w[1] * cs));
+    const yCuerpo = h.reduce((a, b) => a + b, 0) / h.length;
     tiempos.push((i / F) * DURACION);
-    tras.push(p.x, y + Math.max(0, bal), p.z);
-    let q = mulQ(quatY(Math.atan2(p.tx, p.tz)), quatX(-pend));
-    // continuidad del cuaternión (sin saltos de signo)
-    if (rots.length) {
-      const k = rots.length - 4;
-      if (q[0] * rots[k] + q[1] * rots[k + 1] + q[2] * rots[k + 2] + q[3] * rots[k + 3] < 0) q = q.map((v) => -v);
-    }
-    rots.push(...q);
+    tras.push(p.x, yCuerpo, p.z);
+    continuo(rots, quatY(yaw));
+    somb.push(0, altura(p.x, p.z) + 0.012 - yCuerpo, 0);
+    patas.forEach((pt, k) => continuo(angs[k], quatEje(pt.eje, pt.anguloPara(h[k] - yCuerpo))));
   }
   const entrada = doc.createAccessor().setType('SCALAR').setArray(new Float32Array(tiempos)).setBuffer(buffer);
   const anim = doc.createAnimation('en_marcha');
-  for (const [ruta, datos, tipo] of [['translation', tras, 'VEC3'], ['rotation', rots, 'VEC4']]) {
+  const canal = (nodo, ruta, datos, tipo) => {
     const sampler = doc.createAnimationSampler().setInput(entrada).setInterpolation('LINEAR')
       .setOutput(doc.createAccessor().setType(tipo).setArray(new Float32Array(datos)).setBuffer(buffer));
-    anim.addSampler(sampler).addChannel(doc.createAnimationChannel().setTargetNode(kuris).setTargetPath(ruta).setSampler(sampler));
-  }
+    anim.addSampler(sampler).addChannel(doc.createAnimationChannel().setTargetNode(nodo).setTargetPath(ruta).setSampler(sampler));
+  };
+  canal(kuris, 'translation', tras, 'VEC3');
+  canal(kuris, 'rotation', rots, 'VEC4');
+  canal(sombra, 'translation', somb, 'VEC3');
+  patas.forEach((pt, k) => canal(pt.nodo, 'rotation', angs[k], 'VEC4'));
   // posición de partida (por si el visor no reproduce la animación)
   kuris.setTranslation(tras.slice(0, 3)).setRotation(rots.slice(0, 4));
 
   aEscalaReal(doc, escena);
   await io.write('public/modelos/kuris-marcha.glb', doc);
-  console.log(`Guardado public/modelos/kuris-marcha.glb (circuito de ${L.toFixed(1)} u, ${DURACION} s)`);
+  const maxAng = Math.max(...angs.flatMap((a) => a.filter((_, j) => j % 4 === 3).map((w) => (2 * Math.acos(Math.min(1, Math.abs(w))) * 180) / Math.PI)));
+  console.log(`Guardado public/modelos/kuris-marcha.glb (circuito de ${L.toFixed(1)} u, ${DURACION} s, brazos hasta ±${maxAng.toFixed(0)}°)`);
+  console.log('ruedas (x, z en el dron):', patas.map((p) => p.w.map((v) => v.toFixed(2)).join(', ')).join(' | '), '· escalón en z =', zEsc.toFixed(2));
 }
 
 await quieto();

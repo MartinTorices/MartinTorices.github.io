@@ -11,7 +11,7 @@ modelo: /modelos/kuris.glb?v=escala
 etiquetaVariantes: View
 modeloVariantes:
   - { nombre: Still, src: /modelos/kuris.glb?v=escala }
-  - { nombre: On the move, src: /modelos/kuris-marcha.glb?v=escala, orbita: 30deg 60deg 80% }
+  - { nombre: On the move, src: /modelos/kuris-marcha.glb?v=patas, orbita: 30deg 60deg 80% }
 etiquetaAcabados: Finish
 acabados:
   - { nombre: Bronze, variante: bronce }
@@ -24,7 +24,7 @@ orden: 4
 
 Kuris is a ground drone designed to move over any terrain. Instead of propellers, it stands on three curved arms that end in spherical wheels, so it can move in any direction and cross uneven ground without losing its balance, and all the character of the product sits in a domed head with a single green light eye.
 
-In the 3D viewer above you can turn the drone around, zoom in on the arms and wheels, change the finish (bronze, white or sand) and switch the light of the eye and the ring off or on. In the "On the move" view, Kuris loops around a track and climbs over a bump to show how it handles uneven ground.
+In the 3D viewer above you can turn the drone around, zoom in on the arms and wheels, change the finish (bronze, white or sand) and switch the light of the eye and the ring off or on. In the "On the move" view, Kuris loops around a track with a ramp and a step, and each arm rises or drops on its own so that its wheel follows the ground while the body stays level.
 
 ## The idea
 
